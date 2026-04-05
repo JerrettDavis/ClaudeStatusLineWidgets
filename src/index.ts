@@ -3,53 +3,8 @@ import {
   formatCache, formatModel, formatCost, formatContext,
   formatPath, formatBranch, formatUsageSegments,
 } from "./segments.js";
-import { dim, visibleLength } from "./colors.js";
+import { dim } from "./colors.js";
 import { readUsageCache, triggerBackgroundFetch, fetchAndCacheUsage } from "./usage.js";
-import { execSync } from "child_process";
-
-// Claude Code's statusline area is narrower than the full terminal.
-// Subtract padding to avoid false single-line renders that clip.
-const CHROME_PADDING = 6;
-
-function getTerminalWidth(): number {
-  // 1. stdout columns (works when stdout is a TTY)
-  if (process.stdout.columns) return process.stdout.columns - CHROME_PADDING;
-
-  // 2. stderr columns (often still a TTY when stdout is piped)
-  if (process.stderr.columns) return process.stderr.columns - CHROME_PADDING;
-
-  // 3. COLUMNS env var
-  const envCols = parseInt(process.env.COLUMNS ?? "", 10);
-  if (envCols > 0) return envCols - CHROME_PADDING;
-
-  // 4. Platform-specific detection
-  try {
-    if (process.platform !== "win32") {
-      const out = execSync("tput cols 2>/dev/null", {
-        encoding: "utf-8",
-        timeout: 500,
-        stdio: ["pipe", "pipe", "ignore"],
-      }).trim();
-      const cols = parseInt(out, 10);
-      if (cols > 0) return cols - CHROME_PADDING;
-    } else {
-      const out = execSync("mode con", {
-        encoding: "utf-8",
-        timeout: 500,
-        stdio: ["pipe", "pipe", "ignore"],
-      });
-      const match = out.match(/Columns:\s*(\d+)/i);
-      if (match) {
-        const cols = parseInt(match[1], 10);
-        if (cols > 0) return cols - CHROME_PADDING;
-      }
-    }
-  } catch {
-    // Fall through
-  }
-
-  return 120;
-}
 
 interface StatusLinePayload {
   cwd?: string;
@@ -114,40 +69,26 @@ async function main(): Promise<void> {
   const cwd = payload.cwd ?? payload.workspace?.current_dir;
   const usageCache = readUsageCache();
 
-  const segments: string[] = [
+  const sep = dim(" | ");
+
+  // Line 1: path, branch, model, cost, context, cache
+  const line1: string[] = [
     formatPath(cwd),
     formatBranch(payload.git_branch),
     formatModel(payload.model ?? {}),
     formatCost(payload.cost?.total_cost_usd),
     formatContext(payload.context_window?.used_percentage),
-    ...formatUsageSegments(usageCache?.data ?? null),
     formatCache(cache),
   ].filter((s): s is string => s !== null);
 
-  const sep = dim(" | ");
-  const sepWidth = visibleLength(sep);
-  const termWidth = getTerminalWidth();
+  // Line 2: API usage (only if data available)
+  const line2 = formatUsageSegments(usageCache?.data ?? null);
 
-  // Greedily pack segments into lines that fit the terminal width
-  const lines: string[][] = [[]];
-  let lineWidth = 0;
+  const output = [
+    line1.join(sep),
+    ...(line2.length > 0 ? [line2.join(sep)] : []),
+  ].join("\n");
 
-  for (const seg of segments) {
-    const segWidth = visibleLength(seg);
-    const needed = lineWidth === 0 ? segWidth : sepWidth + segWidth;
-
-    if (lineWidth > 0 && lineWidth + needed > termWidth) {
-      // Overflow — start a new line
-      lines.push([seg]);
-      lineWidth = segWidth;
-    } else {
-      lines[lines.length - 1].push(seg);
-      lineWidth += needed;
-    }
-  }
-
-  const output = lines.map((l) => l.join(sep)).join("\n");
-  // Extra trailing blank line to cover Claude Code's UI chrome
   process.stdout.write(output + "\n\n");
 }
 
