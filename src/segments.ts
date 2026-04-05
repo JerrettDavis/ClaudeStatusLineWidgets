@@ -92,35 +92,43 @@ export function formatBranch(branch: string | undefined): string | null {
 }
 
 /**
- * Format usage limits as compact string.
- * E.g. "5h:45% 7d:72%" or "5h:45% 7d:72% +$3.50/$20"
+ * Build a compact labeled progress bar: "label ████░░ N%"
  */
-export function formatUsage(data: UsageData | null): string | null {
-  if (!data) return null;
+function miniBar(label: string, pct: number, barWidth: number = 5): string {
+  const clamped = Math.max(0, Math.min(100, pct));
+  const filled = Math.round((clamped / 100) * barWidth);
+  const empty = barWidth - filled;
+  const bar = "\u2588".repeat(filled) + "\u2591".repeat(empty);
+  const colorFn = clamped > 80 ? red : clamped > 60 ? yellow : green;
+  return `${label} ${colorFn(bar)} ${Math.round(clamped)}%`;
+}
 
-  const parts: string[] = [];
+/**
+ * Format usage rate limits and overage as individual segments.
+ * Returns an array of segments (one per metric) so auto-wrap
+ * can split them across lines independently.
+ */
+export function formatUsageSegments(data: UsageData | null): string[] {
+  if (!data) return [];
+
+  const out: string[] = [];
 
   if (data.five_hour?.utilization != null) {
-    const pct = Math.round(data.five_hour.utilization);
-    const colorFn = pct > 80 ? red : pct > 60 ? yellow : dim;
-    parts.push(colorFn(`5h:${pct}%`));
+    out.push(miniBar("5h", data.five_hour.utilization));
   }
 
   if (data.seven_day?.utilization != null) {
-    const pct = Math.round(data.seven_day.utilization);
-    const colorFn = pct > 80 ? red : pct > 60 ? yellow : dim;
-    parts.push(colorFn(`7d:${pct}%`));
+    out.push(miniBar("7d", data.seven_day.utilization));
   }
 
   if (data.extra_usage?.is_enabled && data.extra_usage.used_credits != null) {
-    const used = (data.extra_usage.used_credits / 100).toFixed(2);
+    const used = `$${(data.extra_usage.used_credits / 100).toFixed(0)}`;
     const limit = data.extra_usage.monthly_limit != null
       ? `/$${(data.extra_usage.monthly_limit / 100).toFixed(0)}`
       : "";
     const pct = data.extra_usage.utilization ?? 0;
-    const colorFn = pct > 80 ? red : pct > 50 ? yellow : dim;
-    parts.push(colorFn(`+$${used}${limit}`));
+    out.push(miniBar(`+${used}${limit}`, pct));
   }
 
-  return parts.length > 0 ? parts.join(" ") : null;
+  return out;
 }

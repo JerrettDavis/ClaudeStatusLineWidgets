@@ -1,7 +1,7 @@
 import { getCacheTTL } from "./cache.js";
 import {
   formatCache, formatModel, formatCost, formatContext,
-  formatPath, formatBranch, formatUsage,
+  formatPath, formatBranch, formatUsageSegments,
 } from "./segments.js";
 import { dim, visibleLength } from "./colors.js";
 import { readUsageCache, triggerBackgroundFetch, fetchAndCacheUsage } from "./usage.js";
@@ -75,7 +75,7 @@ async function main(): Promise<void> {
     formatModel(payload.model ?? {}),
     formatCost(payload.cost?.total_cost_usd),
     formatContext(payload.context_window?.used_percentage),
-    formatUsage(usageCache?.data ?? null),
+    ...formatUsageSegments(usageCache?.data ?? null),
     formatCache(cache),
   ].filter((s): s is string => s !== null);
 
