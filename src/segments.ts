@@ -1,6 +1,7 @@
 import { green, yellow, red, cyan, dim } from "./colors.js";
 import type { CacheTTLResult } from "./cache.js";
 import type { UsageData } from "./usage.js";
+import type { HeadroomStats } from "./headroom.js";
 
 /**
  * Format local time from epoch ms as compact "h:mma" (e.g. "9:32p").
@@ -128,6 +129,43 @@ export function formatUsageSegments(data: UsageData | null): string[] {
       : "";
     const pct = data.extra_usage.utilization ?? 0;
     out.push(miniBar(`+${used}${limit}`, pct));
+  }
+
+  return out;
+}
+
+/**
+ * Format compact token count: 491425 → "491k", 1234567 → "1.2M"
+ */
+function compactTokens(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `${Math.round(n / 1_000)}k`;
+  return String(n);
+}
+
+/**
+ * Format Headroom proxy stats as segments for line 3.
+ * E.g. "Headroom: 34% compressed | 491k tokens saved | $0.12 saved"
+ */
+export function formatHeadroomSegments(stats: HeadroomStats | null): string[] {
+  if (!stats) return [];
+  const out: string[] = [];
+
+  const totalSaved = stats.tokensSaved;
+  if (totalSaved > 0) {
+    out.push(dim(`\u2696\uFE0F ${compactTokens(totalSaved)} tokens saved`));
+  }
+
+  if (stats.compressionPct > 0) {
+    out.push(green(`${Math.round(stats.compressionPct)}% compressed`));
+  }
+
+  if (stats.costSavedUsd > 0) {
+    out.push(green(`$${stats.costSavedUsd.toFixed(2)} saved`));
+  }
+
+  if (stats.cacheHitRate > 0) {
+    out.push(dim(`${Math.round(stats.cacheHitRate * 100)}% cache hit`));
   }
 
   return out;

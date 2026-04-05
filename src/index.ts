@@ -1,10 +1,13 @@
 import { getCacheTTL } from "./cache.js";
 import {
   formatCache, formatModel, formatCost, formatContext,
-  formatPath, formatBranch, formatUsageSegments,
+  formatPath, formatBranch, formatUsageSegments, formatHeadroomSegments,
 } from "./segments.js";
 import { dim } from "./colors.js";
 import { readUsageCache, triggerBackgroundFetch, fetchAndCacheUsage } from "./usage.js";
+import {
+  isHeadroomActive, readHeadroomCache, triggerHeadroomFetch, fetchAndCacheHeadroom,
+} from "./headroom.js";
 
 interface StatusLinePayload {
   cwd?: string;
@@ -41,9 +44,13 @@ function readStdin(): Promise<string> {
 }
 
 async function main(): Promise<void> {
-  // Background fetch mode: called by detached child to update usage cache
+  // Background fetch modes: called by detached children
   if (process.argv.includes("--fetch-usage")) {
     await fetchAndCacheUsage();
+    return;
+  }
+  if (process.argv.includes("--fetch-headroom")) {
+    await fetchAndCacheHeadroom();
     return;
   }
 
@@ -61,8 +68,9 @@ async function main(): Promise<void> {
     return;
   }
 
-  // Kick off background usage fetch if cache is stale (non-blocking)
+  // Kick off background fetches if caches are stale (non-blocking)
   triggerBackgroundFetch();
+  if (isHeadroomActive()) triggerHeadroomFetch();
 
   const cacheRead = payload.context_window?.current_usage?.cache_read_input_tokens ?? 0;
   const cache = getCacheTTL(payload.transcript_path, cacheRead);
@@ -84,9 +92,14 @@ async function main(): Promise<void> {
   // Line 2: API usage (only if data available)
   const line2 = formatUsageSegments(usageCache?.data ?? null);
 
+  // Line 3: Headroom stats (only if proxy is active)
+  const headroomCache = isHeadroomActive() ? readHeadroomCache() : null;
+  const line3 = formatHeadroomSegments(headroomCache?.data ?? null);
+
   const output = [
     line1.join(sep),
     ...(line2.length > 0 ? [line2.join(sep)] : []),
+    ...(line3.length > 0 ? [line3.join(sep)] : []),
   ].join("\n");
 
   process.stdout.write(output + "\n\n");
