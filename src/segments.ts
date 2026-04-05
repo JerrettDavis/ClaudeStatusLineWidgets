@@ -2,56 +2,61 @@ import { green, yellow, red, cyan, dim } from "./colors.js";
 import type { CacheTTLResult } from "./cache.js";
 
 /**
- * Format local time from epoch ms as "h:mm AM/PM".
+ * Format local time from epoch ms as compact "h:mma" (e.g. "9:32p").
  */
 function formatTime(epochMs: number): string {
   const d = new Date(epochMs);
   let hours = d.getHours();
   const mins = d.getMinutes().toString().padStart(2, "0");
-  const ampm = hours >= 12 ? "PM" : "AM";
+  const ampm = hours >= 12 ? "p" : "a";
   hours = hours % 12 || 12;
-  return `${hours}:${mins} ${ampm}`;
+  return `${hours}:${mins}${ampm}`;
 }
 
 /**
- * Format cache TTL as an expiration time with color coding.
+ * Format cache expiry as a compact timestamp with color coding.
  *
- * States:
- *   ◆ Cache til 9:32 PM   (green, >2min remaining)
- *   ◆ Cache til 9:30 PM   (yellow, 1-2min)
- *   ◆ Cache til 9:29 PM   (red, <1min)
- *   ○ Cache expired        (dim gray)
- *   ◇ Cache til 10:28 PM  (cyan, 1h tier)
+ * Active:  ⛓️ @ 9:32p   (green/yellow/red by urgency, cyan for 1h tier)
+ * Expired: ⛓️‍💥          (dim gray)
  */
 export function formatCache(cache: CacheTTLResult): string {
   if (cache.tier === "none" && !cache.cacheReadActive) {
-    return dim("○ No cache");
+    return dim("\u26D3\uFE0F\u200D\uD83D\uDCA5");
   }
 
   if (cache.remainingSeconds <= 0 || !cache.expiresAt) {
-    return dim("○ Cache expired");
+    return dim("\u26D3\uFE0F\u200D\uD83D\uDCA5");
   }
 
   const timeStr = formatTime(cache.expiresAt);
+  const label = `\u26D3\uFE0F @ ${timeStr}`;
 
   if (cache.tier === "1h") {
-    return cyan(`◇ Cache til ${timeStr}`);
+    return cyan(label);
   }
-
   if (cache.remainingSeconds > 120) {
-    return green(`◆ Cache til ${timeStr}`);
+    return green(label);
   }
   if (cache.remainingSeconds > 60) {
-    return yellow(`◆ Cache til ${timeStr}`);
+    return yellow(label);
   }
-  return red(`◆ Cache til ${timeStr}`);
+  return red(label);
 }
 
 /**
- * Format model display name.
+ * Format model name with context window size.
+ * E.g. "Opus 4.6 (1M context)" or "Sonnet (200k context)"
  */
-export function formatModel(model: { id?: string; display_name?: string }): string {
-  return model.display_name ?? model.id ?? "unknown";
+export function formatModel(
+  model: { id?: string; display_name?: string },
+  contextWindowSize: number | undefined
+): string {
+  const name = model.display_name ?? model.id ?? "unknown";
+  if (!contextWindowSize) return name;
+  const label = contextWindowSize >= 1_000_000
+    ? `${Math.round(contextWindowSize / 1_000_000)}M`
+    : `${Math.round(contextWindowSize / 1_000)}k`;
+  return `${name} (${label} context)`;
 }
 
 /**
@@ -66,19 +71,30 @@ export function formatCost(totalCostUsd: number | undefined): string {
  * Format context window usage as a progress bar + percentage.
  * Bar is 8 characters wide using block elements.
  */
-export function formatContext(
-  usedPercentage: number | undefined | null,
-  contextWindowSize: number | undefined
-): string {
+export function formatContext(usedPercentage: number | undefined | null): string {
   const pct = usedPercentage ?? 0;
   const barWidth = 8;
   const filled = Math.round((pct / 100) * barWidth);
   const empty = barWidth - filled;
-  const bar = "█".repeat(filled) + "░".repeat(empty);
+  const bar = "\u2588".repeat(filled) + "\u2591".repeat(empty);
 
   let colorFn = green;
   if (pct > 80) colorFn = red;
   else if (pct > 60) colorFn = yellow;
 
   return `${colorFn(bar)} ${Math.round(pct)}%`;
+}
+
+/**
+ * Format the working directory path.
+ */
+export function formatPath(cwd: string | undefined): string | null {
+  return cwd ?? null;
+}
+
+/**
+ * Format the git branch name.
+ */
+export function formatBranch(branch: string | undefined): string | null {
+  return branch ?? null;
 }

@@ -1,8 +1,16 @@
 import { getCacheTTL } from "./cache.js";
-import { formatCache, formatModel, formatCost, formatContext } from "./segments.js";
+import {
+  formatCache, formatModel, formatCost, formatContext,
+  formatPath, formatBranch,
+} from "./segments.js";
 import { dim } from "./colors.js";
 
 interface StatusLinePayload {
+  cwd?: string;
+  workspace?: {
+    current_dir?: string;
+    project_dir?: string;
+  };
   model?: {
     id?: string;
     display_name?: string;
@@ -18,6 +26,7 @@ interface StatusLinePayload {
     };
   };
   transcript_path?: string;
+  git_branch?: string;
 }
 
 function readStdin(): Promise<string> {
@@ -26,7 +35,6 @@ function readStdin(): Promise<string> {
     process.stdin.on("data", (chunk) => chunks.push(chunk));
     process.stdin.on("end", () => resolve(Buffer.concat(chunks).toString("utf-8")));
     process.stdin.on("error", reject);
-    // Timeout after 1 second if no data
     setTimeout(() => resolve(Buffer.concat(chunks).toString("utf-8")), 1000);
   });
 }
@@ -34,7 +42,7 @@ function readStdin(): Promise<string> {
 async function main(): Promise<void> {
   const input = await readStdin();
   if (!input.trim()) {
-    process.stdout.write("○ No data\n");
+    process.stdout.write("\n");
     return;
   }
 
@@ -42,26 +50,26 @@ async function main(): Promise<void> {
   try {
     payload = JSON.parse(input);
   } catch {
-    process.stdout.write("○ Parse error\n");
+    process.stdout.write("\n");
     return;
   }
 
   const cacheRead = payload.context_window?.current_usage?.cache_read_input_tokens ?? 0;
   const cache = getCacheTTL(payload.transcript_path, cacheRead);
+  const cwd = payload.cwd ?? payload.workspace?.current_dir;
 
-  const segments = [
-    formatCache(cache),
-    formatModel(payload.model ?? {}),
+  const segments: string[] = [
+    formatPath(cwd),
+    formatBranch(payload.git_branch),
+    formatModel(payload.model ?? {}, payload.context_window?.context_window_size),
     formatCost(payload.cost?.total_cost_usd),
-    formatContext(
-      payload.context_window?.used_percentage,
-      payload.context_window?.context_window_size
-    ),
-  ];
+    formatContext(payload.context_window?.used_percentage),
+    formatCache(cache),
+  ].filter((s): s is string => s !== null);
 
   process.stdout.write(segments.join(dim(" | ")) + "\n");
 }
 
 main().catch(() => {
-  process.stdout.write("○ Error\n");
+  process.stdout.write("\n");
 });
