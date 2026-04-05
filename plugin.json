@@ -1,0 +1,9 @@
+{
+  "name": "cache-ttl-statusline",
+  "version": "0.1.0",
+  "description": "StatusLine showing cache TTL countdown, model, cost, and context usage for Claude Code",
+  "author": {
+    "name": "JD"
+  },
+  "skills": "skills/"
+}
