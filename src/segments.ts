@@ -44,32 +44,10 @@ export function formatCache(cache: CacheTTLResult): string {
 }
 
 /**
- * Format model as compact "name[ctx]" string.
- * E.g. "opus-4.6[1m]", "sonnet[200k]"
- *
- * Derives a short name from the model ID (e.g. "claude-opus-4-6" → "opus-4.6"),
- * falling back to display_name if no ID. Appends context window size in brackets.
+ * Format model display name. Passes through whatever Claude Code provides.
  */
-export function formatModel(
-  model: { id?: string; display_name?: string },
-  contextWindowSize: number | undefined
-): string {
-  let name: string;
-  if (model.id) {
-    // "claude-opus-4-6" → "opus-4.6", "claude-sonnet-4-5-20251001" → "sonnet-4.5"
-    name = model.id
-      .replace(/^claude-/, "")
-      .replace(/-(\d{8,})$/, "")           // strip date suffix
-      .replace(/-(\d+)-(\d+)$/, "-$1.$2"); // "4-6" → "4.6"
-  } else {
-    name = (model.display_name ?? "unknown").toLowerCase();
-  }
-
-  if (!contextWindowSize) return name;
-  const ctx = contextWindowSize >= 1_000_000
-    ? `${Math.round(contextWindowSize / 1_000_000)}m`
-    : `${Math.round(contextWindowSize / 1_000)}k`;
-  return `${name} ${ctx}`;
+export function formatModel(model: { id?: string; display_name?: string }): string {
+  return model.display_name ?? model.id ?? "unknown";
 }
 
 /**

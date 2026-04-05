@@ -61,7 +61,7 @@ async function main(): Promise<void> {
   const segments: string[] = [
     formatPath(cwd),
     formatBranch(payload.git_branch),
-    formatModel(payload.model ?? {}, payload.context_window?.context_window_size),
+    formatModel(payload.model ?? {}),
     formatCost(payload.cost?.total_cost_usd),
     formatContext(payload.context_window?.used_percentage),
     formatCache(cache),
