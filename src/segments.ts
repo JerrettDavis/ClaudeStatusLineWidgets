@@ -1,4 +1,4 @@
-import { green, yellow, red, cyan, dim, bold } from "./colors.js";
+import { green, yellow, red, cyan, dim } from "./colors.js";
 import type { CacheTTLResult } from "./cache.js";
 
 /**
