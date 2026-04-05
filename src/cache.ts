@@ -7,6 +7,8 @@ export interface CacheTTLResult {
   tier: "5m" | "1h" | "none";
   /** Timestamp of the last cache write (ISO string) */
   lastWriteTime: string | null;
+  /** Absolute expiration time (epoch ms). null if no cache data. */
+  expiresAt: number | null;
   /** Whether this is from the current request's cache_read (still active) */
   cacheReadActive: boolean;
 }
@@ -71,6 +73,7 @@ export function getCacheTTL(
     remainingSeconds: -1,
     tier: "none",
     lastWriteTime: null,
+    expiresAt: null,
     cacheReadActive: currentCacheRead > 0,
   };
 
@@ -117,14 +120,15 @@ export function getCacheTTL(
     }
 
     const writeTime = new Date(timestamp).getTime();
+    const expiresAt = writeTime + ttlSeconds * 1000;
     const now = Date.now();
-    const elapsed = (now - writeTime) / 1000;
-    const remaining = Math.max(0, ttlSeconds - elapsed);
+    const remaining = Math.max(0, (expiresAt - now) / 1000);
 
     return {
       remainingSeconds: Math.round(remaining),
       tier,
       lastWriteTime: timestamp,
+      expiresAt,
       cacheReadActive: currentCacheRead > 0,
     };
   }
