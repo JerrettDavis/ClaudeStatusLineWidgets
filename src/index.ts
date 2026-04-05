@@ -3,7 +3,7 @@ import {
   formatCache, formatModel, formatCost, formatContext,
   formatPath, formatBranch, formatUsage,
 } from "./segments.js";
-import { dim } from "./colors.js";
+import { dim, visibleLength } from "./colors.js";
 import { readUsageCache, triggerBackgroundFetch, fetchAndCacheUsage } from "./usage.js";
 
 interface StatusLinePayload {
@@ -79,7 +79,29 @@ async function main(): Promise<void> {
     formatCache(cache),
   ].filter((s): s is string => s !== null);
 
-  process.stdout.write(segments.join(dim(" | ")) + "\n");
+  const sep = dim(" | ");
+  const sepWidth = visibleLength(sep);
+  const termWidth = process.stdout.columns || 120;
+
+  // Greedily pack segments into lines that fit the terminal width
+  const lines: string[][] = [[]];
+  let lineWidth = 0;
+
+  for (const seg of segments) {
+    const segWidth = visibleLength(seg);
+    const needed = lineWidth === 0 ? segWidth : sepWidth + segWidth;
+
+    if (lineWidth > 0 && lineWidth + needed > termWidth) {
+      // Overflow — start a new line
+      lines.push([seg]);
+      lineWidth = segWidth;
+    } else {
+      lines[lines.length - 1].push(seg);
+      lineWidth += needed;
+    }
+  }
+
+  process.stdout.write(lines.map((l) => l.join(sep)).join("\n") + "\n");
 }
 
 main().catch(() => {
