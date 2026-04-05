@@ -101,7 +101,9 @@ async function main(): Promise<void> {
     }
   }
 
-  process.stdout.write(lines.map((l) => l.join(sep)).join("\n") + "\n");
+  const output = lines.map((l) => l.join(sep)).join("\n");
+  // Extra trailing blank line to cover Claude Code's UI chrome
+  process.stdout.write(output + "\n\n");
 }
 
 main().catch(() => {
