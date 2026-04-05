@@ -69,7 +69,7 @@ export function formatModel(
   const ctx = contextWindowSize >= 1_000_000
     ? `${Math.round(contextWindowSize / 1_000_000)}m`
     : `${Math.round(contextWindowSize / 1_000)}k`;
-  return `${name}[${ctx}]`;
+  return `${name} ${ctx}`;
 }
 
 /**
