@@ -1,5 +1,6 @@
 import { green, yellow, red, cyan, dim } from "./colors.js";
 import type { CacheTTLResult } from "./cache.js";
+import type { UsageData } from "./usage.js";
 
 /**
  * Format local time from epoch ms as compact "h:mma" (e.g. "9:32p").
@@ -88,4 +89,38 @@ export function formatPath(cwd: string | undefined): string | null {
  */
 export function formatBranch(branch: string | undefined): string | null {
   return branch ?? null;
+}
+
+/**
+ * Format usage limits as compact string.
+ * E.g. "5h:45% 7d:72%" or "5h:45% 7d:72% +$3.50/$20"
+ */
+export function formatUsage(data: UsageData | null): string | null {
+  if (!data) return null;
+
+  const parts: string[] = [];
+
+  if (data.five_hour?.utilization != null) {
+    const pct = Math.round(data.five_hour.utilization);
+    const colorFn = pct > 80 ? red : pct > 60 ? yellow : dim;
+    parts.push(colorFn(`5h:${pct}%`));
+  }
+
+  if (data.seven_day?.utilization != null) {
+    const pct = Math.round(data.seven_day.utilization);
+    const colorFn = pct > 80 ? red : pct > 60 ? yellow : dim;
+    parts.push(colorFn(`7d:${pct}%`));
+  }
+
+  if (data.extra_usage?.is_enabled && data.extra_usage.used_credits != null) {
+    const used = (data.extra_usage.used_credits / 100).toFixed(2);
+    const limit = data.extra_usage.monthly_limit != null
+      ? `/$${(data.extra_usage.monthly_limit / 100).toFixed(0)}`
+      : "";
+    const pct = data.extra_usage.utilization ?? 0;
+    const colorFn = pct > 80 ? red : pct > 50 ? yellow : dim;
+    parts.push(colorFn(`+$${used}${limit}`));
+  }
+
+  return parts.length > 0 ? parts.join(" ") : null;
 }

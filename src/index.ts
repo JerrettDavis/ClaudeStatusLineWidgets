@@ -1,9 +1,10 @@
 import { getCacheTTL } from "./cache.js";
 import {
   formatCache, formatModel, formatCost, formatContext,
-  formatPath, formatBranch,
+  formatPath, formatBranch, formatUsage,
 } from "./segments.js";
 import { dim } from "./colors.js";
+import { readUsageCache, triggerBackgroundFetch, fetchAndCacheUsage } from "./usage.js";
 
 interface StatusLinePayload {
   cwd?: string;
@@ -40,6 +41,12 @@ function readStdin(): Promise<string> {
 }
 
 async function main(): Promise<void> {
+  // Background fetch mode: called by detached child to update usage cache
+  if (process.argv.includes("--fetch-usage")) {
+    await fetchAndCacheUsage();
+    return;
+  }
+
   const input = await readStdin();
   if (!input.trim()) {
     process.stdout.write("\n");
@@ -54,9 +61,13 @@ async function main(): Promise<void> {
     return;
   }
 
+  // Kick off background usage fetch if cache is stale (non-blocking)
+  triggerBackgroundFetch();
+
   const cacheRead = payload.context_window?.current_usage?.cache_read_input_tokens ?? 0;
   const cache = getCacheTTL(payload.transcript_path, cacheRead);
   const cwd = payload.cwd ?? payload.workspace?.current_dir;
+  const usageCache = readUsageCache();
 
   const segments: string[] = [
     formatPath(cwd),
@@ -64,6 +75,7 @@ async function main(): Promise<void> {
     formatModel(payload.model ?? {}),
     formatCost(payload.cost?.total_cost_usd),
     formatContext(payload.context_window?.used_percentage),
+    formatUsage(usageCache?.data ?? null),
     formatCache(cache),
   ].filter((s): s is string => s !== null);
 
