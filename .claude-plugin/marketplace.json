@@ -1,0 +1,28 @@
+{
+  "name": "claude-statusline-widgets",
+  "owner": {
+    "name": "Jerrett Davis",
+    "email": "jerrettdavis@users.noreply.github.com"
+  },
+  "metadata": {
+    "description": "StatusLine widgets for Claude Code — cache TTL, usage rates, context, cost, and more",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "cache-ttl-statusline",
+      "source": "./",
+      "description": "StatusLine showing cache TTL countdown, model, cost, context usage, API rate limits, and Headroom proxy stats",
+      "version": "0.1.0",
+      "author": {
+        "name": "Jerrett Davis"
+      },
+      "homepage": "https://github.com/JerrettDavis/ClaudeStatusLineWidgets",
+      "repository": "https://github.com/JerrettDavis/ClaudeStatusLineWidgets",
+      "license": "MIT",
+      "keywords": ["statusline", "cache", "ttl", "usage", "context", "cost"],
+      "category": "developer-tools",
+      "tags": ["statusline", "monitoring", "cache-ttl", "rate-limits"]
+    }
+  ]
+}

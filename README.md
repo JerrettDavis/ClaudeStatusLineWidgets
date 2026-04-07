@@ -1,12 +1,35 @@
 # Claude StatusLine Widgets
 
-A TypeScript statusline plugin for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) that displays real-time session metrics directly in your terminal.
+A plugin marketplace for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) statusline widgets that display real-time session metrics directly in your terminal.
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue)
 ![Node.js](https://img.shields.io/badge/Node.js-18%2B-green)
 ![License](https://img.shields.io/badge/license-MIT-brightgreen)
 
-## What It Shows
+## Installation
+
+### From the Marketplace
+
+```bash
+# Add the marketplace
+/plugin marketplace add JerrettDavis/ClaudeStatusLineWidgets
+
+# Install the statusline plugin
+/plugin install cache-ttl-statusline@claude-statusline-widgets
+```
+
+### From CLI
+
+```bash
+claude plugin marketplace add JerrettDavis/ClaudeStatusLineWidgets
+claude plugin install cache-ttl-statusline@claude-statusline-widgets
+```
+
+## Available Plugins
+
+### cache-ttl-statusline
+
+A multi-line statusline showing real-time session metrics.
 
 **Line 1 -- Session Info**
 - Working directory and git branch
@@ -26,38 +49,15 @@ A TypeScript statusline plugin for [Claude Code](https://docs.anthropic.com/en/d
 - Cost savings from compression
 - Cache hit rate
 
-## Quick Start
+### Cache TTL Color Coding
 
-### As a Claude Code Plugin
-
-```bash
-# Install the plugin
-claude plugin add /path/to/ClaudeStatusLineWidgets
-
-# Or link from a git clone
-git clone https://github.com/JerrettDavis/ClaudeStatusLineWidgets.git
-claude plugin add ./ClaudeStatusLineWidgets
-```
-
-### Standalone
-
-```bash
-git clone https://github.com/JerrettDavis/ClaudeStatusLineWidgets.git
-cd ClaudeStatusLineWidgets
-npm install
-npm run build
-```
-
-Add to your Claude Code settings (`~/.claude/settings.json`):
-
-```json
-{
-  "statusLine": {
-    "type": "command",
-    "command": "node /path/to/ClaudeStatusLineWidgets/dist/index.js"
-  }
-}
-```
+| Color  | Meaning                        |
+|--------|--------------------------------|
+| Green  | > 2 minutes remaining (5m tier)|
+| Yellow | 1-2 minutes remaining          |
+| Red    | < 1 minute remaining           |
+| Cyan   | 1-hour tier cache active       |
+| Dim    | Cache expired or not present   |
 
 ## How It Works
 
@@ -70,36 +70,45 @@ Claude Code pipes a JSON payload to the statusline command via stdin on each ren
 5. **Fetches API usage data** in a background process (non-blocking) to show rate limits
 6. **Optionally shows Headroom proxy stats** if running through the compression proxy
 
-### Cache TTL Color Coding
-
-| Color  | Meaning                        |
-|--------|--------------------------------|
-| Green  | > 2 minutes remaining (5m tier)|
-| Yellow | 1-2 minutes remaining          |
-| Red    | < 1 minute remaining           |
-| Cyan   | 1-hour tier cache active       |
-| Dim    | Cache expired or not present   |
-
 ## Architecture
 
 ```
+.claude-plugin/
+  marketplace.json  -- Marketplace catalog listing available plugins
+  plugin.json       -- Plugin manifest for cache-ttl-statusline
 src/
-  index.ts      -- Entry point: reads stdin JSON, orchestrates output
-  cache.ts      -- Reads JSONL transcript, finds last cache write, computes TTL
-  segments.ts   -- Formatters for each statusline segment
-  colors.ts     -- ANSI color/style helpers
-  usage.ts      -- Background API usage fetcher with file-based caching
-  headroom.ts   -- Headroom compression proxy stats integration
+  index.ts          -- Entry point: reads stdin JSON, orchestrates output
+  cache.ts          -- Reads JSONL transcript, finds last cache write, computes TTL
+  segments.ts       -- Formatters for each statusline segment
+  colors.ts         -- ANSI color/style helpers
+  usage.ts          -- Background API usage fetcher with file-based caching
+  headroom.ts       -- Headroom compression proxy stats integration
+skills/
+  setup/SKILL.md    -- Setup instructions skill
 ```
 
 ## Development
 
 ```bash
+npm install
 npm run build        # Compile TypeScript
 npm run dev          # Watch mode
 
 # Test with mock data
 echo '{"model":{"id":"claude-opus-4-6","display_name":"Opus"},"cost":{"total_cost_usd":0.12},"context_window":{"used_percentage":45,"context_window_size":200000},"transcript_path":"path/to/session.jsonl"}' | node dist/index.js
+```
+
+## Standalone Usage
+
+If you prefer not to use the marketplace, you can configure the statusline directly in your Claude Code settings (`~/.claude/settings.json`):
+
+```json
+{
+  "statusLine": {
+    "type": "command",
+    "command": "node /path/to/ClaudeStatusLineWidgets/dist/index.js"
+  }
+}
 ```
 
 ## License
