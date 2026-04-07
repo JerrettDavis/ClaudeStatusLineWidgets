@@ -22,6 +22,6 @@ export class BranchWidget {
     render(_item, ctx) {
         if (ctx.isPreview)
             return "main";
-        return formatBranch(ctx.payload.git_branch ?? getBranchFromGit(ctx.payload.cwd)) ?? null;
+        return formatBranch(ctx.payload.git_branch || getBranchFromGit(ctx.payload.cwd)) || null;
     }
 }

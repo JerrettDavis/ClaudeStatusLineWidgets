@@ -89,7 +89,7 @@ export function formatPath(cwd: string | undefined): string | null {
  * Format the git branch name.
  */
 export function formatBranch(branch: string | undefined): string | null {
-  return branch ?? null;
+  return branch || null;
 }
 
 /**

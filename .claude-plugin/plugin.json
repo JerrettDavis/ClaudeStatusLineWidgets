@@ -1,6 +1,6 @@
 {
   "name": "cache-ttl-statusline",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "StatusLine showing cache TTL countdown, model, cost, context usage, API rate limits, and Headroom proxy stats for Claude Code",
   "author": {
     "name": "Jerrett Davis",

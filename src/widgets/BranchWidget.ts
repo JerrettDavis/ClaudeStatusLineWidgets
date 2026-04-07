@@ -23,6 +23,6 @@ export class BranchWidget implements Widget {
   supportsColors() { return true; }
   render(_item: WidgetItem, ctx: RenderContext): string | null {
     if (ctx.isPreview) return "main";
-    return formatBranch(ctx.payload.git_branch ?? getBranchFromGit(ctx.payload.cwd)) ?? null;
+    return formatBranch(ctx.payload.git_branch || getBranchFromGit(ctx.payload.cwd)) || null;
   }
 }
