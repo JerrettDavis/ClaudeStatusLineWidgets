@@ -4,6 +4,7 @@ import { homedir } from "os";
 import { getCacheTTL, getCacheSessionStats } from "./cache.js";
 import { readUsageCache, triggerBackgroundFetch, fetchAndCacheUsage } from "./usage.js";
 import { isHeadroomActive, readHeadroomCache, triggerHeadroomFetch, fetchAndCacheHeadroom, } from "./headroom.js";
+import { triggerSessionTracking, performSessionTracking } from "./session-tracking.js";
 import { loadSettings } from "./config/loader.js";
 import { renderStatusLine } from "./renderer.js";
 const PLUGIN_KEY = "cache-ttl-statusline@claude-statusline-widgets";
@@ -50,6 +51,10 @@ async function main() {
         await fetchAndCacheHeadroom();
         return;
     }
+    if (process.argv.includes("--track-sessions")) {
+        await performSessionTracking();
+        return;
+    }
     // TTY mode: launch interactive TUI for configuration
     if (process.stdin.isTTY) {
         const { runTUI } = await import("./tui/index.js");
@@ -80,6 +85,7 @@ async function main() {
     triggerBackgroundFetch();
     if (isHeadroomActive())
         triggerHeadroomFetch();
+    triggerSessionTracking();
     const cacheRead = payload.context_window?.current_usage?.cache_read_input_tokens ?? 0;
     const cacheTTL = getCacheTTL(payload.transcript_path, cacheRead);
     const cacheStats = getCacheSessionStats(payload.transcript_path);

@@ -6,6 +6,7 @@ import { readUsageCache, triggerBackgroundFetch, fetchAndCacheUsage } from "./us
 import {
   isHeadroomActive, readHeadroomCache, triggerHeadroomFetch, fetchAndCacheHeadroom,
 } from "./headroom.js";
+import { triggerSessionTracking, performSessionTracking } from "./session-tracking.js";
 import { loadSettings } from "./config/loader.js";
 import { renderStatusLine } from "./renderer.js";
 import type { StatusLinePayload, RenderContext } from "./widgets/types.js";
@@ -56,6 +57,10 @@ async function main(): Promise<void> {
     await fetchAndCacheHeadroom();
     return;
   }
+  if (process.argv.includes("--track-sessions")) {
+    await performSessionTracking();
+    return;
+  }
 
   // TTY mode: launch interactive TUI for configuration
   if (process.stdin.isTTY) {
@@ -89,6 +94,7 @@ async function main(): Promise<void> {
   // Kick off background fetches if caches are stale (non-blocking)
   triggerBackgroundFetch();
   if (isHeadroomActive()) triggerHeadroomFetch();
+  triggerSessionTracking();
 
   const cacheRead = payload.context_window?.current_usage?.cache_read_input_tokens ?? 0;
   const cacheTTL = getCacheTTL(payload.transcript_path, cacheRead);
