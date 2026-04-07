@@ -1,7 +1,8 @@
 {
   "name": "claude-cache-ttl-statusline",
-  "version": "0.1.0",
-  "description": "Claude Code statusline with cache TTL countdown",
+  "version": "0.2.0",
+  "type": "module",
+  "description": "Claude Code statusline with cache TTL countdown and interactive TUI configurator",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
@@ -9,6 +10,12 @@
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
+    "@types/react": "^19.2.14",
     "typescript": "^5.7.0"
+  },
+  "dependencies": {
+    "ink": "^6.8.0",
+    "ink-select-input": "^6.2.0",
+    "react": "^19.2.4"
   }
 }

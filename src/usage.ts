@@ -1,7 +1,10 @@
 import { readFileSync, writeFileSync, existsSync, statSync } from "fs";
-import { join } from "path";
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
 import { tmpdir, homedir, platform } from "os";
 import { execSync, spawn } from "child_process";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // --- Types ---
 

@@ -25,6 +25,22 @@ claude plugin marketplace add JerrettDavis/ClaudeStatusLineWidgets
 claude plugin install cache-ttl-statusline@claude-statusline-widgets
 ```
 
+## Configuration
+
+Run the statusline binary directly (not piped) to launch the interactive TUI configurator:
+
+```bash
+node dist/index.js
+```
+
+The TUI lets you:
+- **Edit Lines** -- choose which widgets appear on each line, add/remove/reorder
+- **Edit Colors** -- set per-widget colors from the ANSI palette
+- **Live Preview** -- see changes in real-time before saving
+- **Reset** -- restore the default layout
+
+Settings are saved to `~/.config/claude-statusline-widgets/settings.json`.
+
 ## Available Plugins
 
 ### cache-ttl-statusline
@@ -70,6 +86,16 @@ Claude Code pipes a JSON payload to the statusline command via stdin on each ren
 5. **Fetches API usage data** in a background process (non-blocking) to show rate limits
 6. **Optionally shows Headroom proxy stats** if running through the compression proxy
 
+### Available Widgets
+
+| Category | Widget | Description |
+|----------|--------|-------------|
+| Session | Path, Branch, Model, Cost | Working directory, git branch, model name, session cost |
+| Context | Context Bar, Cache TTL | Context window usage bar, cache expiry countdown |
+| Usage | 5h Usage, 7d Usage, Overage | API rate limit utilization and overage tracking |
+| Headroom | Tokens Saved, Compression, Cost Saved, Cache Hit Rate | Headroom proxy metrics |
+| Layout | Separator, Custom Text | Visual separator and static text |
+
 ## Architecture
 
 ```
@@ -77,14 +103,16 @@ Claude Code pipes a JSON payload to the statusline command via stdin on each ren
   marketplace.json  -- Marketplace catalog listing available plugins
   plugin.json       -- Plugin manifest for cache-ttl-statusline
 src/
-  index.ts          -- Entry point: reads stdin JSON, orchestrates output
-  cache.ts          -- Reads JSONL transcript, finds last cache write, computes TTL
-  segments.ts       -- Formatters for each statusline segment
+  index.ts          -- Entry point: TTY detection (TUI vs render mode)
+  renderer.ts       -- Settings-driven multi-line renderer
+  cache.ts          -- JSONL transcript parsing, TTL computation
+  segments.ts       -- Low-level formatters for each segment
   colors.ts         -- ANSI color/style helpers
-  usage.ts          -- Background API usage fetcher with file-based caching
-  headroom.ts       -- Headroom compression proxy stats integration
-skills/
-  setup/SKILL.md    -- Setup instructions skill
+  usage.ts          -- Background API usage fetcher
+  headroom.ts       -- Headroom compression proxy stats
+  widgets/          -- Widget type system, registry, and implementations
+  config/           -- Settings schema, load/save, migrations
+  tui/              -- React/Ink interactive configurator
 ```
 
 ## Development

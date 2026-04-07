@@ -134,6 +134,27 @@ export function formatUsageSegments(data: UsageData | null): string[] {
   return out;
 }
 
+/** Individual usage sub-formatters for widget system */
+export function formatUsage5h(data: UsageData | null): string | null {
+  if (!data?.five_hour?.utilization) return null;
+  return miniBar("5h", data.five_hour.utilization);
+}
+
+export function formatUsage7d(data: UsageData | null): string | null {
+  if (!data?.seven_day?.utilization) return null;
+  return miniBar("7d", data.seven_day.utilization);
+}
+
+export function formatUsageOverage(data: UsageData | null): string | null {
+  if (!data?.extra_usage?.is_enabled || data.extra_usage.used_credits == null) return null;
+  const used = `$${(data.extra_usage.used_credits / 100).toFixed(0)}`;
+  const limit = data.extra_usage.monthly_limit != null
+    ? `/$${(data.extra_usage.monthly_limit / 100).toFixed(0)}`
+    : "";
+  const pct = data.extra_usage.utilization ?? 0;
+  return miniBar(`+${used}${limit}`, pct);
+}
+
 /**
  * Format compact token count: 491425 → "491k", 1234567 → "1.2M"
  */
@@ -169,4 +190,25 @@ export function formatHeadroomSegments(stats: HeadroomStats | null): string[] {
   }
 
   return out;
+}
+
+/** Individual headroom sub-formatters for widget system */
+export function formatHeadroomTokens(stats: HeadroomStats | null): string | null {
+  if (!stats || stats.tokensSaved <= 0) return null;
+  return dim(`\u2696\uFE0F ${compactTokens(stats.tokensSaved)} tokens saved`);
+}
+
+export function formatHeadroomCompression(stats: HeadroomStats | null): string | null {
+  if (!stats || stats.compressionPct <= 0) return null;
+  return green(`${Math.round(stats.compressionPct)}% compressed`);
+}
+
+export function formatHeadroomCost(stats: HeadroomStats | null): string | null {
+  if (!stats || stats.costSavedUsd <= 0) return null;
+  return green(`$${stats.costSavedUsd.toFixed(2)} saved`);
+}
+
+export function formatHeadroomCacheHit(stats: HeadroomStats | null): string | null {
+  if (!stats || stats.cacheHitRate <= 0) return null;
+  return dim(`${Math.round(stats.cacheHitRate * 100)}% cache hit`);
 }

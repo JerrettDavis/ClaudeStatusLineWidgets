@@ -1,7 +1,10 @@
 import { readFileSync, writeFileSync, statSync } from "fs";
 import { tmpdir } from "os";
-import { join } from "path";
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
 import { spawn } from "child_process";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export interface HeadroomStats {
   compressionPct: number;

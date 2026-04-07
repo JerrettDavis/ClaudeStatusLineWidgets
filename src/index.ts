@@ -1,37 +1,11 @@
 import { getCacheTTL } from "./cache.js";
-import {
-  formatCache, formatModel, formatCost, formatContext,
-  formatPath, formatBranch, formatUsageSegments, formatHeadroomSegments,
-} from "./segments.js";
-import { dim } from "./colors.js";
 import { readUsageCache, triggerBackgroundFetch, fetchAndCacheUsage } from "./usage.js";
 import {
   isHeadroomActive, readHeadroomCache, triggerHeadroomFetch, fetchAndCacheHeadroom,
 } from "./headroom.js";
-
-interface StatusLinePayload {
-  cwd?: string;
-  workspace?: {
-    current_dir?: string;
-    project_dir?: string;
-  };
-  model?: {
-    id?: string;
-    display_name?: string;
-  };
-  cost?: {
-    total_cost_usd?: number;
-  };
-  context_window?: {
-    used_percentage?: number | null;
-    context_window_size?: number;
-    current_usage?: {
-      cache_read_input_tokens?: number;
-    };
-  };
-  transcript_path?: string;
-  git_branch?: string;
-}
+import { loadSettings } from "./config/loader.js";
+import { renderStatusLine } from "./renderer.js";
+import type { StatusLinePayload, RenderContext } from "./widgets/types.js";
 
 function readStdin(): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -54,6 +28,14 @@ async function main(): Promise<void> {
     return;
   }
 
+  // TTY mode: launch interactive TUI for configuration
+  if (process.stdin.isTTY) {
+    const { runTUI } = await import("./tui/index.js");
+    await runTUI();
+    return;
+  }
+
+  // Piped mode: render statusline
   const input = await readStdin();
   if (!input.trim()) {
     process.stdout.write("\n");
@@ -73,35 +55,19 @@ async function main(): Promise<void> {
   if (isHeadroomActive()) triggerHeadroomFetch();
 
   const cacheRead = payload.context_window?.current_usage?.cache_read_input_tokens ?? 0;
-  const cache = getCacheTTL(payload.transcript_path, cacheRead);
-  const cwd = payload.cwd ?? payload.workspace?.current_dir;
+  const cacheTTL = getCacheTTL(payload.transcript_path, cacheRead);
   const usageCache = readUsageCache();
-
-  const sep = dim(" | ");
-
-  // Line 1: path, branch, model, cost, context, cache
-  const line1: string[] = [
-    formatPath(cwd),
-    formatBranch(payload.git_branch),
-    formatModel(payload.model ?? {}),
-    formatCost(payload.cost?.total_cost_usd),
-    formatContext(payload.context_window?.used_percentage),
-    formatCache(cache),
-  ].filter((s): s is string => s !== null);
-
-  // Line 2: API usage (only if data available)
-  const line2 = formatUsageSegments(usageCache?.data ?? null);
-
-  // Line 3: Headroom stats (only if proxy is active)
   const headroomCache = isHeadroomActive() ? readHeadroomCache() : null;
-  const line3 = formatHeadroomSegments(headroomCache?.data ?? null);
 
-  const output = [
-    line1.join(sep),
-    ...(line2.length > 0 ? [line2.join(sep)] : []),
-    ...(line3.length > 0 ? [line3.join(sep)] : []),
-  ].join("\n");
+  const settings = loadSettings();
+  const context: RenderContext = {
+    payload,
+    cacheTTL,
+    usageData: usageCache?.data ?? null,
+    headroomStats: headroomCache?.data ?? null,
+  };
 
+  const output = renderStatusLine(settings, context);
   process.stdout.write(output + "\n\n");
 }
 
