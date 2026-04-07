@@ -5,6 +5,7 @@ import { ModelWidget } from "./ModelWidget.js";
 import { CostWidget } from "./CostWidget.js";
 import { ContextBarWidget } from "./ContextBarWidget.js";
 import { CacheTTLWidget } from "./CacheTTLWidget.js";
+import { CacheTokensWidget } from "./CacheTokensWidget.js";
 import { Usage5hWidget } from "./Usage5hWidget.js";
 import { Usage7dWidget } from "./Usage7dWidget.js";
 import { UsageOverageWidget } from "./UsageOverageWidget.js";
@@ -27,6 +28,7 @@ const WIDGET_MANIFEST: ManifestEntry[] = [
   { type: "cost", create: () => new CostWidget() },
   { type: "context-bar", create: () => new ContextBarWidget() },
   { type: "cache-ttl", create: () => new CacheTTLWidget() },
+  { type: "cache-tokens", create: () => new CacheTokensWidget() },
   { type: "usage-5h", create: () => new Usage5hWidget() },
   { type: "usage-7d", create: () => new Usage7dWidget() },
   { type: "usage-overage", create: () => new UsageOverageWidget() },

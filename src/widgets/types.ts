@@ -1,4 +1,4 @@
-import type { CacheTTLResult } from "../cache.js";
+import type { CacheTTLResult, CacheSessionStats } from "../cache.js";
 import type { UsageData } from "../usage.js";
 import type { HeadroomStats } from "../headroom.js";
 
@@ -29,6 +29,7 @@ export interface StatusLinePayload {
 export interface RenderContext {
   payload: StatusLinePayload;
   cacheTTL: CacheTTLResult;
+  cacheStats: CacheSessionStats;
   usageData: UsageData | null;
   headroomStats: HeadroomStats | null;
   isPreview?: boolean;

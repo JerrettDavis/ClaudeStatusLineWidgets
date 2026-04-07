@@ -53,6 +53,7 @@ export function App() {
   const previewCtx: RenderContext = {
     payload: {},
     cacheTTL: { remainingSeconds: -1, tier: "none", lastWriteTime: null, expiresAt: null, cacheReadActive: false },
+    cacheStats: { totalReads: 0, totalWrites: 0, breakCount: 0, lastBreakTime: null, lastBreakTokens: 0, avgBreakTokens: 0 },
     usageData: null,
     headroomStats: null,
     isPreview: true,
