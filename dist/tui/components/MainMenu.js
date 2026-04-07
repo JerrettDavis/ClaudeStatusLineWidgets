@@ -1,5 +1,4 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import React from "react";
 import { Box, Text } from "ink";
 import SelectInput from "ink-select-input";
 const items = [

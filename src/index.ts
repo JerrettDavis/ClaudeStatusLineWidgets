@@ -1,3 +1,6 @@
+import { readFileSync, writeFileSync, existsSync } from "fs";
+import { join } from "path";
+import { homedir } from "os";
 import { getCacheTTL, getCacheSessionStats } from "./cache.js";
 import { readUsageCache, triggerBackgroundFetch, fetchAndCacheUsage } from "./usage.js";
 import {
@@ -6,6 +9,32 @@ import {
 import { loadSettings } from "./config/loader.js";
 import { renderStatusLine } from "./renderer.js";
 import type { StatusLinePayload, RenderContext } from "./widgets/types.js";
+
+const PLUGIN_KEY = "cache-ttl-statusline@claude-statusline-widgets";
+
+/**
+ * If the plugin was explicitly disabled in settings.json, remove the statusLine
+ * entry we previously wrote and return true so the caller can exit cleanly.
+ * This handles the case where the plugin is disabled but the statusLine command
+ * is still set (hooks don't fire for disabled plugins, so this is the only
+ * opportunity to self-clean).
+ */
+function removeStatusLineIfDisabled(): boolean {
+  try {
+    const claudeDir = process.env.CLAUDE_CONFIG_DIR ?? join(homedir(), ".claude");
+    const settingsPath = join(claudeDir, "settings.json");
+    if (!existsSync(settingsPath)) return false;
+
+    const settings = JSON.parse(readFileSync(settingsPath, "utf8"));
+    if (settings?.enabledPlugins?.[PLUGIN_KEY] !== false) return false;
+
+    delete settings.statusLine;
+    writeFileSync(settingsPath, JSON.stringify(settings, null, 2), "utf8");
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 function readStdin(): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -46,6 +75,13 @@ async function main(): Promise<void> {
   try {
     payload = JSON.parse(input);
   } catch {
+    process.stdout.write("\n");
+    return;
+  }
+
+  // Self-clean if the plugin was disabled while the statusLine command was still set.
+  // After this write, future sessions won't call us at all.
+  if (removeStatusLineIfDisabled()) {
     process.stdout.write("\n");
     return;
   }

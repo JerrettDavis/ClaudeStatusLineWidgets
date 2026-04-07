@@ -1,5 +1,5 @@
 import { jsxs as _jsxs, jsx as _jsx } from "react/jsx-runtime";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Box, Text, useInput } from "ink";
 import { getWidget } from "../../widgets/registry.js";
 export function ItemsEditor({ line, lineIndex, onChange, onAddWidget, onDeleteLine, onBack }) {
