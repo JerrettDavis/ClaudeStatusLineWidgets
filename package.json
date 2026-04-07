@@ -12,14 +12,12 @@
     "dev": "tsc --watch",
     "prepare": "npm run build"
   },
-  "devDependencies": {
+  "dependencies": {
     "@types/node": "^22.0.0",
     "@types/react": "^19.2.14",
-    "typescript": "^5.7.0"
-  },
-  "dependencies": {
     "ink": "^6.8.0",
     "ink-select-input": "^6.2.0",
-    "react": "^19.2.4"
+    "react": "^19.2.4",
+    "typescript": "^5.7.0"
   }
 }
