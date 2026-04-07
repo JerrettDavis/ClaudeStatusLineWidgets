@@ -9,5 +9,5 @@
   "repository": "https://github.com/JerrettDavis/ClaudeStatusLineWidgets",
   "license": "MIT",
   "keywords": ["statusline", "cache", "ttl", "usage", "context", "cost"],
-  "skills": "skills/"
+  "skills": ["setup"]
 }
