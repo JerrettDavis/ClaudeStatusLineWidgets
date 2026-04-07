@@ -77,7 +77,7 @@ export function formatPath(cwd) {
  * Format the git branch name.
  */
 export function formatBranch(branch) {
-    return branch ?? null;
+    return branch || null;
 }
 /**
  * Build a compact labeled progress bar: "label ████░░ N%"

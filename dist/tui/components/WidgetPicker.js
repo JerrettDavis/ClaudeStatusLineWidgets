@@ -1,5 +1,5 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import { Box, Text, useInput } from "ink";
 import SelectInput from "ink-select-input";
 import { getWidgetCatalog, getWidgetCategories } from "../../widgets/registry.js";
