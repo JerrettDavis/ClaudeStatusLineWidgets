@@ -1,6 +1,6 @@
 {
   "name": "claude-statusline-widgets",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "type": "module",
   "description": "Claude Code statusline with cache TTL countdown and interactive TUI configurator",
   "main": "dist/index.js",
