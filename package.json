@@ -1,12 +1,16 @@
 {
-  "name": "claude-cache-ttl-statusline",
+  "name": "claude-statusline-widgets",
   "version": "0.2.0",
   "type": "module",
   "description": "Claude Code statusline with cache TTL countdown and interactive TUI configurator",
   "main": "dist/index.js",
+  "bin": {
+    "ccfooter-config": "./bin/ccfooter-config.js"
+  },
   "scripts": {
     "build": "tsc",
-    "dev": "tsc --watch"
+    "dev": "tsc --watch",
+    "prepare": "npm run build"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

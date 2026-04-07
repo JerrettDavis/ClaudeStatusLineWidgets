@@ -30,7 +30,6 @@ claude plugin install cache-ttl-statusline@claude-statusline-widgets
 git clone https://github.com/JerrettDavis/ClaudeStatusLineWidgets.git
 cd ClaudeStatusLineWidgets
 npm install
-npm run build
 ```
 
 Then add to your Claude Code settings (`~/.claude/settings.json`):
@@ -46,14 +45,26 @@ Then add to your Claude Code settings (`~/.claude/settings.json`):
 
 Restart Claude Code. The statusline appears at the bottom of your terminal.
 
+### Install the CLI globally
+
+Install the `ccfooter-config` command for easy access to the TUI configurator:
+
+```bash
+# From a local clone
+npm install -g .
+
+# Or directly from GitHub
+npm install -g github:JerrettDavis/ClaudeStatusLineWidgets
+```
+
 ## Configuration
 
 ### Interactive TUI
 
-Run the binary directly (not piped) to launch the TUI configurator:
+Launch the TUI configurator with:
 
 ```bash
-node /path/to/ClaudeStatusLineWidgets/dist/index.js
+ccfooter-config
 ```
 
 The TUI provides:
@@ -230,6 +241,8 @@ npm run dev          # Watch mode
 echo '{"model":{"display_name":"Opus"},"cost":{"total_cost_usd":0.12},"context_window":{"used_percentage":45},"git_branch":"main","cwd":"/home/user/project"}' | node dist/index.js
 
 # Launch TUI configurator
+ccfooter-config
+# Or without global install:
 node dist/index.js
 ```
 
