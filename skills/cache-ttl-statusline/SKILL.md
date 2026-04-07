@@ -1,6 +1,6 @@
 ---
-name: setup
-description: Configure the cache TTL statusline in Claude Code settings
+name: cache-ttl-statusline
+description: Set up and configure the cache TTL statusline in Claude Code. Use this skill when the user wants to install, configure, or customize the statusline that shows cache TTL countdown, model, cost, context usage, and API rate limits.
 ---
 
 # Setup Cache TTL StatusLine
