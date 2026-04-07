@@ -1,4 +1,4 @@
-import { getCacheTTL } from "./cache.js";
+import { getCacheTTL, getCacheSessionStats } from "./cache.js";
 import { readUsageCache, triggerBackgroundFetch, fetchAndCacheUsage } from "./usage.js";
 import { isHeadroomActive, readHeadroomCache, triggerHeadroomFetch, fetchAndCacheHeadroom, } from "./headroom.js";
 import { loadSettings } from "./config/loader.js";
@@ -48,12 +48,14 @@ async function main() {
         triggerHeadroomFetch();
     const cacheRead = payload.context_window?.current_usage?.cache_read_input_tokens ?? 0;
     const cacheTTL = getCacheTTL(payload.transcript_path, cacheRead);
+    const cacheStats = getCacheSessionStats(payload.transcript_path);
     const usageCache = readUsageCache();
     const headroomCache = isHeadroomActive() ? readHeadroomCache() : null;
     const settings = loadSettings();
     const context = {
         payload,
         cacheTTL,
+        cacheStats,
         usageData: usageCache?.data ?? null,
         headroomStats: headroomCache?.data ?? null,
     };

@@ -139,7 +139,7 @@ export function formatUsageOverage(data) {
 /**
  * Format compact token count: 491425 → "491k", 1234567 → "1.2M"
  */
-function compactTokens(n) {
+export function compactTokens(n) {
     if (n >= 1_000_000)
         return `${(n / 1_000_000).toFixed(1)}M`;
     if (n >= 1_000)
@@ -189,4 +189,39 @@ export function formatHeadroomCacheHit(stats) {
     if (!stats || stats.cacheHitRate <= 0)
         return null;
     return dim(`${Math.round(stats.cacheHitRate * 100)}% cache hit`);
+}
+/**
+ * Format local time from an ISO timestamp as compact "h:mma".
+ */
+function formatTimeFromISO(iso) {
+    return formatTime(new Date(iso).getTime());
+}
+/**
+ * Format cache session stats: reads, writes, break count, last break time.
+ *
+ * A "large rewrite" indicator fires when the most recent break was ≥2× the
+ * session average (signals a full context re-cache, e.g. after CLAUDE.md update).
+ *
+ * Returns null when there is no data yet.
+ */
+export function formatCacheStats(stats) {
+    if (stats.breakCount === 0 && stats.totalReads === 0)
+        return null;
+    const reads = stats.totalReads > 0
+        ? dim(`↓${compactTokens(stats.totalReads)}`)
+        : null;
+    const writes = stats.totalWrites > 0
+        ? dim(`↑${compactTokens(stats.totalWrites)}`)
+        : null;
+    let breakLabel = null;
+    if (stats.breakCount > 0) {
+        const timeStr = stats.lastBreakTime ? ` ${formatTimeFromISO(stats.lastBreakTime)}` : "";
+        const isLargeRewrite = stats.breakCount > 1 &&
+            stats.lastBreakTokens >= stats.avgBreakTokens * 2;
+        const countStr = `${stats.breakCount}↺`;
+        breakLabel = isLargeRewrite
+            ? yellow(`${countStr}${timeStr}`)
+            : dim(`${countStr}${timeStr}`);
+    }
+    return [reads, writes, breakLabel].filter(Boolean).join(" ");
 }

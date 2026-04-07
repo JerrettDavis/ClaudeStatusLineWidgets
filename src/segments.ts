@@ -1,5 +1,5 @@
 import { green, yellow, red, cyan, dim } from "./colors.js";
-import type { CacheTTLResult } from "./cache.js";
+import type { CacheTTLResult, CacheSessionStats } from "./cache.js";
 import type { UsageData } from "./usage.js";
 import type { HeadroomStats } from "./headroom.js";
 
@@ -158,7 +158,7 @@ export function formatUsageOverage(data: UsageData | null): string | null {
 /**
  * Format compact token count: 491425 → "491k", 1234567 → "1.2M"
  */
-function compactTokens(n: number): string {
+export function compactTokens(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
   if (n >= 1_000) return `${Math.round(n / 1_000)}k`;
   return String(n);
@@ -211,4 +211,45 @@ export function formatHeadroomCost(stats: HeadroomStats | null): string | null {
 export function formatHeadroomCacheHit(stats: HeadroomStats | null): string | null {
   if (!stats || stats.cacheHitRate <= 0) return null;
   return dim(`${Math.round(stats.cacheHitRate * 100)}% cache hit`);
+}
+
+/**
+ * Format local time from an ISO timestamp as compact "h:mma".
+ */
+function formatTimeFromISO(iso: string): string {
+  return formatTime(new Date(iso).getTime());
+}
+
+/**
+ * Format cache session stats: reads, writes, break count, last break time.
+ *
+ * A "large rewrite" indicator fires when the most recent break was ≥2× the
+ * session average (signals a full context re-cache, e.g. after CLAUDE.md update).
+ *
+ * Returns null when there is no data yet.
+ */
+export function formatCacheStats(stats: CacheSessionStats): string | null {
+  if (stats.breakCount === 0 && stats.totalReads === 0) return null;
+
+  const reads = stats.totalReads > 0
+    ? dim(`↓${compactTokens(stats.totalReads)}`)
+    : null;
+
+  const writes = stats.totalWrites > 0
+    ? dim(`↑${compactTokens(stats.totalWrites)}`)
+    : null;
+
+  let breakLabel: string | null = null;
+  if (stats.breakCount > 0) {
+    const timeStr = stats.lastBreakTime ? ` ${formatTimeFromISO(stats.lastBreakTime)}` : "";
+    const isLargeRewrite =
+      stats.breakCount > 1 &&
+      stats.lastBreakTokens >= stats.avgBreakTokens * 2;
+    const countStr = `${stats.breakCount}↺`;
+    breakLabel = isLargeRewrite
+      ? yellow(`${countStr}${timeStr}`)
+      : dim(`${countStr}${timeStr}`);
+  }
+
+  return [reads, writes, breakLabel].filter(Boolean).join(" ");
 }
