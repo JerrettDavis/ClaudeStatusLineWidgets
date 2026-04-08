@@ -7,6 +7,7 @@ import { isHeadroomActive, readHeadroomCache, triggerHeadroomFetch, fetchAndCach
 import { triggerSessionTracking, performSessionTracking } from "./session-tracking.js";
 import { loadSettings } from "./config/loader.js";
 import { renderStatusLine } from "./renderer.js";
+import { loadExtensions } from "./widgets/registry.js";
 const PLUGIN_KEY = "cache-ttl-statusline@claude-statusline-widgets";
 /**
  * If the plugin was explicitly disabled in settings.json, remove the statusLine
@@ -55,6 +56,8 @@ async function main() {
         await performSessionTracking();
         return;
     }
+    // Load any globally-installed extension widgets before rendering or TUI.
+    await loadExtensions();
     // TTY mode: launch interactive TUI for configuration
     if (process.stdin.isTTY) {
         const { runTUI } = await import("./tui/index.js");

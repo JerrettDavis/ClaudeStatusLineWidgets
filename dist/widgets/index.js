@@ -1,1 +1,1 @@
-export { getWidget, getAllWidgetTypes, getWidgetCatalog, getWidgetCategories } from "./registry.js";
+export { getWidget, getAllWidgetTypes, getWidgetCatalog, getWidgetCategories, registerExtension, loadExtensions } from "./registry.js";
