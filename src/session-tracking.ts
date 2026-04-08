@@ -43,11 +43,45 @@ export interface WindowRecord {
   /** ISO timestamp of the window end */
   end: string;
   tokens: WindowTokens;
+  /** Per-model token breakdown within this window */
+  byModel: Record<string, WindowTokens>;
+  /**
+   * Proportionally-weighted token equivalent (Sonnet-normalised).
+   *
+   * Each model's total tokens (input + output + cache reads + cache writes) are
+   * multiplied by a family weight, then summed.  Unattributed tokens (entries
+   * without a model field) are included at the default weight (1.0).
+   *
+   * This value lets you correlate transcript token spend against the API
+   * utilisation percentage to back-calculate the effective window capacity.
+   */
+  weightedTokenEquivalent: number;
+  /**
+   * The weight applied per model ID when computing `weightedTokenEquivalent`.
+   * Stored so historical records can be re-analysed with revised weights.
+   */
+  modelWeights: Record<string, number>;
+}
+
+/** Snapshot of API-reported utilisation percentages and overage at poll time */
+export interface ApiStats {
+  /** 5-hour rate-limit utilisation (0–100), or null if unavailable */
+  five_hour_pct: number | null;
+  /** 7-day rate-limit utilisation (0–100), or null if unavailable */
+  seven_day_pct: number | null;
+  /** Overage credits consumed in USD, or null if overage is disabled */
+  overage_used_usd: number | null;
+  /** Overage monthly cap in USD, or null if no cap is set */
+  overage_limit_usd: number | null;
+  /** Overage utilisation (0–100), or null if unavailable */
+  overage_pct: number | null;
 }
 
 export interface TrackingRecord {
   /** ISO timestamp when this record was produced */
   polledAt: string;
+  /** API-reported utilisation and overage stats at poll time */
+  apiStats: ApiStats;
   windows: {
     five_hour?: WindowRecord;
     seven_day?: WindowRecord;
@@ -74,6 +108,7 @@ interface TranscriptUsage {
 interface TranscriptEntry {
   timestamp?: string;
   message?: {
+    model?: string;
     usage?: TranscriptUsage;
   };
 }
@@ -241,12 +276,82 @@ function emptyTokens(): WindowTokens {
   };
 }
 
+function addTokens(dest: WindowTokens, u: TranscriptUsage): void {
+  dest.input += u.input_tokens ?? 0;
+  dest.output += u.output_tokens ?? 0;
+  dest.cacheReads += u.cache_read_input_tokens ?? 0;
+
+  const w5m = u.cache_creation?.ephemeral_5m_input_tokens ?? 0;
+  const w1h = u.cache_creation?.ephemeral_1h_input_tokens ?? 0;
+  const total = u.cache_creation_input_tokens ?? (w5m + w1h);
+  dest.cacheWrites5m += w5m;
+  dest.cacheWrites1h += w1h;
+  dest.cacheWritesTotal += total;
+}
+
+// ---------------------------------------------------------------------------
+// Model-family weights (Sonnet-normalised)
+//
+// True weights are not publicly documented; these are empirical estimates
+// based on observed rate-limit behaviour.  Ranges:
+//   Haiku:   0.1–0.9× (fast/cheap model, lower rate-limit cost)
+//   Sonnet:  1.0×      (baseline reference)
+//   Opus:    1.1–3.0+× (most capable, higher rate-limit cost)
+//
+// The weight per model is stored alongside the computed equivalent so that
+// historical records can be re-analysed when better estimates are known.
+// ---------------------------------------------------------------------------
+
+/** Default (Sonnet-normalised) weights for known Claude model families. */
+export const MODEL_FAMILY_WEIGHTS: Record<string, number> = {
+  "opus": 2.0,
+  "sonnet": 1.0,
+  "haiku": 0.5,
+};
+
+/** Weight to apply when the model ID is absent or unrecognised. */
+export const DEFAULT_MODEL_WEIGHT = 1.0;
+
+/**
+ * Derive a Sonnet-normalised weight from a model ID string by matching against
+ * known family names using word-boundary patterns (e.g. "claude-opus-4-5"
+ * matches "opus" but "super-haiku-opus-variant" correctly resolves to "opus").
+ * Falls back to the default weight when no family is recognised.
+ */
+export function getModelWeight(modelId: string): number {
+  const lower = modelId.toLowerCase();
+  for (const [family, weight] of Object.entries(MODEL_FAMILY_WEIGHTS)) {
+    if (new RegExp(`(?<![a-z])${family}(?![a-z])`).test(lower)) return weight;
+  }
+  return DEFAULT_MODEL_WEIGHT;
+}
+
+/** Sum all token categories for a single model into one scalar. */
+function totalTokenCount(t: WindowTokens): number {
+  return t.input + t.output + t.cacheReads + t.cacheWritesTotal;
+}
+
+export interface WindowData {
+  tokens: WindowTokens;
+  byModel: Record<string, WindowTokens>;
+  /** Sonnet-normalised weighted token equivalent (see WindowRecord docs). */
+  weightedTokenEquivalent: number;
+  /** Per-model weights used when computing weightedTokenEquivalent. */
+  modelWeights: Record<string, number>;
+}
+
 /**
  * Scan all transcript files and sum token usage for entries whose timestamp
- * falls within [startMs, endMs).
+ * falls within [startMs, endMs). Returns aggregate totals, a per-model
+ * breakdown, and a Sonnet-normalised weighted token equivalent.
  */
-export function computeWindowTokens(startMs: number, endMs: number): WindowTokens {
+export function computeWindowData(startMs: number, endMs: number): WindowData {
   const totals = emptyTokens();
+  const byModel: Record<string, WindowTokens> = {};
+  // Track tokens from entries that had no model attribution separately so we
+  // can include them in the weighted total at the default weight.
+  const unattributed = emptyTokens();
+
   for (const filePath of findTranscriptFiles()) {
     for (const line of readTranscriptLines(filePath)) {
       let entry: TranscriptEntry;
@@ -262,22 +367,41 @@ export function computeWindowTokens(startMs: number, endMs: number): WindowToken
       const u = entry.message?.usage;
       if (!u) continue;
 
-      totals.input += u.input_tokens ?? 0;
-      totals.output += u.output_tokens ?? 0;
-      totals.cacheReads += u.cache_read_input_tokens ?? 0;
+      addTokens(totals, u);
 
-      const w5m = u.cache_creation?.ephemeral_5m_input_tokens ?? 0;
-      const w1h = u.cache_creation?.ephemeral_1h_input_tokens ?? 0;
-      // `cache_creation_input_tokens` is the authoritative total from the API.
-      // When the tier-level breakdown (ephemeral_5m / ephemeral_1h) is absent
-      // we fall back to their sum so cacheWritesTotal is always consistent.
-      const total = u.cache_creation_input_tokens ?? (w5m + w1h);
-      totals.cacheWrites5m += w5m;
-      totals.cacheWrites1h += w1h;
-      totals.cacheWritesTotal += total;
+      const modelId = entry.message?.model;
+      if (modelId) {
+        if (!byModel[modelId]) byModel[modelId] = emptyTokens();
+        addTokens(byModel[modelId], u);
+      } else {
+        addTokens(unattributed, u);
+      }
     }
   }
-  return totals;
+
+  // Compute weighted token equivalent: sum(model_total * weight) for each
+  // known model, plus unattributed tokens at the default weight.
+  const modelWeights: Record<string, number> = {};
+  let weightedTokenEquivalent = 0;
+
+  for (const [modelId, modelTokens] of Object.entries(byModel)) {
+    const weight = getModelWeight(modelId);
+    modelWeights[modelId] = weight;
+    weightedTokenEquivalent += totalTokenCount(modelTokens) * weight;
+  }
+
+  // Unattributed tokens contribute at the default (Sonnet) weight.
+  weightedTokenEquivalent += totalTokenCount(unattributed) * DEFAULT_MODEL_WEIGHT;
+
+  return { tokens: totals, byModel, weightedTokenEquivalent, modelWeights };
+}
+
+/**
+ * @deprecated Use computeWindowData instead.
+ * Retained for any external consumers; delegates to computeWindowData.
+ */
+export function computeWindowTokens(startMs: number, endMs: number): WindowTokens {
+  return computeWindowData(startMs, endMs).tokens;
 }
 
 // ---------------------------------------------------------------------------
@@ -363,10 +487,14 @@ function buildWindowRecord(
   nowMs: number
 ): WindowRecord {
   const { startMs, endMs } = resolveWindow(resetsAt, durationMs, nowMs);
+  const { tokens, byModel, weightedTokenEquivalent, modelWeights } = computeWindowData(startMs, endMs);
   return {
     start: new Date(startMs).toISOString(),
     end: new Date(endMs).toISOString(),
-    tokens: computeWindowTokens(startMs, endMs),
+    tokens,
+    byModel,
+    weightedTokenEquivalent,
+    modelWeights,
   };
 }
 
@@ -390,7 +518,22 @@ export async function performSessionTracking(): Promise<void> {
     // Use the cached usage data for exact API window boundaries when available
     const usageData = readUsageCache()?.data ?? null;
 
-    const record: TrackingRecord = { polledAt: nowISO, windows: {} };
+    // Build API stats snapshot from cached usage data
+    const apiStats: ApiStats = {
+      five_hour_pct: usageData?.five_hour?.utilization ?? null,
+      seven_day_pct: usageData?.seven_day?.utilization ?? null,
+      overage_used_usd:
+        usageData?.extra_usage?.used_credits != null
+          ? usageData.extra_usage.used_credits / 100
+          : null,
+      overage_limit_usd:
+        usageData?.extra_usage?.monthly_limit != null
+          ? usageData.extra_usage.monthly_limit / 100
+          : null,
+      overage_pct: usageData?.extra_usage?.utilization ?? null,
+    };
+
+    const record: TrackingRecord = { polledAt: nowISO, apiStats, windows: {} };
 
     // Five-hour window (always computed)
     record.windows.five_hour = buildWindowRecord(
