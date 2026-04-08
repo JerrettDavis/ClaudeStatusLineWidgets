@@ -43,11 +43,29 @@ export interface WindowRecord {
   /** ISO timestamp of the window end */
   end: string;
   tokens: WindowTokens;
+  /** Per-model token breakdown within this window */
+  byModel: Record<string, WindowTokens>;
+}
+
+/** Snapshot of API-reported utilisation percentages and overage at poll time */
+export interface ApiStats {
+  /** 5-hour rate-limit utilisation (0–100), or null if unavailable */
+  five_hour_pct: number | null;
+  /** 7-day rate-limit utilisation (0–100), or null if unavailable */
+  seven_day_pct: number | null;
+  /** Overage credits consumed in USD, or null if overage is disabled */
+  overage_used_usd: number | null;
+  /** Overage monthly cap in USD, or null if no cap is set */
+  overage_limit_usd: number | null;
+  /** Overage utilisation (0–100), or null if unavailable */
+  overage_pct: number | null;
 }
 
 export interface TrackingRecord {
   /** ISO timestamp when this record was produced */
   polledAt: string;
+  /** API-reported utilisation and overage stats at poll time */
+  apiStats: ApiStats;
   windows: {
     five_hour?: WindowRecord;
     seven_day?: WindowRecord;
@@ -74,6 +92,7 @@ interface TranscriptUsage {
 interface TranscriptEntry {
   timestamp?: string;
   message?: {
+    model?: string;
     usage?: TranscriptUsage;
   };
 }
@@ -241,12 +260,33 @@ function emptyTokens(): WindowTokens {
   };
 }
 
+function addTokens(dest: WindowTokens, u: TranscriptUsage): void {
+  dest.input += u.input_tokens ?? 0;
+  dest.output += u.output_tokens ?? 0;
+  dest.cacheReads += u.cache_read_input_tokens ?? 0;
+
+  const w5m = u.cache_creation?.ephemeral_5m_input_tokens ?? 0;
+  const w1h = u.cache_creation?.ephemeral_1h_input_tokens ?? 0;
+  const total = u.cache_creation_input_tokens ?? (w5m + w1h);
+  dest.cacheWrites5m += w5m;
+  dest.cacheWrites1h += w1h;
+  dest.cacheWritesTotal += total;
+}
+
+export interface WindowData {
+  tokens: WindowTokens;
+  byModel: Record<string, WindowTokens>;
+}
+
 /**
  * Scan all transcript files and sum token usage for entries whose timestamp
- * falls within [startMs, endMs).
+ * falls within [startMs, endMs). Returns aggregate totals and a per-model
+ * breakdown.
  */
-export function computeWindowTokens(startMs: number, endMs: number): WindowTokens {
+export function computeWindowData(startMs: number, endMs: number): WindowData {
   const totals = emptyTokens();
+  const byModel: Record<string, WindowTokens> = {};
+
   for (const filePath of findTranscriptFiles()) {
     for (const line of readTranscriptLines(filePath)) {
       let entry: TranscriptEntry;
@@ -262,22 +302,25 @@ export function computeWindowTokens(startMs: number, endMs: number): WindowToken
       const u = entry.message?.usage;
       if (!u) continue;
 
-      totals.input += u.input_tokens ?? 0;
-      totals.output += u.output_tokens ?? 0;
-      totals.cacheReads += u.cache_read_input_tokens ?? 0;
+      addTokens(totals, u);
 
-      const w5m = u.cache_creation?.ephemeral_5m_input_tokens ?? 0;
-      const w1h = u.cache_creation?.ephemeral_1h_input_tokens ?? 0;
-      // `cache_creation_input_tokens` is the authoritative total from the API.
-      // When the tier-level breakdown (ephemeral_5m / ephemeral_1h) is absent
-      // we fall back to their sum so cacheWritesTotal is always consistent.
-      const total = u.cache_creation_input_tokens ?? (w5m + w1h);
-      totals.cacheWrites5m += w5m;
-      totals.cacheWrites1h += w1h;
-      totals.cacheWritesTotal += total;
+      const modelId = entry.message?.model;
+      if (modelId) {
+        if (!byModel[modelId]) byModel[modelId] = emptyTokens();
+        addTokens(byModel[modelId], u);
+      }
     }
   }
-  return totals;
+
+  return { tokens: totals, byModel };
+}
+
+/**
+ * @deprecated Use computeWindowData instead.
+ * Retained for any external consumers; delegates to computeWindowData.
+ */
+export function computeWindowTokens(startMs: number, endMs: number): WindowTokens {
+  return computeWindowData(startMs, endMs).tokens;
 }
 
 // ---------------------------------------------------------------------------
@@ -363,10 +406,12 @@ function buildWindowRecord(
   nowMs: number
 ): WindowRecord {
   const { startMs, endMs } = resolveWindow(resetsAt, durationMs, nowMs);
+  const { tokens, byModel } = computeWindowData(startMs, endMs);
   return {
     start: new Date(startMs).toISOString(),
     end: new Date(endMs).toISOString(),
-    tokens: computeWindowTokens(startMs, endMs),
+    tokens,
+    byModel,
   };
 }
 
@@ -390,7 +435,22 @@ export async function performSessionTracking(): Promise<void> {
     // Use the cached usage data for exact API window boundaries when available
     const usageData = readUsageCache()?.data ?? null;
 
-    const record: TrackingRecord = { polledAt: nowISO, windows: {} };
+    // Build API stats snapshot from cached usage data
+    const apiStats: ApiStats = {
+      five_hour_pct: usageData?.five_hour?.utilization ?? null,
+      seven_day_pct: usageData?.seven_day?.utilization ?? null,
+      overage_used_usd:
+        usageData?.extra_usage?.used_credits != null
+          ? usageData.extra_usage.used_credits / 100
+          : null,
+      overage_limit_usd:
+        usageData?.extra_usage?.monthly_limit != null
+          ? usageData.extra_usage.monthly_limit / 100
+          : null,
+      overage_pct: usageData?.extra_usage?.utilization ?? null,
+    };
+
+    const record: TrackingRecord = { polledAt: nowISO, apiStats, windows: {} };
 
     // Five-hour window (always computed)
     record.windows.five_hour = buildWindowRecord(

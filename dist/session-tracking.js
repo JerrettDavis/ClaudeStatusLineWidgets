@@ -149,12 +149,25 @@ function emptyTokens() {
         cacheWritesTotal: 0,
     };
 }
+function addTokens(dest, u) {
+    dest.input += u.input_tokens ?? 0;
+    dest.output += u.output_tokens ?? 0;
+    dest.cacheReads += u.cache_read_input_tokens ?? 0;
+    const w5m = u.cache_creation?.ephemeral_5m_input_tokens ?? 0;
+    const w1h = u.cache_creation?.ephemeral_1h_input_tokens ?? 0;
+    const total = u.cache_creation_input_tokens ?? (w5m + w1h);
+    dest.cacheWrites5m += w5m;
+    dest.cacheWrites1h += w1h;
+    dest.cacheWritesTotal += total;
+}
 /**
  * Scan all transcript files and sum token usage for entries whose timestamp
- * falls within [startMs, endMs).
+ * falls within [startMs, endMs). Returns aggregate totals and a per-model
+ * breakdown.
  */
-export function computeWindowTokens(startMs, endMs) {
+export function computeWindowData(startMs, endMs) {
     const totals = emptyTokens();
+    const byModel = {};
     for (const filePath of findTranscriptFiles()) {
         for (const line of readTranscriptLines(filePath)) {
             let entry;
@@ -172,21 +185,23 @@ export function computeWindowTokens(startMs, endMs) {
             const u = entry.message?.usage;
             if (!u)
                 continue;
-            totals.input += u.input_tokens ?? 0;
-            totals.output += u.output_tokens ?? 0;
-            totals.cacheReads += u.cache_read_input_tokens ?? 0;
-            const w5m = u.cache_creation?.ephemeral_5m_input_tokens ?? 0;
-            const w1h = u.cache_creation?.ephemeral_1h_input_tokens ?? 0;
-            // `cache_creation_input_tokens` is the authoritative total from the API.
-            // When the tier-level breakdown (ephemeral_5m / ephemeral_1h) is absent
-            // we fall back to their sum so cacheWritesTotal is always consistent.
-            const total = u.cache_creation_input_tokens ?? (w5m + w1h);
-            totals.cacheWrites5m += w5m;
-            totals.cacheWrites1h += w1h;
-            totals.cacheWritesTotal += total;
+            addTokens(totals, u);
+            const modelId = entry.message?.model;
+            if (modelId) {
+                if (!byModel[modelId])
+                    byModel[modelId] = emptyTokens();
+                addTokens(byModel[modelId], u);
+            }
         }
     }
-    return totals;
+    return { tokens: totals, byModel };
+}
+/**
+ * @deprecated Use computeWindowData instead.
+ * Retained for any external consumers; delegates to computeWindowData.
+ */
+export function computeWindowTokens(startMs, endMs) {
+    return computeWindowData(startMs, endMs).tokens;
 }
 // ---------------------------------------------------------------------------
 // Persistence — append-only JSONL (data is never deleted)
@@ -257,10 +272,12 @@ function resolveWindow(resetsAt, durationMs, nowMs) {
 }
 function buildWindowRecord(resetsAt, durationMs, nowMs) {
     const { startMs, endMs } = resolveWindow(resetsAt, durationMs, nowMs);
+    const { tokens, byModel } = computeWindowData(startMs, endMs);
     return {
         start: new Date(startMs).toISOString(),
         end: new Date(endMs).toISOString(),
-        tokens: computeWindowTokens(startMs, endMs),
+        tokens,
+        byModel,
     };
 }
 // ---------------------------------------------------------------------------
@@ -279,7 +296,19 @@ export async function performSessionTracking() {
         const nowISO = new Date(nowMs).toISOString();
         // Use the cached usage data for exact API window boundaries when available
         const usageData = readUsageCache()?.data ?? null;
-        const record = { polledAt: nowISO, windows: {} };
+        // Build API stats snapshot from cached usage data
+        const apiStats = {
+            five_hour_pct: usageData?.five_hour?.utilization ?? null,
+            seven_day_pct: usageData?.seven_day?.utilization ?? null,
+            overage_used_usd: usageData?.extra_usage?.used_credits != null
+                ? usageData.extra_usage.used_credits / 100
+                : null,
+            overage_limit_usd: usageData?.extra_usage?.monthly_limit != null
+                ? usageData.extra_usage.monthly_limit / 100
+                : null,
+            overage_pct: usageData?.extra_usage?.utilization ?? null,
+        };
+        const record = { polledAt: nowISO, apiStats, windows: {} };
         // Five-hour window (always computed)
         record.windows.five_hour = buildWindowRecord(usageData?.five_hour?.resets_at, FIVE_HOUR_MS, nowMs);
         // Seven-day window (always computed)
