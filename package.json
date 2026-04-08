@@ -18,7 +18,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "prepare": "npm run build"
+    "prepare": "node scripts/prepare.js"
   },
   "dependencies": {
     "@types/node": "^22.0.0",
