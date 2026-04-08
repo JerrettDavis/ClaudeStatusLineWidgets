@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/compare/v1.0.0...v1.0.1) (2026-04-08)
+
+
+### Bug Fixes
+
+* add files field to control package distribution and exclude secrets ([d67c599](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/commit/d67c59911d405f962007020c5ceb931afaeded6a))
+
 # 1.0.0 (2026-04-08)
 
 
