@@ -22,3 +22,6 @@ node dist/index.js
 - src/colors.ts — ANSI color/style helpers
 - src/usage.ts — background API usage fetcher with file-based caching
 - src/headroom.ts — Headroom compression proxy stats integration
+
+## Commit Format
+Use Conventional Commits — see [CONTRIBUTING.md](CONTRIBUTING.md). Every merge to `main` is a release; `feat:` bumps minor, `fix:` bumps patch, `feat!:` bumps major. `chore:`, `docs:`, `ci:`, `refactor:` do not trigger a release. Never edit version numbers manually.
