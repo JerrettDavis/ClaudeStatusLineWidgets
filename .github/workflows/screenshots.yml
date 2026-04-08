@@ -1,0 +1,47 @@
+name: Update Screenshots
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "scripts/capture-screenshots.js"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  screenshots:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Need full history for semantic-release compatibility
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Capture screenshots
+        run: node scripts/capture-screenshots.js
+
+      - name: Commit updated screenshots
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/images/
+          if git diff --staged --quiet; then
+            echo "No screenshot changes to commit."
+          else
+            git commit -m "chore: update screenshots [skip ci]"
+            git push
+          fi

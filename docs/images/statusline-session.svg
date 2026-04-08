@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 90" width="680" height="90" role="img" aria-label="Claude StatusLine Widgets — Session Line">
+  <title>Claude StatusLine Widgets — Session Line</title>
+  <!-- Window background -->
+  <rect width="680" height="90" rx="10" fill="#1e1e2e"/>
+  <!-- Title bar -->
+  <rect width="680" height="36" rx="10" fill="#313244"/>
+  <rect y="26" width="680" height="10" fill="#313244"/>
+  <!-- Window control dots -->
+  <circle cx="16" cy="18" r="5" fill="#f38ba8"/>
+  <circle cx="32" cy="18" r="5" fill="#f9e2af"/>
+  <circle cx="48" cy="18" r="5" fill="#a6e3a1"/>
+  <!-- Title -->
+  <text x="340" y="22.5" text-anchor="middle" font-family="JetBrains Mono,Cascadia Code,SF Mono,Menlo,Consolas,Courier New,monospace" font-size="11" fill="#585b70">Claude StatusLine Widgets — Session Line</text>
+  <text x="20" y="65" xml:space="preserve" font-family="JetBrains Mono,Cascadia Code,SF Mono,Menlo,Consolas,Courier New,monospace" font-size="13" fill="#cdd6f4"><tspan fill="#cdd6f4">/home/user/my-app</tspan><tspan fill="#585b70" opacity="0.75"> | </tspan><tspan fill="#cdd6f4">feat/add-widgets</tspan><tspan fill="#585b70" opacity="0.75"> | </tspan><tspan fill="#cdd6f4">Sonnet</tspan><tspan fill="#585b70" opacity="0.75"> | </tspan><tspan fill="#cdd6f4">$0.12</tspan><tspan fill="#585b70" opacity="0.75"> | </tspan><tspan fill="#a6e3a1">██░░░░░░</tspan><tspan fill="#cdd6f4"> 28%</tspan><tspan fill="#585b70" opacity="0.75"> | </tspan><tspan fill="#a6e3a1">⛓️ @ 9:27p</tspan></text>
+</svg>
