@@ -4,6 +4,10 @@
   "type": "module",
   "description": "Claude Code statusline with cache TTL countdown and interactive TUI configurator",
   "main": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./extension-api": "./dist/extension-api.js"
+  },
   "bin": {
     "ccfooter-config": "./bin/ccfooter-config.js"
   },

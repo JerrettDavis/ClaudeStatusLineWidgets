@@ -1,4 +1,5 @@
 import type { Widget, WidgetCatalogEntry } from "./types.js";
+import type { WidgetExtension } from "../extensions/types.js";
 import { PathWidget } from "./PathWidget.js";
 import { BranchWidget } from "./BranchWidget.js";
 import { ModelWidget } from "./ModelWidget.js";
@@ -44,16 +45,24 @@ const widgetRegistry = new Map<string, Widget>(
   WIDGET_MANIFEST.map((entry) => [entry.type, entry.create()])
 );
 
+// Tracks extension-contributed entries separately so the catalog can
+// include them alongside built-in widgets.
+const extensionManifest: ManifestEntry[] = [];
+
 export function getWidget(type: string): Widget | null {
   return widgetRegistry.get(type) ?? null;
 }
 
 export function getAllWidgetTypes(): string[] {
-  return WIDGET_MANIFEST.map((e) => e.type);
+  return [
+    ...WIDGET_MANIFEST.map((e) => e.type),
+    ...extensionManifest.map((e) => e.type),
+  ];
 }
 
 export function getWidgetCatalog(): WidgetCatalogEntry[] {
-  return WIDGET_MANIFEST.map((entry) => {
+  const allEntries = [...WIDGET_MANIFEST, ...extensionManifest];
+  return allEntries.map((entry) => {
     const w = widgetRegistry.get(entry.type)!;
     return {
       type: entry.type,
@@ -67,4 +76,30 @@ export function getWidgetCatalog(): WidgetCatalogEntry[] {
 export function getWidgetCategories(): string[] {
   const cats = new Set(getWidgetCatalog().map((e) => e.category));
   return [...cats];
+}
+
+/**
+ * Registers all widgets contributed by a single extension.
+ * Built-in widget types cannot be overridden — duplicate types are silently skipped.
+ */
+export function registerExtension(extension: WidgetExtension): void {
+  for (const reg of extension.widgets) {
+    if (widgetRegistry.has(reg.type)) continue; // protect built-ins
+    const widget = reg.create();
+    widgetRegistry.set(reg.type, widget);
+    extensionManifest.push({ type: reg.type, create: reg.create });
+  }
+}
+
+/**
+ * Discovers all globally-installed extension packages and registers their
+ * widgets into the registry. Should be called once at startup, before any
+ * rendering or TUI interaction.
+ */
+export async function loadExtensions(): Promise<void> {
+  const { discoverExtensions } = await import("../extensions/loader.js");
+  const extensions = await discoverExtensions();
+  for (const ext of extensions) {
+    registerExtension(ext);
+  }
 }

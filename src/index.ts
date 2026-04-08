@@ -9,6 +9,7 @@ import {
 import { triggerSessionTracking, performSessionTracking } from "./session-tracking.js";
 import { loadSettings } from "./config/loader.js";
 import { renderStatusLine } from "./renderer.js";
+import { loadExtensions } from "./widgets/registry.js";
 import type { StatusLinePayload, RenderContext } from "./widgets/types.js";
 
 const PLUGIN_KEY = "cache-ttl-statusline@claude-statusline-widgets";
@@ -61,6 +62,9 @@ async function main(): Promise<void> {
     await performSessionTracking();
     return;
   }
+
+  // Load any globally-installed extension widgets before rendering or TUI.
+  await loadExtensions();
 
   // TTY mode: launch interactive TUI for configuration
   if (process.stdin.isTTY) {
