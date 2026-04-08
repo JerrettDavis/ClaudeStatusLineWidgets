@@ -10,7 +10,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "prepack": "npm run build"
+    "prepare": "npm run build"
   },
   "dependencies": {
     "@types/node": "^22.0.0",
