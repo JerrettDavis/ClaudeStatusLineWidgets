@@ -45,6 +45,22 @@ export interface WindowRecord {
   tokens: WindowTokens;
   /** Per-model token breakdown within this window */
   byModel: Record<string, WindowTokens>;
+  /**
+   * Proportionally-weighted token equivalent (Sonnet-normalised).
+   *
+   * Each model's total tokens (input + output + cache reads + cache writes) are
+   * multiplied by a family weight, then summed.  Unattributed tokens (entries
+   * without a model field) are included at the default weight (1.0).
+   *
+   * This value lets you correlate transcript token spend against the API
+   * utilisation percentage to back-calculate the effective window capacity.
+   */
+  weightedTokenEquivalent: number;
+  /**
+   * The weight applied per model ID when computing `weightedTokenEquivalent`.
+   * Stored so historical records can be re-analysed with revised weights.
+   */
+  modelWeights: Record<string, number>;
 }
 
 /** Snapshot of API-reported utilisation percentages and overage at poll time */
@@ -273,19 +289,68 @@ function addTokens(dest: WindowTokens, u: TranscriptUsage): void {
   dest.cacheWritesTotal += total;
 }
 
+// ---------------------------------------------------------------------------
+// Model-family weights (Sonnet-normalised)
+//
+// True weights are not publicly documented; these are empirical estimates
+// based on observed rate-limit behaviour.  Ranges:
+//   Haiku:   0.1–0.9× (fast/cheap model, lower rate-limit cost)
+//   Sonnet:  1.0×      (baseline reference)
+//   Opus:    1.1–3.0+× (most capable, higher rate-limit cost)
+//
+// The weight per model is stored alongside the computed equivalent so that
+// historical records can be re-analysed when better estimates are known.
+// ---------------------------------------------------------------------------
+
+/** Default (Sonnet-normalised) weights for known Claude model families. */
+export const MODEL_FAMILY_WEIGHTS: Record<string, number> = {
+  "opus": 2.0,
+  "sonnet": 1.0,
+  "haiku": 0.5,
+};
+
+/** Weight to apply when the model ID is absent or unrecognised. */
+export const DEFAULT_MODEL_WEIGHT = 1.0;
+
+/**
+ * Derive a Sonnet-normalised weight from a model ID string by matching against
+ * known family names using word-boundary patterns (e.g. "claude-opus-4-5"
+ * matches "opus" but "super-haiku-opus-variant" correctly resolves to "opus").
+ * Falls back to the default weight when no family is recognised.
+ */
+export function getModelWeight(modelId: string): number {
+  const lower = modelId.toLowerCase();
+  for (const [family, weight] of Object.entries(MODEL_FAMILY_WEIGHTS)) {
+    if (new RegExp(`(?<![a-z])${family}(?![a-z])`).test(lower)) return weight;
+  }
+  return DEFAULT_MODEL_WEIGHT;
+}
+
+/** Sum all token categories for a single model into one scalar. */
+function totalTokenCount(t: WindowTokens): number {
+  return t.input + t.output + t.cacheReads + t.cacheWritesTotal;
+}
+
 export interface WindowData {
   tokens: WindowTokens;
   byModel: Record<string, WindowTokens>;
+  /** Sonnet-normalised weighted token equivalent (see WindowRecord docs). */
+  weightedTokenEquivalent: number;
+  /** Per-model weights used when computing weightedTokenEquivalent. */
+  modelWeights: Record<string, number>;
 }
 
 /**
  * Scan all transcript files and sum token usage for entries whose timestamp
- * falls within [startMs, endMs). Returns aggregate totals and a per-model
- * breakdown.
+ * falls within [startMs, endMs). Returns aggregate totals, a per-model
+ * breakdown, and a Sonnet-normalised weighted token equivalent.
  */
 export function computeWindowData(startMs: number, endMs: number): WindowData {
   const totals = emptyTokens();
   const byModel: Record<string, WindowTokens> = {};
+  // Track tokens from entries that had no model attribution separately so we
+  // can include them in the weighted total at the default weight.
+  const unattributed = emptyTokens();
 
   for (const filePath of findTranscriptFiles()) {
     for (const line of readTranscriptLines(filePath)) {
@@ -308,11 +373,27 @@ export function computeWindowData(startMs: number, endMs: number): WindowData {
       if (modelId) {
         if (!byModel[modelId]) byModel[modelId] = emptyTokens();
         addTokens(byModel[modelId], u);
+      } else {
+        addTokens(unattributed, u);
       }
     }
   }
 
-  return { tokens: totals, byModel };
+  // Compute weighted token equivalent: sum(model_total * weight) for each
+  // known model, plus unattributed tokens at the default weight.
+  const modelWeights: Record<string, number> = {};
+  let weightedTokenEquivalent = 0;
+
+  for (const [modelId, modelTokens] of Object.entries(byModel)) {
+    const weight = getModelWeight(modelId);
+    modelWeights[modelId] = weight;
+    weightedTokenEquivalent += totalTokenCount(modelTokens) * weight;
+  }
+
+  // Unattributed tokens contribute at the default (Sonnet) weight.
+  weightedTokenEquivalent += totalTokenCount(unattributed) * DEFAULT_MODEL_WEIGHT;
+
+  return { tokens: totals, byModel, weightedTokenEquivalent, modelWeights };
 }
 
 /**
@@ -406,12 +487,14 @@ function buildWindowRecord(
   nowMs: number
 ): WindowRecord {
   const { startMs, endMs } = resolveWindow(resetsAt, durationMs, nowMs);
-  const { tokens, byModel } = computeWindowData(startMs, endMs);
+  const { tokens, byModel, weightedTokenEquivalent, modelWeights } = computeWindowData(startMs, endMs);
   return {
     start: new Date(startMs).toISOString(),
     end: new Date(endMs).toISOString(),
     tokens,
     byModel,
+    weightedTokenEquivalent,
+    modelWeights,
   };
 }
 
