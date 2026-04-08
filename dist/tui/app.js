@@ -1,5 +1,5 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Text, useApp, useInput } from "ink";
 import { loadSettings, saveSettings } from "../config/loader.js";
 import { createDefaultSettings, generateId } from "../config/schema.js";

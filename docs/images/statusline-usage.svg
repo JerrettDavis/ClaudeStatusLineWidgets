@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 90" width="500" height="90" role="img" aria-label="Claude StatusLine Widgets — API Usage">
+  <title>Claude StatusLine Widgets — API Usage</title>
+  <!-- Window background -->
+  <rect width="500" height="90" rx="10" fill="#1e1e2e"/>
+  <!-- Title bar -->
+  <rect width="500" height="36" rx="10" fill="#313244"/>
+  <rect y="26" width="500" height="10" fill="#313244"/>
+  <!-- Window control dots -->
+  <circle cx="16" cy="18" r="5" fill="#f38ba8"/>
+  <circle cx="32" cy="18" r="5" fill="#f9e2af"/>
+  <circle cx="48" cy="18" r="5" fill="#a6e3a1"/>
+  <!-- Title -->
+  <text x="250" y="22.5" text-anchor="middle" font-family="JetBrains Mono,Cascadia Code,SF Mono,Menlo,Consolas,Courier New,monospace" font-size="11" fill="#585b70">Claude StatusLine Widgets — API Usage</text>
+  <text x="20" y="65" xml:space="preserve" font-family="JetBrains Mono,Cascadia Code,SF Mono,Menlo,Consolas,Courier New,monospace" font-size="13" fill="#cdd6f4"><tspan fill="#cdd6f4">5h ██░░░ 35%</tspan><tspan fill="#585b70" opacity="0.75"> | </tspan><tspan fill="#cdd6f4">7d █░░░░ 20%</tspan><tspan fill="#585b70" opacity="0.75"> | </tspan><tspan fill="#cdd6f4">+$5/$20 █░░░░ 25%</tspan></text>
+</svg>

@@ -1,10 +1,38 @@
 # Claude StatusLine Widgets
 
-A configurable statusline plugin marketplace for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) that displays real-time session metrics in your terminal. Comes with an interactive TUI for visual configuration.
+A configurable statusline plugin for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) that displays real-time session metrics at the bottom of your terminal — model, cost, context window, cache TTL, API usage, and more. Comes with an interactive TUI for zero-friction visual configuration.
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue)
 ![Node.js](https://img.shields.io/badge/Node.js-18%2B-green)
 ![License](https://img.shields.io/badge/license-MIT-brightgreen)
+
+---
+
+## What it looks like
+
+![Full default layout](docs/images/statusline-full.svg)
+
+The default layout renders three lines below your Claude Code prompt:
+
+| Line | Content |
+|------|---------|
+| **1 — Session** | Working directory · git branch · model · cost · context bar · cache TTL |
+| **2 — Usage** | 5-hour and 7-day rate-limit bars · overage spend *(hidden when unavailable)* |
+| **3 — Headroom** | Tokens saved · compression % · cost saved · cache hit rate *(hidden unless proxy is active)* |
+
+### Context window color coding
+
+The context bar changes color as you approach the limit:
+
+![High context warning](docs/images/statusline-context-high.svg)
+
+### Cache TTL color coding
+
+The cache TTL indicator turns from green → yellow → red as expiry approaches:
+
+![Cache TTL states](docs/images/statusline-cache-states.svg)
+
+---
 
 ## Installation
 
@@ -24,6 +52,8 @@ claude plugin marketplace add JerrettDavis/ClaudeStatusLineWidgets
 claude plugin install cache-ttl-statusline@claude-statusline-widgets
 ```
 
+Restart Claude Code — the statusline appears immediately at the bottom of your terminal.
+
 ### Standalone (without marketplace)
 
 ```bash
@@ -32,7 +62,7 @@ cd ClaudeStatusLineWidgets
 npm install
 ```
 
-Then add to your Claude Code settings (`~/.claude/settings.json`):
+Add to your Claude Code settings (`~/.claude/settings.json`):
 
 ```json
 {
@@ -43,19 +73,17 @@ Then add to your Claude Code settings (`~/.claude/settings.json`):
 }
 ```
 
-Restart Claude Code. The statusline appears at the bottom of your terminal.
-
-### Install the CLI globally
-
-Install the `ccfooter-config` command for easy access to the TUI configurator:
+### Install the `ccfooter-config` CLI globally
 
 ```bash
 # From a local clone
 npm install -g .
 
-# Or directly from GitHub
+# Directly from GitHub
 npm install -g github:JerrettDavis/ClaudeStatusLineWidgets
 ```
+
+---
 
 ## Configuration
 
@@ -67,14 +95,17 @@ Launch the TUI configurator with:
 ccfooter-config
 ```
 
-The TUI provides:
+![TUI configurator](docs/images/tui-preview.svg)
 
-- **Edit Lines** -- choose which widgets appear on each line, add/remove/reorder them
-- **Edit Colors** -- set per-widget colors from the ANSI color palette
-- **Live Preview** -- see your statusline update in real-time as you make changes
-- **Reset to Defaults** -- restore the original 3-line layout
+The TUI lets you:
 
-#### TUI Keyboard Shortcuts
+- **Add / remove / reorder** widgets on each line
+- **Pick colors** from the full ANSI palette with a live preview
+- **Add or delete entire lines**
+- **Reset** to the factory 3-line layout
+- See a **live preview** that updates as you make changes
+
+#### Keyboard shortcuts
 
 | Context | Key | Action |
 |---------|-----|--------|
@@ -90,7 +121,7 @@ The TUI provides:
 | Widget Picker | `Enter` | Select widget to add |
 | Widget Picker | `Esc` | Cancel |
 
-### Settings File
+### Settings file
 
 Settings are saved to `~/.config/claude-statusline-widgets/settings.json`. You can also edit this file directly. Example:
 
@@ -116,46 +147,15 @@ Settings are saved to `~/.config/claude-statusline-widgets/settings.json`. You c
 }
 ```
 
-Delete the file to reset to defaults.
+Delete the settings file to reset to defaults.
 
-## Default Layout
+For the full configuration reference (all options, environment variables, color names) see **[docs/configuration.md](docs/configuration.md)**.
 
-Out of the box, the statusline displays three lines:
-
-**Line 1 -- Session Info**
-
-```
-/home/user/project | main | Opus | $0.45 | ████████ 72% | ⛓️ @ 3:42p
-```
-
-- Working directory and git branch
-- Model name (Opus, Sonnet, Haiku, etc.)
-- Running session cost in USD
-- Context window usage (color-coded progress bar)
-- Cache TTL countdown with expiry time
-
-**Line 2 -- API Usage** *(shown when data is available)*
-
-```
-5h ██░░░ 35% | 7d █░░░░ 20% | +$5/$20 █░░░░ 25%
-```
-
-- 5-hour rate limit utilization
-- 7-day rate limit utilization
-- Overage spend tracking (if enabled)
-
-**Line 3 -- Headroom Proxy** *(shown when proxy is active)*
-
-```
-⚖️ 491k tokens saved | 34% compressed | $0.12 saved | 78% cache hit
-```
-
-- Tokens saved by compression
-- Compression percentage
-- Cost savings
-- Prefix cache hit rate
+---
 
 ## Available Widgets
+
+![Session line example](docs/images/statusline-session.svg)
 
 | Category | Type | Name | Description |
 |----------|------|------|-------------|
@@ -163,8 +163,9 @@ Out of the box, the statusline displays three lines:
 | Session | `branch` | Branch | Git branch name |
 | Session | `model` | Model | Claude model name |
 | Session | `cost` | Cost | Session cost in USD |
-| Context | `context-bar` | Context Bar | Context window usage with progress bar |
-| Context | `cache-ttl` | Cache TTL | Cache expiry countdown with color coding |
+| Context | `context-bar` | Context Bar | Context window usage with color-coded progress bar |
+| Context | `cache-ttl` | Cache TTL | Cache expiry countdown |
+| Context | `cache-tokens` | Cache Tokens | Cumulative cache-read token count |
 | Usage | `usage-5h` | 5h Usage | 5-hour rate limit utilization |
 | Usage | `usage-7d` | 7d Usage | 7-day rate limit utilization |
 | Usage | `usage-overage` | Overage | Extra usage / overage spend |
@@ -172,20 +173,30 @@ Out of the box, the statusline displays three lines:
 | Headroom | `headroom-compression` | Compression | Headroom compression percentage |
 | Headroom | `headroom-cost` | Cost Saved | Headroom cost savings |
 | Headroom | `headroom-cache-hit` | Cache Hit Rate | Headroom prefix cache hit rate |
-| Layout | `separator` | Separator | Dim ` | ` between widgets |
+| Layout | `separator` | Separator | Dim ` \| ` between widgets |
 | Layout | `custom-text` | Custom Text | Static text (set via `customText` field) |
 
-### Cache TTL Color Coding
+For per-widget documentation, examples, and configuration options see **[docs/widgets.md](docs/widgets.md)**.
 
-| Color | Meaning |
-|-------|---------|
-| Green | > 2 minutes remaining (5m tier) |
-| Yellow | 1--2 minutes remaining |
-| Red | < 1 minute remaining |
-| Cyan | 1-hour tier cache active |
-| Dim | Cache expired or not present |
+---
 
-## How It Works
+## API Usage tracking
+
+![API usage line](docs/images/statusline-usage.svg)
+
+The usage line shows your real-time Anthropic rate-limit utilisation. Data is fetched in a background process every 60 seconds using your OAuth credentials from `~/.claude/.credentials.json` — no extra configuration needed if you are logged in to Claude Code.
+
+---
+
+## Headroom proxy integration
+
+![Headroom stats line](docs/images/statusline-headroom.svg)
+
+Set `ANTHROPIC_BASE_URL=http://127.0.0.1:8787` to activate the Headroom widgets.  They query the local proxy's `/stats` endpoint and display token savings, compression ratio, cost savings, and cache hit rate.
+
+---
+
+## How it works
 
 Claude Code pipes a JSON payload to the statusline command via stdin on each render cycle. This plugin:
 
@@ -193,42 +204,46 @@ Claude Code pipes a JSON payload to the statusline command via stdin on each ren
 2. **Parses the payload** for model, cost, context window, transcript path, and git info
 3. **Renders each widget** in your configured layout via the widget registry
 4. **Reads the session transcript** (JSONL) backwards to find the last cache write for TTL
-5. **Fetches API usage data** in a detached background process (non-blocking, cached 60s)
-6. **Shows Headroom proxy stats** if `ANTHROPIC_BASE_URL` points to localhost:8787
+5. **Fetches API usage data** in a detached background process (non-blocking, cached 60 s)
+6. **Shows Headroom proxy stats** if `ANTHROPIC_BASE_URL` points to `localhost:8787`
 
 When run interactively (stdin is a TTY), it launches the React/Ink TUI configurator instead.
+
+---
 
 ## Architecture
 
 ```
 .claude-plugin/
-  marketplace.json  -- Marketplace catalog
-  plugin.json       -- Plugin manifest
+  marketplace.json  — Marketplace catalog
+  plugin.json       — Plugin manifest
 
 src/
-  index.ts          -- Entry point: TTY detection (TUI vs render mode)
-  renderer.ts       -- Settings-driven multi-line renderer
-  cache.ts          -- JSONL transcript parsing, TTL computation
-  segments.ts       -- Low-level formatters for each segment type
-  colors.ts         -- ANSI color/style helpers
-  usage.ts          -- Background API usage fetcher with file-based caching
-  headroom.ts       -- Headroom compression proxy stats integration
+  index.ts          — Entry point: TTY detection (TUI vs render mode)
+  renderer.ts       — Settings-driven multi-line renderer
+  cache.ts          — JSONL transcript parsing, TTL computation
+  segments.ts       — Low-level formatters for each segment type
+  colors.ts         — ANSI color/style helpers
+  usage.ts          — Background API usage fetcher with file-based caching
+  headroom.ts       — Headroom compression proxy stats integration
 
   widgets/
-    types.ts        -- Widget interface, WidgetItem config, RenderContext
-    registry.ts     -- Widget manifest and factory registry
-    *.ts            -- One file per widget implementation
+    types.ts        — Widget interface, WidgetItem config, RenderContext
+    registry.ts     — Widget manifest and factory registry
+    *.ts            — One file per widget implementation
 
   config/
-    schema.ts       -- Settings type, defaults, validation
-    loader.ts       -- Load/save settings, config path, migrations
+    schema.ts       — Settings type, defaults, validation
+    loader.ts       — Load/save settings, config path, migrations
 
   tui/
-    index.tsx       -- TUI entry point (runTUI)
-    app.tsx         -- Main app with screen router and preview
-    components/     -- MainMenu, LineSelector, ItemsEditor,
+    index.tsx       — TUI entry point (runTUI)
+    app.tsx         — Main app with screen router and preview
+    components/     — MainMenu, LineSelector, ItemsEditor,
                        WidgetPicker, ColorMenu
 ```
+
+---
 
 ## Development
 
@@ -244,7 +259,14 @@ echo '{"model":{"display_name":"Opus"},"cost":{"total_cost_usd":0.12},"context_w
 ccfooter-config
 # Or without global install:
 node dist/index.js
+
+# Regenerate docs screenshots
+npm run build && node scripts/capture-screenshots.js
 ```
+
+Screenshots in `docs/images/` are auto-regenerated by [the screenshots workflow](.github/workflows/screenshots.yml) whenever `src/` changes on `main`.
+
+---
 
 ## License
 
