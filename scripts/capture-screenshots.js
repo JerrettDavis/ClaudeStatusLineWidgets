@@ -115,7 +115,7 @@ function visibleWidth(text) {
 /**
  * Convert an array of ANSI-encoded lines to an SVG terminal screenshot.
  *
- * @param {string[]} lines   Array of lines with ANSI colour codes.
+ * @param {string[]} lines   Array of lines with ANSI color codes.
  * @param {object}   options
  * @param {string}   options.title      Window title text.
  * @param {number}   [options.minWidth] Minimum SVG width in px (default 560).
@@ -146,7 +146,7 @@ function ansiLinesToSvg(lines, { title = "Terminal", minWidth = 560 } = {}) {
               ? T.dimFg
               : T.fg;
           const weight = span.bold ? ' font-weight="bold"' : "";
-          // dim non-coloured text slightly
+          // dim non-colored text slightly
           const opacity =
             span.dim && !span.color ? ' opacity="0.75"' : "";
           return `<tspan fill="${fill}"${weight}${opacity}>${escapeXml(span.text)}</tspan>`;
@@ -216,11 +216,16 @@ async function renderMock(overrides = {}) {
   return renderStatusLine(settings, context);
 }
 
+/** Returns true if value is a plain (non-array, non-null) object. */
+function isPlainObject(value) {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
 /** Deep merge (second wins) */
 function deepMerge(base, override) {
   const out = { ...base };
   for (const [k, v] of Object.entries(override)) {
-    if (v && typeof v === "object" && !Array.isArray(v) && out[k] && typeof out[k] === "object") {
+    if (isPlainObject(v) && isPlainObject(out[k])) {
       out[k] = deepMerge(out[k], v);
     } else {
       out[k] = v;

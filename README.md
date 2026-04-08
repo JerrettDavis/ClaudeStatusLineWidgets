@@ -20,13 +20,13 @@ The default layout renders three lines below your Claude Code prompt:
 | **2 — Usage** | 5-hour and 7-day rate-limit bars · overage spend *(hidden when unavailable)* |
 | **3 — Headroom** | Tokens saved · compression % · cost saved · cache hit rate *(hidden unless proxy is active)* |
 
-### Context window colour coding
+### Context window color coding
 
-The context bar changes colour as you approach the limit:
+The context bar changes color as you approach the limit:
 
 ![High context warning](docs/images/statusline-context-high.svg)
 
-### Cache TTL colour coding
+### Cache TTL color coding
 
 The cache TTL indicator turns from green → yellow → red as expiry approaches:
 
@@ -100,7 +100,7 @@ ccfooter-config
 The TUI lets you:
 
 - **Add / remove / reorder** widgets on each line
-- **Pick colours** from the full ANSI palette with a live preview
+- **Pick colors** from the full ANSI palette with a live preview
 - **Add or delete entire lines**
 - **Reset** to the factory 3-line layout
 - See a **live preview** that updates as you make changes
@@ -149,7 +149,7 @@ Settings are saved to `~/.config/claude-statusline-widgets/settings.json`. You c
 
 Delete the settings file to reset to defaults.
 
-For the full configuration reference (all options, environment variables, colour names) see **[docs/configuration.md](docs/configuration.md)**.
+For the full configuration reference (all options, environment variables, color names) see **[docs/configuration.md](docs/configuration.md)**.
 
 ---
 
@@ -163,11 +163,11 @@ For the full configuration reference (all options, environment variables, colour
 | Session | `branch` | Branch | Git branch name |
 | Session | `model` | Model | Claude model name |
 | Session | `cost` | Cost | Session cost in USD |
-| Context | `context-bar` | Context Bar | Context window usage with colour-coded progress bar |
+| Context | `context-bar` | Context Bar | Context window usage with color-coded progress bar |
 | Context | `cache-ttl` | Cache TTL | Cache expiry countdown |
 | Context | `cache-tokens` | Cache Tokens | Cumulative cache-read token count |
-| Usage | `usage-5h` | 5h Usage | 5-hour rate limit utilisation |
-| Usage | `usage-7d` | 7d Usage | 7-day rate limit utilisation |
+| Usage | `usage-5h` | 5h Usage | 5-hour rate limit utilization |
+| Usage | `usage-7d` | 7d Usage | 7-day rate limit utilization |
 | Usage | `usage-overage` | Overage | Extra usage / overage spend |
 | Headroom | `headroom-tokens` | Tokens Saved | Headroom tokens saved count |
 | Headroom | `headroom-compression` | Compression | Headroom compression percentage |

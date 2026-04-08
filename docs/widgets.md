@@ -1,6 +1,6 @@
 # Widget Reference
 
-Claude StatusLine Widgets ships with 16 built-in widgets organised into five categories. All widgets integrate with the [interactive TUI configurator](configuration.md) and can be arranged in any order across any number of lines.
+Claude StatusLine Widgets ships with 16 built-in widgets organized into five categories. All widgets integrate with the [interactive TUI configurator](configuration.md) and can be arranged in any order across any number of lines.
 
 ---
 
@@ -43,7 +43,7 @@ Opus
 Sonnet
 ```
 
-Supports per-widget colour overrides via the TUI or settings file.
+Supports per-widget color overrides via the TUI or settings file.
 
 ---
 
@@ -79,7 +79,7 @@ A compact progress bar showing how much of the context window is in use, followe
 
 ### `cache-ttl` — Cache TTL Countdown
 
-Shows the expiry time of the most recent prompt-cache write, colour-coded by urgency.
+Shows the expiry time of the most recent prompt-cache write, color-coded by urgency.
 
 | Colour | Condition |
 |--------|-----------|
@@ -106,7 +106,7 @@ Shows the cumulative number of cache-read tokens for the current session.  Hidde
 
 ## Usage
 
-Widgets that display Anthropic API rate-limit utilisation.  Data is fetched in a background process every 60 seconds and requires a valid OAuth session (`~/.claude/.credentials.json`).
+Widgets that display Anthropic API rate-limit utilization.  Data is fetched in a background process every 60 seconds and requires a valid OAuth session (`~/.claude/.credentials.json`).
 
 ### `usage-5h` — 5-hour Rate Limit
 

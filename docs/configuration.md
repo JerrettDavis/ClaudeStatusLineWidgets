@@ -23,7 +23,7 @@ node dist/index.js
 | **Main Menu** | Entry point — choose a line to edit, add/remove lines, reset, or quit |
 | **Line Editor** | Reorder, add, or remove widgets on a specific line |
 | **Widget Picker** | Browse the full widget catalogue, grouped by category |
-| **Color Menu** | Set a per-widget ANSI colour |
+| **Color Menu** | Set a per-widget ANSI color |
 
 ### Keyboard shortcuts
 
@@ -40,8 +40,8 @@ node dist/index.js
 | Widget Picker | Arrow keys | Navigate |
 | Widget Picker | `Enter` | Select widget |
 | Widget Picker | `Esc` | Cancel |
-| Color Menu | Arrow keys | Navigate colours |
-| Color Menu | `Enter` | Apply colour |
+| Color Menu | Arrow keys | Navigate colors |
+| Color Menu | `Enter` | Apply color |
 | Color Menu | `Esc` | Cancel |
 
 The **Live Preview** at the bottom of the screen updates instantly as you make changes.
@@ -73,9 +73,9 @@ You can edit this file directly. Delete it to reset to defaults.
 |-------|------|----------|-------------|
 | `id` | `string` | ✓ | Unique widget instance ID (any string) |
 | `type` | `string` | ✓ | Widget type key (see [Widget Reference](widgets.md)) |
-| `color` | `string` | — | Override colour (`"red"`, `"green"`, `"yellow"`, `"cyan"`, `"blue"`, `"magenta"`, `"white"`, `"default"`) |
+| `color` | `string` | — | Override color (`"red"`, `"green"`, `"yellow"`, `"cyan"`, `"blue"`, `"magenta"`, `"white"`, `"default"`) |
 | `bold` | `boolean` | — | Render text bold |
-| `rawValue` | `boolean` | — | Skip ANSI colour codes (useful for scripts) |
+| `rawValue` | `boolean` | — | Skip ANSI color codes (useful for scripts) |
 | `customText` | `string` | — | Static text string (only used by `custom-text` widget) |
 
 ### Default settings
@@ -134,7 +134,7 @@ You can edit this file directly. Delete it to reset to defaults.
 }
 ```
 
-### Example: coloured model widget
+### Example: colored model widget
 
 ```json
 { "id": "5", "type": "model", "color": "cyan", "bold": true }
