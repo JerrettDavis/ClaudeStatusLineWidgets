@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/compare/v1.0.1...v1.0.2) (2026-04-08)
+
+
+### Bug Fixes
+
+* graceful prepare fallback and commit dist/ in release ([ba648ba](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/commit/ba648baeca77ff3b0f0273bb5164e3b2038519b9))
+
 ## [1.0.1](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/compare/v1.0.0...v1.0.1) (2026-04-08)
 
 
