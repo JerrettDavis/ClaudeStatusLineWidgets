@@ -1,6 +1,7 @@
 import type { Settings } from "./config/schema.js";
 import type { RenderContext } from "./widgets/types.js";
 import { getWidget } from "./widgets/registry.js";
+import { applyColor } from "./colors.js";
 
 export function renderStatusLine(settings: Settings, context: RenderContext): string {
   const lines: string[] = [];
@@ -11,7 +12,11 @@ export function renderStatusLine(settings: Settings, context: RenderContext): st
     for (const item of lineItems) {
       const widget = getWidget(item.type);
       if (!widget) continue;
-      const value = widget.render(item, context);
+      const rawValue = widget.render(item, context);
+      const value =
+        rawValue !== null && item.color && item.color !== "default"
+          ? applyColor(rawValue, item.color)
+          : rawValue;
       rendered.push({ value, isSep: item.type === "separator" });
     }
 
