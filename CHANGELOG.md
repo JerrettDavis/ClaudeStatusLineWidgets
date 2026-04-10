@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/compare/v1.1.0...v1.1.1) (2026-04-10)
+
+
+### Bug Fixes
+
+* apply item.color in renderer and add color helpers + tests ([b4178b8](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/commit/b4178b8788802711cf4cd813b751f8d3994828ad))
+
 # [1.1.0](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/compare/v1.0.2...v1.1.0) (2026-04-10)
 
 
