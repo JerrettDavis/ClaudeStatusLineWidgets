@@ -58,6 +58,18 @@ export function ItemsEditor({ line, lineIndex, onChange, onAddWidget, onDeleteLi
         setCursor(Math.min(safeIdx, next.length - 1));
       }
     }
+    if (input === "v" && line.length > 0) {
+      const widget = getWidget(line[safeIdx]?.type);
+      const variants = widget?.getVariants?.() ?? [];
+      if (variants.length > 0) {
+        const currentVariant = line[safeIdx]?.variant ?? variants[0];
+        const currentIndex = Math.max(0, variants.indexOf(currentVariant));
+        const nextVariant = variants[(currentIndex + 1) % variants.length];
+        const next = [...line];
+        next[safeIdx] = { ...next[safeIdx], variant: nextVariant };
+        onChange(next);
+      }
+    }
     if (input === "m") setMoveMode(!moveMode);
     if (input === "x") onDeleteLine();
   });
@@ -66,7 +78,7 @@ export function ItemsEditor({ line, lineIndex, onChange, onAddWidget, onDeleteLi
     <Box flexDirection="column">
       <Text bold>Line {lineIndex + 1} Widgets</Text>
       <Text dimColor>
-        a = add | d = delete | m = {moveMode ? "stop moving" : "move mode"} | x = delete line | esc = back
+        a = add | d = delete | v = cycle variant | m = {moveMode ? "stop moving" : "move mode"} | x = delete line | esc = back
       </Text>
       <Box flexDirection="column" marginTop={1}>
         {line.length === 0 && <Text dimColor>(empty — press a to add widgets)</Text>}
@@ -80,6 +92,7 @@ export function ItemsEditor({ line, lineIndex, onChange, onAddWidget, onDeleteLi
                 {selected ? (moveMode ? "↕ " : "▸ ") : "  "}
                 {name}
               </Text>
+              {item.variant && <Text dimColor> ({item.variant})</Text>}
               {item.color && <Text dimColor> [{item.color}]</Text>}
             </Box>
           );

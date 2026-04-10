@@ -1,18 +1,21 @@
-export const CURRENT_VERSION = 1;
+export const CURRENT_VERSION = 2;
 
 export interface WidgetItemConfig {
   id: string;
   type: string;
   color?: string;
   bold?: boolean;
+  variant?: string;
   rawValue?: boolean;
   customText?: string;
+  options?: Record<string, string | number | boolean | null>;
 }
 
 export interface Settings {
   version: number;
   lines: WidgetItemConfig[][];
   defaultSeparator?: string;
+  minimalistMode?: boolean;
 }
 
 let _nextId = 1;
@@ -59,21 +62,45 @@ export function validateSettings(raw: unknown): Settings {
       if (!item || typeof item !== "object") continue;
       const it = item as Record<string, unknown>;
       if (typeof it.id !== "string" || typeof it.type !== "string") continue;
-      items.push({
-        id: it.id,
-        type: it.type,
-        color: typeof it.color === "string" ? it.color : undefined,
-        bold: typeof it.bold === "boolean" ? it.bold : undefined,
-        rawValue: typeof it.rawValue === "boolean" ? it.rawValue : undefined,
-        customText: typeof it.customText === "string" ? it.customText : undefined,
-      });
-    }
-    lines.push(items);
+        items.push({
+          id: it.id,
+          type: it.type,
+          color: typeof it.color === "string" ? it.color : undefined,
+          bold: typeof it.bold === "boolean" ? it.bold : undefined,
+          variant: typeof it.variant === "string" ? it.variant : undefined,
+          rawValue: typeof it.rawValue === "boolean" ? it.rawValue : undefined,
+          customText: typeof it.customText === "string" ? it.customText : undefined,
+          options: isRecord(it.options) ? sanitizeOptions(it.options) : undefined,
+        });
+      }
+      lines.push(items);
   }
 
   return {
     version: typeof obj.version === "number" ? obj.version : CURRENT_VERSION,
     lines,
     defaultSeparator: typeof obj.defaultSeparator === "string" ? obj.defaultSeparator : undefined,
+    minimalistMode: typeof obj.minimalistMode === "boolean" ? obj.minimalistMode : undefined,
   };
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function sanitizeOptions(
+  value: Record<string, unknown>
+): Record<string, string | number | boolean | null> {
+  const options: Record<string, string | number | boolean | null> = {};
+  for (const [key, option] of Object.entries(value)) {
+    if (
+      option === null ||
+      typeof option === "string" ||
+      typeof option === "number" ||
+      typeof option === "boolean"
+    ) {
+      options[key] = option;
+    }
+  }
+  return options;
 }

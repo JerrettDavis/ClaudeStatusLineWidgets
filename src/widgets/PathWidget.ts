@@ -9,7 +9,11 @@ export class PathWidget implements Widget {
   supportsColors() { return true; }
   render(_item: WidgetItem, ctx: RenderContext): string | null {
     if (ctx.isPreview) return "~/projects/my-app";
-    const cwd = ctx.payload.cwd ?? ctx.payload.workspace?.current_dir;
+    const cwd =
+      ctx.runtime.git.cwd ??
+      ctx.payload.cwd ??
+      ctx.payload.workspace?.current_dir ??
+      ctx.payload.workspace?.project_dir;
     return formatPath(cwd);
   }
 }
