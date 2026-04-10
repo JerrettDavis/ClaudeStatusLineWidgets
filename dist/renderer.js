@@ -1,4 +1,5 @@
 import { getWidget } from "./widgets/registry.js";
+import { applyColor } from "./colors.js";
 export function renderStatusLine(settings, context) {
     const lines = [];
     for (const lineItems of settings.lines) {
@@ -8,7 +9,10 @@ export function renderStatusLine(settings, context) {
             const widget = getWidget(item.type);
             if (!widget)
                 continue;
-            const value = widget.render(item, context);
+            const rawValue = widget.render(item, context);
+            const value = rawValue !== null && item.color && item.color !== "default"
+                ? applyColor(rawValue, item.color)
+                : rawValue;
             rendered.push({ value, isSep: item.type === "separator" });
         }
         // Second pass: collect content, suppress separators adjacent to nulls.
