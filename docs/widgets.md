@@ -1,197 +1,158 @@
 # Widget Reference
 
-Claude StatusLine Widgets ships with 16 built-in widgets organized into five categories. All widgets integrate with the [interactive TUI configurator](configuration.md) and can be arranged in any order across any number of lines.
+Claude StatusLine Widgets now includes **62 built-in widgets** across seven categories. Several widgets also support **display variants**, so the same data can be rendered as a compact number, percentage, badge, countdown, or progress bar depending on what reads best in your layout.
 
 ---
 
 ## Session
 
-Widgets that reflect the current Claude Code session.
+Session widgets surface metadata Claude Code already knows about the current run:
 
-### `path` — Working Directory
+- `path` — current working directory
+- `branch` — active Git branch
+- `model` — Claude model display name
+- `cost` — current session cost in USD
+- `session-id` — current Claude Code session identifier
+- `version` — Claude Code version
+- `output-style` — active output style name
+- `session-clock` — current local time
+- `session-elapsed` — elapsed time since the transcript began
+- `account-email` — signed-in account email when it can be discovered locally
+- `thinking-effort` — effort / thinking metadata when present in the payload
+- `vim-mode` — current vim mode when present in the payload
+- `skills` — active skill count or list
 
-Displays the current working directory.  Uses `~/` short form when inside your home directory.
+### Skills variants
 
-**Example output**
-```
-~/projects/my-app
-```
-
-In the default layout it appears as the first item on Line 1.
-
----
-
-### `branch` — Git Branch
-
-Displays the active git branch reported by Claude Code.  Returns `null` (hidden) when no branch is available.
-
-**Example output**
-```
-main
-feat/add-widgets
-```
-
----
-
-### `model` — Claude Model
-
-Displays the name of the Claude model currently in use (e.g. `Opus`, `Sonnet`, `Haiku`).
-
-**Example output**
-```
-Opus
-Sonnet
-```
-
-Supports per-widget color overrides via the TUI or settings file.
-
----
-
-### `cost` — Session Cost
-
-Running dollar cost of the current session.
-
-**Example output**
-```
-$0.45
-$0.00
-```
+- `count` — badge-style count
+- `list` — comma-separated names
 
 ---
 
 ## Context
 
-Widgets related to the context window and prompt cache.
+Context widgets focus on prompt budget and cache behavior:
 
-### `context-bar` — Context Window Bar
+- `context-bar` — context usage with variants
+- `context-percent` — dedicated context percentage widget with variants
+- `context-length` — maximum context window size
+- `cache-ttl` — cache expiry with variants
+- `cache-tokens` — cache read/write/break stats for the session
 
-A compact progress bar showing how much of the context window is in use, followed by the percentage.
+### Context variants
 
-```
-████░░░░ 45%   (green  — < 60 %)
-████████ 72%   (yellow — 60–80 %)
-████████ 88%   (red    — > 80 %)
-```
+Available on `context-bar` and `context-percent`:
 
-![Context bar states](images/statusline-context-high.svg)
+- `bar` — colorized progress bar
+- `percent` — used percentage
+- `remaining` — remaining percentage
 
----
+### Cache TTL variants
 
-### `cache-ttl` — Cache TTL Countdown
-
-Shows the expiry time of the most recent prompt-cache write, color-coded by urgency.
-
-| Colour | Condition |
-|--------|-----------|
-| Green  | > 2 minutes remaining (5 min tier) |
-| Yellow | 1–2 minutes remaining |
-| Red    | < 1 minute remaining |
-| Cyan   | 1-hour cache tier active |
-| Dim    | Cache expired or not present |
-
-![Cache states](images/statusline-cache-states.svg)
-
----
-
-### `cache-tokens` — Cache Token Count
-
-Shows the cumulative number of cache-read tokens for the current session.  Hidden when the count is zero.
-
-**Example output**
-```
-↩ 45k cached
-```
+- `time` — expiry timestamp
+- `countdown` — time remaining
+- `badge` — short status badge
 
 ---
 
 ## Usage
 
-Widgets that display Anthropic API rate-limit utilization.  Data is fetched in a background process every 60 seconds and requires a valid OAuth session (`~/.claude/.credentials.json`).
+Usage widgets read the cached Anthropic usage data and reset timestamps:
 
-### `usage-5h` — 5-hour Rate Limit
+- `usage-5h` — 5-hour usage
+- `usage-7d` — 7-day usage
+- `usage-overage` — overage spend
+- `usage-reset-5h` — 5-hour reset countdown
+- `usage-reset-7d` — 7-day reset countdown
 
-```
-5h ██░░░ 35%
-```
+### Usage variants
 
-### `usage-7d` — 7-day Rate Limit
+- `usage-5h`, `usage-7d`: `bar`, `percent`, `countdown`
+- `usage-overage`: `bar`, `percent`
 
-```
-7d █░░░░ 20%
-```
+---
 
-### `usage-overage` — Overage Spend
+## Tokens
 
-Shows extra monthly spend if the overage feature is enabled on your account.
+Token widgets use the richer statusline payload plus derived runtime data:
 
-```
-+$5/$20 █░░░░ 25%
-```
+- `tokens-input` — total input tokens
+- `tokens-output` — total output tokens
+- `tokens-total` — combined input/output/cache tokens
+- `input-speed` — average input tokens per second
+- `output-speed` — average output tokens per second
+- `total-speed` — average total tokens per second
 
-![Usage line](images/statusline-usage.svg)
+---
+
+## Git
+
+Git widgets are derived from the current working tree instead of relying on the payload alone:
+
+- `git-status`
+- `git-changes`
+- `git-staged`
+- `git-unstaged`
+- `git-untracked`
+- `git-ahead-behind`
+- `git-conflicts`
+- `git-sha`
+- `git-root`
+- `git-insertions`
+- `git-deletions`
+- `git-origin-owner`
+- `git-origin-repo`
+- `git-origin-owner-repo`
+- `git-upstream-owner`
+- `git-upstream-repo`
+- `git-upstream-owner-repo`
+- `git-is-fork`
+- `git-worktree-mode`
+- `git-worktree-name`
+- `git-worktree-branch`
+- `git-worktree-original-branch`
+
+These widgets automatically hide when Git data is unavailable.
 
 ---
 
 ## Headroom
 
-Widgets for the [Headroom](https://github.com/nicepkg/claude-code-headroom) compression proxy.  All four widgets return `null` (hidden) unless `ANTHROPIC_BASE_URL` points to a running Headroom instance on `localhost:8787`.
+Headroom widgets are shown when `ANTHROPIC_BASE_URL` points at a local Headroom instance:
 
-### `headroom-tokens` — Tokens Saved
-
-```
-⚖️ 491k tokens saved
-```
-
-### `headroom-compression` — Compression Ratio
-
-```
-34% compressed
-```
-
-### `headroom-cost` — Cost Saved
-
-```
-$0.12 saved
-```
-
-### `headroom-cache-hit` — Cache Hit Rate
-
-```
-78% cache hit
-```
-
-![Headroom line](images/statusline-headroom.svg)
+- `headroom-tokens`
+- `headroom-compression`
+- `headroom-cost`
+- `headroom-cache-hit`
 
 ---
 
-## Layout
+## Environment
 
-Utility widgets for visual organisation.
+- `terminal-width` — detected terminal columns
+- `memory-usage` — used / total system memory
 
-### `separator` — Separator
+---
 
-Inserts a dim ` | ` between adjacent widgets.  Separators adjacent to hidden (`null`) widgets are automatically suppressed so you never see `| |` or a leading/trailing pipe.
+## Layout and custom content
 
-### `custom-text` — Custom Text
+- `separator` — dim ` | ` separator
+- `custom-text` — static text from `customText`
+- `custom-symbol` — static symbol or emoji
+- `link` — OSC 8 hyperlink using `options.url`
+- `custom-command` — shell command output using `options.command`
 
-Displays a static string you define in the settings file via the `customText` field.
+### Common custom-widget fields
 
 ```json
-{ "id": "42", "type": "custom-text", "customText": "🚀 dev" }
+{ "id": "1", "type": "custom-text", "customText": "deploy" }
+{ "id": "2", "type": "custom-symbol", "customText": "⚡" }
+{ "id": "3", "type": "link", "customText": "docs", "options": { "url": "https://example.com" } }
+{ "id": "4", "type": "custom-command", "options": { "command": "git rev-parse --short HEAD", "timeoutMs": 1000 } }
 ```
 
 ---
 
-## Adding & Removing Widgets
+## Variants in the TUI
 
-### Via the TUI
-
-```bash
-ccfooter-config
-```
-
-Select a line → press **`a`** to add a widget → choose from the picker.  Press **`d`** or **`Delete`** to remove the selected widget.
-
-### Via the settings file
-
-Edit `~/.config/claude-statusline-widgets/settings.json` directly.  Each line is an array of widget objects.  See the [Configuration guide](configuration.md) for the full schema.
+When a widget supports more than one display style, the line editor shows the active variant beside the widget name. Press **`v`** to cycle through the available variants.

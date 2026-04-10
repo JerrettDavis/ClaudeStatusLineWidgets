@@ -28,9 +28,13 @@ export function App() {
   // Global keys
   useInput((input, key) => {
     if (key.ctrl && input === "s") {
-      saveSettings(settings);
-      setHasChanges(false);
-      setFlash("Saved!");
+      try {
+        saveSettings(settings);
+        setHasChanges(false);
+        setFlash("Saved!");
+      } catch {
+        setFlash("Save failed");
+      }
       setTimeout(() => setFlash(null), 2000);
     }
   });
@@ -40,9 +44,39 @@ export function App() {
     setHasChanges(true);
   };
 
+  const createWidgetItem = (type: string): WidgetItemConfig => {
+    if (type === "custom-text") {
+      return { id: generateId(), type, customText: "custom text" };
+    }
+    if (type === "custom-symbol") {
+      return { id: generateId(), type, customText: "•" };
+    }
+    if (type === "link") {
+      return {
+        id: generateId(),
+        type,
+        customText: "docs",
+        options: { url: "https://example.com" },
+      };
+    }
+    if (type === "custom-command") {
+      return {
+        id: generateId(),
+        type,
+        options: { command: "echo configure-me", timeoutMs: 1000 },
+      };
+    }
+    return { id: generateId(), type };
+  };
+
   const handleSaveAndExit = () => {
-    saveSettings(settings);
-    exit();
+    try {
+      saveSettings(settings);
+      exit();
+    } catch {
+      setFlash("Save failed");
+      setTimeout(() => setFlash(null), 2000);
+    }
   };
 
   const handleExit = () => {
@@ -56,6 +90,62 @@ export function App() {
     cacheStats: { totalReads: 0, totalWrites: 0, breakCount: 0, lastBreakTime: null, lastBreakTokens: 0, avgBreakTokens: 0 },
     usageData: null,
     headroomStats: null,
+    runtime: {
+      git: {
+        available: true,
+        cwd: "C:\\git\\my-app",
+        branch: "main",
+        rootPath: "C:\\git\\my-app",
+        rootName: "my-app",
+        sha: "a1b2c3d",
+        staged: 2,
+        unstaged: 1,
+        untracked: 0,
+        conflicts: 0,
+        changes: 3,
+        insertions: 42,
+        deletions: 10,
+        ahead: 1,
+        behind: 0,
+        origin: { rawUrl: "git@github.com:owner/repo.git", owner: "owner", repo: "repo" },
+        upstream: { rawUrl: "git@github.com:upstream/repo.git", owner: "upstream", repo: "repo" },
+        isFork: true,
+        worktreeMode: "linked",
+        worktreeName: "my-app",
+        worktreeBranch: "main",
+        worktreeOriginalBranch: "main",
+      },
+      session: {
+        sessionId: "abc123",
+        version: "1.0.22",
+        outputStyle: "default",
+        vimMode: "insert",
+        thinkingEffort: "high",
+        skills: ["brainstorming"],
+        accountEmail: "me@example.com",
+        startedAt: new Date(Date.now() - 45 * 60_000).toISOString(),
+        elapsedSeconds: 45 * 60,
+      },
+      system: {
+        terminalWidth: 132,
+        memoryUsedBytes: 8 * 1024 ** 3,
+        memoryTotalBytes: 32 * 1024 ** 3,
+      },
+      tokens: {
+        input: 18200,
+        output: 2400,
+        cached: 12000,
+        total: 32600,
+        inputSpeed: 12,
+        outputSpeed: 2,
+        totalSpeed: 14,
+      },
+      usage: {
+        fiveHourResetSeconds: 67 * 60,
+        sevenDayResetSeconds: 3 * 24 * 3600,
+      },
+    },
+    displayMode: settings.minimalistMode ? "minimal" : "normal",
     isPreview: true,
   };
 
@@ -82,9 +172,13 @@ export function App() {
       {/* Screen router */}
       {screen === "main" && (
         <MainMenu
+          minimalistMode={settings.minimalistMode}
           onSelect={(action) => {
             if (action === "lines") setScreen("lines");
             else if (action === "colors") setScreen("colors");
+            else if (action === "minimal") {
+              updateSettings({ ...settings, minimalistMode: !settings.minimalistMode });
+            }
             else if (action === "save") handleSaveAndExit();
             else if (action === "exit") handleExit();
             else if (action === "reset") {
@@ -132,7 +226,7 @@ export function App() {
       {screen === "picker" && (
         <WidgetPicker
           onSelect={(type) => {
-            const newItem: WidgetItemConfig = { id: generateId(), type };
+            const newItem = createWidgetItem(type);
             const newLines = [...settings.lines];
             newLines[editingLine] = [...(newLines[editingLine] ?? []), newItem];
             updateSettings({ ...settings, lines: newLines });

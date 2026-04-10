@@ -100,7 +100,9 @@ ccfooter-config
 The TUI lets you:
 
 - **Add / remove / reorder** widgets on each line
+- **Cycle display variants** for widgets that support multiple representations
 - **Pick colors** from the full ANSI palette with a live preview
+- Toggle a **global minimalist mode** for label-light output
 - **Add or delete entire lines**
 - **Reset** to the factory 3-line layout
 - See a **live preview** that updates as you make changes
@@ -112,6 +114,7 @@ The TUI lets you:
 | Global | `Ctrl+S` | Save settings |
 | Global | `Ctrl+C` | Quit |
 | Line Editor | `a` | Add a widget |
+| Line Editor | `v` | Cycle the selected widget's display variant |
 | Line Editor | `d` / `Delete` | Remove selected widget |
 | Line Editor | `m` | Toggle move mode (reorder with arrow keys) |
 | Line Editor | `x` | Delete entire line |
@@ -127,7 +130,8 @@ Settings are saved to `~/.config/claude-statusline-widgets/settings.json`. You c
 
 ```json
 {
-  "version": 1,
+  "version": 2,
+  "minimalistMode": false,
   "lines": [
     [
       { "id": "1", "type": "model" },
@@ -155,26 +159,27 @@ For the full configuration reference (all options, environment variables, color 
 
 ## Available Widgets
 
-![Session line example](docs/images/statusline-session.svg)
+Claude StatusLine Widgets now ships with **62 built-in widgets** across seven categories, plus **variants** for context, cache, usage, and skills widgets.
 
-| Category | Type | Name | Description |
-|----------|------|------|-------------|
-| Session | `path` | Path | Working directory |
-| Session | `branch` | Branch | Git branch name |
-| Session | `model` | Model | Claude model name |
-| Session | `cost` | Cost | Session cost in USD |
-| Context | `context-bar` | Context Bar | Context window usage with color-coded progress bar |
-| Context | `cache-ttl` | Cache TTL | Cache expiry countdown |
-| Context | `cache-tokens` | Cache Tokens | Cumulative cache-read token count |
-| Usage | `usage-5h` | 5h Usage | 5-hour rate limit utilization |
-| Usage | `usage-7d` | 7d Usage | 7-day rate limit utilization |
-| Usage | `usage-overage` | Overage | Extra usage / overage spend |
-| Headroom | `headroom-tokens` | Tokens Saved | Headroom tokens saved count |
-| Headroom | `headroom-compression` | Compression | Headroom compression percentage |
-| Headroom | `headroom-cost` | Cost Saved | Headroom cost savings |
-| Headroom | `headroom-cache-hit` | Cache Hit Rate | Headroom prefix cache hit rate |
-| Layout | `separator` | Separator | Dim ` \| ` between widgets |
-| Layout | `custom-text` | Custom Text | Static text (set via `customText` field) |
+| Category | Included widgets |
+|----------|------------------|
+| Session | `path`, `branch`, `model`, `cost`, `session-id`, `version`, `output-style`, `session-clock`, `session-elapsed`, `account-email`, `thinking-effort`, `vim-mode`, `skills` |
+| Context | `context-bar`, `context-percent`, `context-length`, `cache-ttl`, `cache-tokens` |
+| Usage | `usage-5h`, `usage-7d`, `usage-overage`, `usage-reset-5h`, `usage-reset-7d` |
+| Tokens | `tokens-input`, `tokens-output`, `tokens-total`, `input-speed`, `output-speed`, `total-speed` |
+| Git | `git-status`, `git-changes`, `git-staged`, `git-unstaged`, `git-untracked`, `git-ahead-behind`, `git-conflicts`, `git-sha`, `git-root`, `git-insertions`, `git-deletions`, `git-origin-owner`, `git-origin-repo`, `git-origin-owner-repo`, `git-upstream-owner`, `git-upstream-repo`, `git-upstream-owner-repo`, `git-is-fork`, `git-worktree-mode`, `git-worktree-name`, `git-worktree-branch`, `git-worktree-original-branch` |
+| Headroom | `headroom-tokens`, `headroom-compression`, `headroom-cost`, `headroom-cache-hit` |
+| Environment | `terminal-width`, `memory-usage` |
+| Layout | `separator`, `custom-text`, `custom-symbol`, `link`, `custom-command` |
+
+Shared widget variants include:
+
+- `context-bar`: `bar`, `percent`, `remaining`
+- `context-percent`: `percent`, `bar`, `remaining`
+- `cache-ttl`: `time`, `countdown`, `badge`
+- `usage-5h` / `usage-7d`: `bar`, `percent`, `countdown`
+- `usage-overage`: `bar`, `percent`
+- `skills`: `count`, `list`
 
 For per-widget documentation, examples, and configuration options see **[docs/widgets.md](docs/widgets.md)**.
 

@@ -32,6 +32,7 @@ node dist/index.js
 | Global | `Ctrl+S` | Save settings |
 | Global | `Ctrl+C` | Quit without saving |
 | Line Editor | `a` | Add a widget |
+| Line Editor | `v` | Cycle the selected widget's display variant |
 | Line Editor | `d` / `Delete` | Remove selected widget |
 | Line Editor | `m` | Toggle move mode (reorder with ↑/↓) |
 | Line Editor | `x` | Delete the entire line |
@@ -62,8 +63,10 @@ You can edit this file directly. Delete it to reset to defaults.
 
 ```ts
 {
-  "version": 1,
-  "lines": WidgetItemConfig[][]   // array of lines; each line is an array of widgets
+  "version": 2,
+  "minimalistMode"?: boolean,
+  "defaultSeparator"?: string,
+  "lines": WidgetItemConfig[][]
 }
 ```
 
@@ -75,14 +78,17 @@ You can edit this file directly. Delete it to reset to defaults.
 | `type` | `string` | ✓ | Widget type key (see [Widget Reference](widgets.md)) |
 | `color` | `string` | — | Override color (`"red"`, `"green"`, `"yellow"`, `"cyan"`, `"blue"`, `"magenta"`, `"white"`, `"default"`) |
 | `bold` | `boolean` | — | Render text bold |
-| `rawValue` | `boolean` | — | Skip ANSI color codes (useful for scripts) |
-| `customText` | `string` | — | Static text string (only used by `custom-text` widget) |
+| `variant` | `string` | — | Widget-specific display variant such as `bar`, `percent`, `countdown`, or `badge` |
+| `rawValue` | `boolean` | — | Suppress the widget label and prefer the compact value-only form |
+| `customText` | `string` | — | Static text string used by `custom-text`, `custom-symbol`, and `link` |
+| `options` | `object` | — | Widget-specific options such as `url`, `command`, `timeoutMs`, or `symbol` |
 
 ### Default settings
 
 ```json
 {
-  "version": 1,
+  "version": 2,
+  "minimalistMode": false,
   "lines": [
     [
       { "id": "1",  "type": "path" },
@@ -121,7 +127,7 @@ You can edit this file directly. Delete it to reset to defaults.
 
 ```json
 {
-  "version": 1,
+  "version": 2,
   "lines": [
     [
       { "id": "1", "type": "model" },
@@ -140,10 +146,40 @@ You can edit this file directly. Delete it to reset to defaults.
 { "id": "5", "type": "model", "color": "cyan", "bold": true }
 ```
 
-### Example: custom label
+### Example: a widget variant
+
+```json
+{ "id": "9", "type": "context-bar", "variant": "percent" }
+```
+
+### Example: custom text
 
 ```json
 { "id": "99", "type": "custom-text", "customText": "🚀 dev" }
+```
+
+### Example: clickable link
+
+```json
+{
+  "id": "100",
+  "type": "link",
+  "customText": "docs",
+  "options": { "url": "https://example.com/docs" }
+}
+```
+
+### Example: custom command
+
+```json
+{
+  "id": "101",
+  "type": "custom-command",
+  "options": {
+    "command": "git rev-parse --short HEAD",
+    "timeoutMs": 1000
+  }
+}
 ```
 
 ---

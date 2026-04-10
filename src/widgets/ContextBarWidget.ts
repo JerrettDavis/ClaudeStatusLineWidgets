@@ -1,5 +1,6 @@
 import { formatContext } from "../segments.js";
 import type { Widget, WidgetItem, RenderContext } from "./types.js";
+import { formatPercent, getVariant, renderLabel } from "./helpers.js";
 
 export class ContextBarWidget implements Widget {
   getDisplayName() { return "Context Bar"; }
@@ -7,8 +8,19 @@ export class ContextBarWidget implements Widget {
   getCategory() { return "Context"; }
   getDefaultColor() { return "default"; }
   supportsColors() { return false; }
-  render(_item: WidgetItem, ctx: RenderContext): string | null {
-    if (ctx.isPreview) return formatContext(45);
-    return formatContext(ctx.payload.context_window?.used_percentage);
+  getVariants() { return ["bar", "percent", "remaining"]; }
+  render(item: WidgetItem, ctx: RenderContext): string | null {
+    const rawPercent = ctx.isPreview ? 45 : ctx.payload.context_window?.used_percentage ?? null;
+    if (rawPercent === null) return null;
+    const percent = Math.max(0, Math.min(100, rawPercent));
+
+    const variant = getVariant(item, "bar");
+    if (variant === "percent") {
+      return renderLabel("Ctx", formatPercent(percent), item, ctx);
+    }
+    if (variant === "remaining") {
+      return renderLabel("Ctx Left", formatPercent(100 - percent), item, ctx);
+    }
+    return formatContext(percent);
   }
 }

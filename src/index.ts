@@ -11,6 +11,7 @@ import { loadSettings } from "./config/loader.js";
 import { renderStatusLine } from "./renderer.js";
 import { loadExtensions } from "./widgets/registry.js";
 import type { StatusLinePayload, RenderContext } from "./widgets/types.js";
+import { buildRuntimeData } from "./runtime.js";
 
 const PLUGIN_KEY = "cache-ttl-statusline@claude-statusline-widgets";
 
@@ -113,6 +114,8 @@ async function main(): Promise<void> {
     cacheStats,
     usageData: usageCache?.data ?? null,
     headroomStats: headroomCache?.data ?? null,
+    runtime: buildRuntimeData(payload, usageCache?.data ?? null),
+    displayMode: settings.minimalistMode ? "minimal" : "normal",
   };
 
   const output = renderStatusLine(settings, context);

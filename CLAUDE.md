@@ -14,7 +14,7 @@ node dist/index.js
 ## Architecture
 - src/index.ts — entry point: TTY → TUI, piped → render statusline
 - src/renderer.ts — settings-driven multi-line renderer using widget registry
-- src/widgets/ — widget type system, registry, and 15 widget implementations
+- src/widgets/ — widget type system, registry, and the built-in widget catalog
 - src/config/ — settings schema + load/save to ~/.config/claude-statusline-widgets/settings.json
 - src/tui/ — React/Ink interactive configurator (add/remove/reorder widgets, colors, preview)
 - src/cache.ts — reads JSONL transcript, finds last cache write, computes TTL
