@@ -8,7 +8,10 @@ export class PathWidget {
     render(_item, ctx) {
         if (ctx.isPreview)
             return "~/projects/my-app";
-        const cwd = ctx.payload.cwd ?? ctx.payload.workspace?.current_dir;
+        const cwd = ctx.runtime.git.cwd ??
+            ctx.payload.cwd ??
+            ctx.payload.workspace?.current_dir ??
+            ctx.payload.workspace?.project_dir;
         return formatPath(cwd);
     }
 }

@@ -1,3 +1,13 @@
+# [1.1.0](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/compare/v1.0.2...v1.1.0) (2026-04-10)
+
+
+### Features
+
+* add extension framework for third-party widget packages ([d6a9e17](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/commit/d6a9e17d97a71c6f1999338e42c8a7536b049309))
+* add weighted token equivalent metric to session-tracking window records ([fdc3a8e](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/commit/fdc3a8e28d2e649accbd8c55cfe8ce09ffced6da))
+* expand widget catalog and variants ([ad49c6e](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/commit/ad49c6e5418178f6614ba767172fabde87e8f08f))
+* extend session-tracking data with API stats and per-model token breakdown ([eb7dab2](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/commit/eb7dab2ed1f9c60a99b2452488bb0b2552797179))
+
 ## [1.0.2](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/compare/v1.0.1...v1.0.2) (2026-04-08)
 
 

@@ -55,7 +55,7 @@ export function formatCost(totalCostUsd) {
  * Bar is 8 characters wide using block elements.
  */
 export function formatContext(usedPercentage) {
-    const pct = usedPercentage ?? 0;
+    const pct = Math.max(0, Math.min(100, usedPercentage ?? 0));
     const barWidth = 8;
     const filled = Math.round((pct / 100) * barWidth);
     const empty = barWidth - filled;
@@ -117,12 +117,12 @@ export function formatUsageSegments(data) {
 }
 /** Individual usage sub-formatters for widget system */
 export function formatUsage5h(data) {
-    if (!data?.five_hour?.utilization)
+    if (data?.five_hour?.utilization == null)
         return null;
     return miniBar("5h", data.five_hour.utilization);
 }
 export function formatUsage7d(data) {
-    if (!data?.seven_day?.utilization)
+    if (data?.seven_day?.utilization == null)
         return null;
     return miniBar("7d", data.seven_day.utilization);
 }

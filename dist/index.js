@@ -8,6 +8,7 @@ import { triggerSessionTracking, performSessionTracking } from "./session-tracki
 import { loadSettings } from "./config/loader.js";
 import { renderStatusLine } from "./renderer.js";
 import { loadExtensions } from "./widgets/registry.js";
+import { buildRuntimeData } from "./runtime.js";
 const PLUGIN_KEY = "cache-ttl-statusline@claude-statusline-widgets";
 /**
  * If the plugin was explicitly disabled in settings.json, remove the statusLine
@@ -101,6 +102,8 @@ async function main() {
         cacheStats,
         usageData: usageCache?.data ?? null,
         headroomStats: headroomCache?.data ?? null,
+        runtime: buildRuntimeData(payload, usageCache?.data ?? null),
+        displayMode: settings.minimalistMode ? "minimal" : "normal",
     };
     const output = renderStatusLine(settings, context);
     process.stdout.write(output + "\n\n");

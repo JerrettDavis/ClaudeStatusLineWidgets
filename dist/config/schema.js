@@ -1,4 +1,4 @@
-export const CURRENT_VERSION = 1;
+export const CURRENT_VERSION = 2;
 let _nextId = 1;
 function wid(type, extra) {
     return { id: String(_nextId++), type, ...extra };
@@ -46,8 +46,10 @@ export function validateSettings(raw) {
                 type: it.type,
                 color: typeof it.color === "string" ? it.color : undefined,
                 bold: typeof it.bold === "boolean" ? it.bold : undefined,
+                variant: typeof it.variant === "string" ? it.variant : undefined,
                 rawValue: typeof it.rawValue === "boolean" ? it.rawValue : undefined,
                 customText: typeof it.customText === "string" ? it.customText : undefined,
+                options: isRecord(it.options) ? sanitizeOptions(it.options) : undefined,
             });
         }
         lines.push(items);
@@ -56,5 +58,21 @@ export function validateSettings(raw) {
         version: typeof obj.version === "number" ? obj.version : CURRENT_VERSION,
         lines,
         defaultSeparator: typeof obj.defaultSeparator === "string" ? obj.defaultSeparator : undefined,
+        minimalistMode: typeof obj.minimalistMode === "boolean" ? obj.minimalistMode : undefined,
     };
+}
+function isRecord(value) {
+    return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+function sanitizeOptions(value) {
+    const options = {};
+    for (const [key, option] of Object.entries(value)) {
+        if (option === null ||
+            typeof option === "string" ||
+            typeof option === "number" ||
+            typeof option === "boolean") {
+            options[key] = option;
+        }
+    }
+    return options;
 }

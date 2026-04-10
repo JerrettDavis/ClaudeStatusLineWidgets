@@ -16,7 +16,7 @@ export function WidgetPicker({ onSelect, onBack }) {
             const widgets = catalog.filter((w) => w.category === cat);
             for (const w of widgets) {
                 result.push({
-                    label: `[${cat}] ${w.displayName} — ${w.description}`,
+                    label: `[${cat}] ${w.displayName}${w.variants?.length ? ` (${w.variants.join("/")})` : ""} — ${w.description}`,
                     value: w.type,
                 });
             }

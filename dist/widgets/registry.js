@@ -14,6 +14,9 @@ import { HeadroomCostWidget } from "./HeadroomCostWidget.js";
 import { HeadroomCacheHitWidget } from "./HeadroomCacheHitWidget.js";
 import { SeparatorWidget } from "./SeparatorWidget.js";
 import { CustomTextWidget } from "./CustomTextWidget.js";
+import { AccountEmailWidget, CustomCommandWidget, CustomSymbolWidget, LinkWidget, OutputStyleWidget, SessionClockWidget, SessionElapsedWidget, SessionIdWidget, SkillsWidget, TerminalWidthWidget, ThinkingEffortWidget, VersionWidget, VimModeWidget, MemoryUsageWidget, } from "./SessionWidgets.js";
+import { GitAheadBehindWidget, GitChangesWidget, GitConflictsWidget, GitDeletionsWidget, GitInsertionsWidget, GitIsForkWidget, GitOriginOwnerRepoWidget, GitOriginOwnerWidget, GitOriginRepoWidget, GitRootDirWidget, GitShaWidget, GitStagedWidget, GitStatusWidget, GitUnstagedWidget, GitUntrackedWidget, GitUpstreamOwnerRepoWidget, GitUpstreamOwnerWidget, GitUpstreamRepoWidget, GitWorktreeBranchWidget, GitWorktreeModeWidget, GitWorktreeNameWidget, GitWorktreeOriginalBranchWidget, } from "./GitWidgets.js";
+import { ContextLengthWidget, ContextPercentageWidget, InputSpeedWidget, InputTokensWidget, OutputSpeedWidget, OutputTokensWidget, TotalSpeedWidget, TotalTokensWidget, UsageReset5hWidget, UsageReset7dWidget, } from "./MetricWidgets.js";
 const WIDGET_MANIFEST = [
     { type: "path", create: () => new PathWidget() },
     { type: "branch", create: () => new BranchWidget() },
@@ -31,6 +34,52 @@ const WIDGET_MANIFEST = [
     { type: "headroom-cache-hit", create: () => new HeadroomCacheHitWidget() },
     { type: "separator", create: () => new SeparatorWidget() },
     { type: "custom-text", create: () => new CustomTextWidget() },
+    { type: "session-id", create: () => new SessionIdWidget() },
+    { type: "version", create: () => new VersionWidget() },
+    { type: "output-style", create: () => new OutputStyleWidget() },
+    { type: "session-clock", create: () => new SessionClockWidget() },
+    { type: "session-elapsed", create: () => new SessionElapsedWidget() },
+    { type: "account-email", create: () => new AccountEmailWidget() },
+    { type: "thinking-effort", create: () => new ThinkingEffortWidget() },
+    { type: "vim-mode", create: () => new VimModeWidget() },
+    { type: "skills", create: () => new SkillsWidget() },
+    { type: "terminal-width", create: () => new TerminalWidthWidget() },
+    { type: "memory-usage", create: () => new MemoryUsageWidget() },
+    { type: "custom-symbol", create: () => new CustomSymbolWidget() },
+    { type: "link", create: () => new LinkWidget() },
+    { type: "custom-command", create: () => new CustomCommandWidget() },
+    { type: "git-status", create: () => new GitStatusWidget() },
+    { type: "git-changes", create: () => new GitChangesWidget() },
+    { type: "git-staged", create: () => new GitStagedWidget() },
+    { type: "git-unstaged", create: () => new GitUnstagedWidget() },
+    { type: "git-untracked", create: () => new GitUntrackedWidget() },
+    { type: "git-ahead-behind", create: () => new GitAheadBehindWidget() },
+    { type: "git-conflicts", create: () => new GitConflictsWidget() },
+    { type: "git-sha", create: () => new GitShaWidget() },
+    { type: "git-root", create: () => new GitRootDirWidget() },
+    { type: "git-insertions", create: () => new GitInsertionsWidget() },
+    { type: "git-deletions", create: () => new GitDeletionsWidget() },
+    { type: "git-origin-owner", create: () => new GitOriginOwnerWidget() },
+    { type: "git-origin-repo", create: () => new GitOriginRepoWidget() },
+    { type: "git-origin-owner-repo", create: () => new GitOriginOwnerRepoWidget() },
+    { type: "git-upstream-owner", create: () => new GitUpstreamOwnerWidget() },
+    { type: "git-upstream-repo", create: () => new GitUpstreamRepoWidget() },
+    { type: "git-upstream-owner-repo", create: () => new GitUpstreamOwnerRepoWidget() },
+    { type: "git-is-fork", create: () => new GitIsForkWidget() },
+    { type: "git-worktree-mode", create: () => new GitWorktreeModeWidget() },
+    { type: "git-worktree-name", create: () => new GitWorktreeNameWidget() },
+    { type: "git-worktree-branch", create: () => new GitWorktreeBranchWidget() },
+    { type: "git-worktree-original-branch", create: () => new GitWorktreeOriginalBranchWidget() },
+    { type: "tokens-input", create: () => new InputTokensWidget() },
+    { type: "tokens-output", create: () => new OutputTokensWidget() },
+    { type: "tokens-total", create: () => new TotalTokensWidget() },
+    { type: "input-speed", create: () => new InputSpeedWidget() },
+    { type: "output-speed", create: () => new OutputSpeedWidget() },
+    { type: "total-speed", create: () => new TotalSpeedWidget() },
+    { type: "context-percent", create: () => new ContextPercentageWidget() },
+    { type: "context-length", create: () => new ContextLengthWidget() },
+    { type: "usage-reset-5h", create: () => new UsageReset5hWidget() },
+    { type: "usage-reset-7d", create: () => new UsageReset7dWidget() },
 ];
 const widgetRegistry = new Map(WIDGET_MANIFEST.map((entry) => [entry.type, entry.create()]));
 // Tracks extension-contributed entries separately so the catalog can
@@ -54,6 +103,7 @@ export function getWidgetCatalog() {
             displayName: w.getDisplayName(),
             description: w.getDescription(),
             category: w.getCategory(),
+            variants: w.getVariants?.(),
         };
     });
 }
