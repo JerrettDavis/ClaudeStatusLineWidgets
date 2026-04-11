@@ -1,6 +1,5 @@
 #!/usr/bin/env node
-import { spawn } from "child_process";
-import { cpSync, existsSync, mkdirSync, renameSync, rmSync, writeFileSync } from "fs";
+import { cpSync, existsSync, mkdirSync, renameSync, rmSync } from "fs";
 import { homedir } from "os";
 import { dirname, join, relative, resolve, sep } from "path";
 import { fileURLToPath } from "url";
@@ -68,43 +67,3 @@ if (!existsSync(launcherPath)) {
 
 rmSync(stableRoot, { recursive: true, force: true });
 renameSync(stageRoot, stableRoot);
-
-const stableLauncherPath = join(stableRoot, "bin", "ccfooter-config.js");
-const ps = (value) => value.replace(/'/g, "''");
-const helperScript = `
-$prefix = '${ps(prefix)}'
-$launcherPath = '${ps(stableLauncherPath)}'
-$cmdPath = Join-Path $prefix 'ccfooter-config.cmd'
-$ps1Path = Join-Path $prefix 'ccfooter-config.ps1'
-$cmdShim = @"
-@ECHO OFF
-SETLOCAL
-IF EXIST "%~dp0\\node.exe" (
-  "%~dp0\\node.exe" "$launcherPath" %*
-) ELSE (
-  node "$launcherPath" %*
-)
-"@
-$ps1Shim = @"
-$basedir = Split-Path $MyInvocation.MyCommand.Definition -Parent
-if (Test-Path "$basedir\\node.exe") {
-  & "$basedir\\node.exe" "$launcherPath" $args
-} else {
-  & "node" "$launcherPath" $args
-}
-"@
-for ($i = 0; $i -lt 60; $i++) {
-  try { Set-Content -Path $cmdPath -Value $cmdShim -Encoding Ascii -Force } catch {}
-  try { Set-Content -Path $ps1Path -Value $ps1Shim -Encoding Ascii -Force } catch {}
-  Start-Sleep -Milliseconds 250
-}
-`;
-const encodedHelper = Buffer.from(helperScript, "utf16le").toString("base64");
-
-const helper = spawn("powershell.exe", ["-NoProfile", "-ExecutionPolicy", "Bypass", "-EncodedCommand", encodedHelper], {
-  detached: true,
-  stdio: "ignore",
-  windowsHide: true
-});
-
-helper.unref();
