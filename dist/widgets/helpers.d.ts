@@ -1,0 +1,13 @@
+import type { RenderContext, WidgetItem } from "./types.js";
+export declare function getVariant(item: WidgetItem, fallback: string): string;
+export declare function getOptionString(item: WidgetItem, key: string, fallback?: string): string;
+export declare function getOptionNumber(item: WidgetItem, key: string, fallback: number): number;
+export declare function getOptionBoolean(item: WidgetItem, key: string, fallback?: boolean): boolean;
+export declare function renderLabel(label: string, value: string, item: WidgetItem, ctx: RenderContext): string;
+export declare function formatDurationCompact(totalSeconds: number): string;
+export declare function formatPercent(value: number): string;
+export declare function formatBytes(bytes: number): string;
+export declare function formatTokenCount(value: number): string;
+export declare function formatSpeed(value: number): string;
+export declare function renderBadge(text: string): string;
+export declare function renderBar(percent: number, width: number, label?: string): string;
