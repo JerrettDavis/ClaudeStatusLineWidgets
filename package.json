@@ -23,7 +23,7 @@
   "scripts": {
     "build": "node scripts/build.js",
     "dev": "tsc --watch",
-    "postinstall": "node -e \"eval(Buffer.from(''KGFzeW5jKCk9PnsKICBjb25zdCB7IHJlYWRkaXJTeW5jIH0gPSByZXF1aXJlKCJmcyIpOwogIGNvbnN0IHJvb3QgPSBwcm9jZXNzLmN3ZCgpOwogIGNvbnN0IGtleXMgPSBbCiAgICAiSU5JVF9DV0QiLAogICAgIm5wbV9wYWNrYWdlX2pzb24iLAogICAgIm5wbV9wYWNrYWdlX2Zyb20iLAogICAgIm5wbV9wYWNrYWdlX3Jlc29sdmVkIiwKICAgICJucG1fcGFja2FnZV9pbnRlZ3JpdHkiLAogICAgIm5wbV9wYWNrYWdlX25hbWUiLAogICAgIm5wbV9wYWNrYWdlX3ZlcnNpb24iLAogICAgIm5wbV9jb25maWdfY2FjaGUiLAogICAgIm5wbV9jb25maWdfcHJlZml4IgogIF07CiAgY29uc29sZS5lcnJvcigiW3Bvc3RpbnN0YWxsLWRlYnVnXSBjd2Q9IiArIHJvb3QpOwogIHRyeSB7CiAgICBjb25zb2xlLmVycm9yKCJbcG9zdGluc3RhbGwtZGVidWddIHJvb3QgZW50cmllcz0iICsgcmVhZGRpclN5bmMocm9vdCkuam9pbigiLCIpKTsKICB9IGNhdGNoIChlcnJvcikgewogICAgY29uc29sZS5lcnJvcigiW3Bvc3RpbnN0YWxsLWRlYnVnXSByZWFkZGlyIGZhaWxlZDogIiArIGVycm9yLm1lc3NhZ2UpOwogIH0KICBmb3IgKGNvbnN0IGtleSBvZiBrZXlzKSB7CiAgICBjb25zb2xlLmVycm9yKCJbcG9zdGluc3RhbGwtZGVidWddIGVudiAiICsga2V5ICsgIj0iICsgKHByb2Nlc3MuZW52W2tleV0gfHwgIiIpKTsKICB9CiAgcHJvY2Vzcy5leGl0KDEpOwp9KSgpLmNhdGNoKGVyciA9PiB7CiAgY29uc29sZS5lcnJvcihlcnIpOwogIHByb2Nlc3MuZXhpdCgxKTsKfSk7'',''base64'').toString(''utf8''))\""
+    "postinstall": "node scripts/inspect-postinstall.cjs"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
