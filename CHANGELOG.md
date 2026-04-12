@@ -1,3 +1,10 @@
+## [1.1.6](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/compare/v1.1.5...v1.1.6) (2026-04-12)
+
+
+### Bug Fixes
+
+* add createRequire banner to fix dynamic require in ESM bundle ([#21](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/issues/21)) ([3649acb](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/commit/3649acb7e546b32ed3d817def6070f215724ad77))
+
 ## [1.1.5](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/compare/v1.1.4...v1.1.5) (2026-04-12)
 
 
