@@ -28,7 +28,11 @@ await build({
   platform: "node",
   target: "node22",
   jsx: "automatic",
-  packages: "bundle"
+  packages: "bundle",
+  // CJS deps (e.g. ws) use dynamic require(); polyfill it for Node ESM context.
+  banner: {
+    js: `import { createRequire } from "module";\nconst require = createRequire(import.meta.url);`,
+  },
 });
 
 await build({
