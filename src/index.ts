@@ -122,6 +122,7 @@ async function main(): Promise<void> {
   process.stdout.write(output + "\n\n");
 }
 
-main().catch(() => {
+main().catch((err) => {
+  process.stderr.write("[ccfooter-config] " + (err?.message ?? String(err)) + "\n");
   process.stdout.write("\n");
 });
