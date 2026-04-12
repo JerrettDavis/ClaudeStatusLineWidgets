@@ -1,3 +1,14 @@
+## [1.1.2](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/compare/v1.1.1...v1.1.2) (2026-04-12)
+
+
+### Bug Fixes
+
+* bootstrap stable Windows shims ([e036e65](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/commit/e036e65544fba30de07c1106f9a47d186ec24dcc))
+* make postinstall shell-safe ([78895c3](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/commit/78895c3492bd8e90aab30c5e8aac06145bbaf0d4))
+* own global launcher creation ([d9466ae](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/commit/d9466ae056372895ce310c6d90ba2761c993b4c0))
+* ship bundled runtime output ([c752e98](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/commit/c752e98e6cd6c688dc40b89791acab7546256747))
+* stabilize Windows GitHub installs ([8f09664](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/commit/8f096647953793a6b94304f11896f6cb57fce95d))
+
 ## [1.1.1](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/compare/v1.1.0...v1.1.1) (2026-04-10)
 
 
