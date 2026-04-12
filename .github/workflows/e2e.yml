@@ -1,0 +1,96 @@
+name: E2E
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  e2e:
+    name: E2E (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      # ── Plugin / dist file validation ─────────────────────────────────────
+      - name: Validate plugin and dist files
+        shell: pwsh
+        run: |
+          $missing = @()
+          foreach ($f in @(".claude-plugin/plugin.json", "hooks/hooks.json", "bin/ccfooter-config.js", "dist/index.js")) {
+            if (-not (Test-Path $f)) { $missing += $f }
+          }
+          if ($missing.Count) { throw "Missing required files: $($missing -join ', ')" }
+
+          $plugin = Get-Content ".claude-plugin/plugin.json" | ConvertFrom-Json
+          if (-not $plugin.name)    { throw "plugin.json missing 'name'" }
+          if (-not $plugin.version) { throw "plugin.json missing 'version'" }
+
+          Write-Host "Plugin and dist validation passed."
+
+      # ── Piped-mode smoke test (direct node invocation) ────────────────────
+      - name: Test piped mode (direct node)
+        shell: pwsh
+        run: |
+          $json = '{"model":{"display_name":"Opus"},"cost":{"total_cost_usd":0.12},"context_window":{"used_percentage":45}}'
+          $output = $json | node dist/index.js
+          Write-Host "Output: $output"
+          if ($output -notmatch "Opus") { throw "Piped mode output missing expected model name 'Opus'" }
+          Write-Host "Piped mode test passed."
+
+      # ── Global-install tests ──────────────────────────────────────────────
+      - name: Pack package
+        run: npm pack
+
+      - name: Install globally
+        shell: pwsh
+        run: |
+          $tarball = (Get-ChildItem "claude-statusline-widgets-*.tgz" | Select-Object -First 1).Name
+          npm install -g $tarball
+
+      # Give the Windows postinstall shim-helper process time to write the .cmd
+      - name: Wait for postinstall shim helper (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: Start-Sleep -Seconds 5
+
+      - name: Test ccfooter-config via global install (PS / shell)
+        shell: pwsh
+        run: |
+          $json = '{"model":{"display_name":"Opus"},"cost":{"total_cost_usd":0.12},"context_window":{"used_percentage":45}}'
+          $output = $json | ccfooter-config
+          Write-Host "Output: $output"
+          if ($output -notmatch "Opus") { throw "ccfooter-config output missing expected model name 'Opus'" }
+          Write-Host "Global ccfooter-config test passed."
+
+      # Specifically exercise the .cmd shim that postinstall.js writes on Windows
+      - name: Write piped-mode input file (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          '{"model":{"display_name":"Opus"},"cost":{"total_cost_usd":0.12},"context_window":{"used_percentage":45}}' |
+            Out-File -FilePath "$env:TEMP\csw_test.json" -Encoding utf8 -NoNewline
+
+      - name: Test ccfooter-config CMD shim (Windows)
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: |
+          type %TEMP%\csw_test.json | ccfooter-config
+          if errorlevel 1 exit /b 1
