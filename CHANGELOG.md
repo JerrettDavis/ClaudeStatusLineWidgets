@@ -1,3 +1,10 @@
+## [1.1.4](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/compare/v1.1.3...v1.1.4) (2026-04-12)
+
+
+### Bug Fixes
+
+* add missing scripts to git, fix Windows .cmd shim CRLF, add cross-platform e2e tests ([#19](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/issues/19)) ([77210a5](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/commit/77210a51252c1879c8b6c530fb56a97a80b6eb9d))
+
 ## [1.1.3](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/compare/v1.1.2...v1.1.3) (2026-04-12)
 
 
