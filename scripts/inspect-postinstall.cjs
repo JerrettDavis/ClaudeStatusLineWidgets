@@ -1,6 +1,9 @@
 const fs = require("fs");
+const os = require("os");
+const path = require("path");
 
 const root = process.cwd();
+const logPath = path.join(os.tmpdir(), "ccsw-postinstall-runs.log");
 const keys = [
   "INIT_CWD",
   "npm_package_json",
@@ -13,15 +16,20 @@ const keys = [
   "npm_config_prefix",
 ];
 
-console.error("[postinstall-debug] cwd=" + root);
+const lines = [
+  "=== run ===",
+  "cwd=" + root,
+];
+
 try {
-  console.error("[postinstall-debug] root entries=" + fs.readdirSync(root).join(","));
+  lines.push("root entries=" + fs.readdirSync(root).join(","));
 } catch (error) {
-  console.error("[postinstall-debug] readdir failed: " + error.message);
+  lines.push("readdir failed=" + error.message);
 }
 
 for (const key of keys) {
-  console.error("[postinstall-debug] env " + key + "=" + (process.env[key] || ""));
+  lines.push("env " + key + "=" + (process.env[key] || ""));
 }
 
-process.exit(1);
+fs.appendFileSync(logPath, lines.join("\n") + "\n");
+console.error("[postinstall-debug] logged to " + logPath);
