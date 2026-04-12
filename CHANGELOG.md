@@ -1,3 +1,10 @@
+## [1.1.5](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/compare/v1.1.4...v1.1.5) (2026-04-12)
+
+
+### Bug Fixes
+
+* Windows GitHub URL install recovery via npm cache tarball ([#20](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/issues/20)) ([bc04580](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/commit/bc045809732a1de46332eceff777da094df3aecf))
+
 ## [1.1.4](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/compare/v1.1.3...v1.1.4) (2026-04-12)
 
 
