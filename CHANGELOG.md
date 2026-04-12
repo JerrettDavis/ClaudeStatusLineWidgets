@@ -1,3 +1,11 @@
+## [1.1.3](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/compare/v1.1.2...v1.1.3) (2026-04-12)
+
+
+### Bug Fixes
+
+* inline Windows runtime staging ([85cca29](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/commit/85cca295b4be0d5aa5319c59849514d70baf38a4))
+* support github installs on Windows ([dd383fc](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/commit/dd383fc227f65e63a350213a299607023c793e9e))
+
 ## [1.1.2](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/compare/v1.1.1...v1.1.2) (2026-04-12)
 
 
