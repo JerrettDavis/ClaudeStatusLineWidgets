@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/compare/v1.1.6...v1.2.0) (2026-04-17)
+
+
+### Features
+
+* add API rate-limit detection and lock-gated debounce for usage fetcher ([#22](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/issues/22)) ([ec2b5ac](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/commit/ec2b5ac73498a82745a8b733616f682fe180346a))
+
 ## [1.1.6](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/compare/v1.1.5...v1.1.6) (2026-04-12)
 
 
