@@ -118,7 +118,7 @@ var init_schema = __esm({
 });
 
 // src/config/loader.ts
-import { readFileSync as readFileSync4, writeFileSync as writeFileSync4, mkdirSync as mkdirSync2, existsSync as existsSync3 } from "fs";
+import { readFileSync as readFileSync4, writeFileSync as writeFileSync4, mkdirSync as mkdirSync2, existsSync as existsSync2 } from "fs";
 import { join as join4, dirname as dirname4 } from "path";
 import { homedir as homedir3 } from "os";
 function getConfigPath() {
@@ -127,7 +127,7 @@ function getConfigPath() {
 function loadSettings() {
   const configPath = getConfigPath();
   try {
-    if (!existsSync3(configPath)) return createDefaultSettings();
+    if (!existsSync2(configPath)) return createDefaultSettings();
     const raw = readFileSync4(configPath, "utf-8");
     const parsed = JSON.parse(raw);
     if (typeof parsed.version === "number" && parsed.version < CURRENT_VERSION) {
@@ -946,7 +946,7 @@ var init_CustomTextWidget = __esm({
 });
 
 // src/runtime.ts
-import { existsSync as existsSync4, openSync as openSync3, readFileSync as readFileSync5, readSync as readSync3, closeSync as closeSync3, statSync as statSync5 } from "fs";
+import { existsSync as existsSync3, openSync as openSync3, readFileSync as readFileSync5, readSync as readSync3, closeSync as closeSync3, statSync as statSync5 } from "fs";
 import { basename, join as join5 } from "path";
 import { execFileSync, execSync as execSync2 } from "child_process";
 import { freemem, homedir as homedir4, totalmem } from "os";
@@ -1122,7 +1122,7 @@ function readInitialChunk(filePath, maxBytes = 256 * 1024) {
   }
 }
 function readFirstTimestamp(transcriptPath) {
-  if (!transcriptPath || !existsSync4(transcriptPath)) return null;
+  if (!transcriptPath || !existsSync3(transcriptPath)) return null;
   for (const line of readInitialChunk(transcriptPath)) {
     try {
       const parsed = JSON.parse(line);
@@ -1160,7 +1160,7 @@ function readAccountEmail() {
     join5(process.env.CLAUDE_CONFIG_DIR ?? join5(homedir4(), ".claude"), ".credentials.json")
   ];
   for (const path of candidates) {
-    if (!existsSync4(path)) continue;
+    if (!existsSync3(path)) continue;
     try {
       const raw = JSON.parse(readFileSync5(path, "utf8"));
       const email = findEmailInValue(raw);
@@ -2010,7 +2010,7 @@ __export(loader_exports, {
   EXTENSION_KEYWORD: () => EXTENSION_KEYWORD,
   discoverExtensions: () => discoverExtensions
 });
-import { existsSync as existsSync5, readdirSync as readdirSync2, readFileSync as readFileSync6 } from "fs";
+import { existsSync as existsSync4, readdirSync as readdirSync2, readFileSync as readFileSync6 } from "fs";
 import { join as join6 } from "path";
 import { execFileSync as execFileSync2 } from "child_process";
 function resolveGlobalNodeModules() {
@@ -2036,7 +2036,7 @@ function resolveGlobalNodeModules() {
 }
 function isExtensionPackage(packageDir) {
   const pkgPath = join6(packageDir, "package.json");
-  if (!existsSync5(pkgPath)) return false;
+  if (!existsSync4(pkgPath)) return false;
   try {
     const pkg = JSON.parse(readFileSync6(pkgPath, "utf-8"));
     return Array.isArray(pkg.keywords) && pkg.keywords.includes(EXTENSION_KEYWORD);
@@ -2069,7 +2069,7 @@ function resolvePackageMain(packageDir) {
 }
 async function loadExtensionFromDir(packageDir) {
   const entryPath = resolvePackageMain(packageDir);
-  if (!entryPath || !existsSync5(entryPath)) return null;
+  if (!entryPath || !existsSync4(entryPath)) return null;
   try {
     const mod = await import(entryPath);
     const ext = mod["extension"] ?? mod["default"];
@@ -2085,7 +2085,7 @@ async function discoverExtensions() {
   const extensions = [];
   const searchRoots = resolveGlobalNodeModules();
   for (const nodeModulesDir of searchRoots) {
-    if (!existsSync5(nodeModulesDir)) continue;
+    if (!existsSync4(nodeModulesDir)) continue;
     let entries;
     try {
       entries = readdirSync2(nodeModulesDir);
@@ -57403,7 +57403,7 @@ var init_tui = __esm({
 });
 
 // src/index.ts
-import { readFileSync as readFileSync8, writeFileSync as writeFileSync5, existsSync as existsSync7 } from "fs";
+import { readFileSync as readFileSync8, writeFileSync as writeFileSync5, existsSync as existsSync6 } from "fs";
 import { join as join7 } from "path";
 import { homedir as homedir5 } from "os";
 
@@ -57560,7 +57560,9 @@ import { tmpdir, homedir, platform } from "os";
 import { execSync, spawn } from "child_process";
 var __dirname = dirname(fileURLToPath(import.meta.url));
 var CACHE_FILE = join(tmpdir(), "claude-statusline-usage.json");
+var LOCK_FILE = join(tmpdir(), "claude-statusline-usage.lock");
 var STALE_THRESHOLD_MS = 6e4;
+var LOCK_STALE_MS = 2 * 6e4;
 var API_URL = "https://api.anthropic.com/api/oauth/usage";
 function getCredentialsPath() {
   const configDir = process.env.CLAUDE_CONFIG_DIR ?? join(homedir(), ".claude");
@@ -57613,20 +57615,60 @@ function readUsageCache() {
     return null;
   }
 }
-function writeUsageCache(data) {
+function writeUsageCache(data, rateLimitedUntil) {
   const cache3 = { fetchedAt: Date.now(), data };
+  if (rateLimitedUntil !== void 0) cache3.rateLimitedUntil = rateLimitedUntil;
   writeFileSync(CACHE_FILE, JSON.stringify(cache3), "utf-8");
 }
 function isCacheStale() {
   try {
     const stat = statSync2(CACHE_FILE);
-    return Date.now() - stat.mtimeMs > STALE_THRESHOLD_MS;
+    if (Date.now() - stat.mtimeMs <= STALE_THRESHOLD_MS) return false;
+    const cached = readUsageCache();
+    if (cached?.rateLimitedUntil && Date.now() < cached.rateLimitedUntil) return false;
+    return true;
   } catch {
     return true;
   }
 }
+function acquireLock() {
+  try {
+    const raw = readFileSync(LOCK_FILE, "utf-8");
+    const lock = JSON.parse(raw);
+    if (Date.now() - lock.lockedAt < LOCK_STALE_MS) {
+      return false;
+    }
+  } catch {
+  }
+  try {
+    writeFileSync(LOCK_FILE, JSON.stringify({ pid: process.pid, lockedAt: Date.now() }), "utf-8");
+    return true;
+  } catch {
+    return false;
+  }
+}
+function releaseLock() {
+  try {
+    const raw = readFileSync(LOCK_FILE, "utf-8");
+    const lock = JSON.parse(raw);
+    if (lock.pid === process.pid) {
+      writeFileSync(LOCK_FILE, JSON.stringify({ pid: 0, lockedAt: 0 }), "utf-8");
+    }
+  } catch {
+  }
+}
+function isLocked() {
+  try {
+    const raw = readFileSync(LOCK_FILE, "utf-8");
+    const lock = JSON.parse(raw);
+    return lock.pid !== 0 && Date.now() - lock.lockedAt < LOCK_STALE_MS;
+  } catch {
+    return false;
+  }
+}
 function triggerBackgroundFetch() {
   if (!isCacheStale()) return;
+  if (isLocked()) return;
   const child = spawn(
     process.execPath,
     [join(__dirname, "index.js"), "--fetch-usage"],
@@ -57641,6 +57683,7 @@ function triggerBackgroundFetch() {
 async function fetchAndCacheUsage() {
   const token = getAccessToken();
   if (!token) return;
+  if (!acquireLock()) return;
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 5e3);
@@ -57654,10 +57697,20 @@ async function fetchAndCacheUsage() {
       signal: controller.signal
     });
     clearTimeout(timeout);
+    if (res.status === 429) {
+      const retryAfterHeader = res.headers.get("retry-after");
+      const retryAfterSec = retryAfterHeader ? parseInt(retryAfterHeader, 10) : NaN;
+      const backoffMs = !isNaN(retryAfterSec) && retryAfterSec > 0 ? retryAfterSec * 1e3 : 5 * 6e4;
+      const existing = readUsageCache();
+      writeUsageCache(existing?.data ?? {}, Date.now() + backoffMs);
+      return;
+    }
     if (!res.ok) return;
     const data = await res.json();
     writeUsageCache(data);
   } catch {
+  } finally {
+    releaseLock();
   }
 }
 
@@ -57724,7 +57777,7 @@ async function fetchAndCacheHeadroom() {
 // src/session-tracking.ts
 import {
   writeFileSync as writeFileSync3,
-  existsSync as existsSync2,
+  existsSync,
   mkdirSync,
   readdirSync,
   statSync as statSync4,
@@ -57760,13 +57813,13 @@ function isStale() {
     return true;
   }
 }
-var LOCK_STALE_MS = 2 * 6e4;
-function acquireLock() {
+var LOCK_STALE_MS2 = 2 * 6e4;
+function acquireLock2() {
   const lockFile = getLockFile();
   try {
     const raw = readFileSync3(lockFile, "utf-8");
     const lock = JSON.parse(raw);
-    if (Date.now() - lock.lockedAt < LOCK_STALE_MS) {
+    if (Date.now() - lock.lockedAt < LOCK_STALE_MS2) {
       return false;
     }
   } catch {
@@ -57778,7 +57831,7 @@ function acquireLock() {
     return false;
   }
 }
-function releaseLock() {
+function releaseLock2() {
   try {
     const lockFile = getLockFile();
     const raw = readFileSync3(lockFile, "utf-8");
@@ -57904,19 +57957,19 @@ function computeWindowData(startMs, endMs) {
 }
 function ensureDirs() {
   const dir = getTrackingDir();
-  if (!existsSync2(dir)) mkdirSync(dir, { recursive: true });
+  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
   const backups = getBackupsDir();
-  if (!existsSync2(backups)) mkdirSync(backups, { recursive: true });
+  if (!existsSync(backups)) mkdirSync(backups, { recursive: true });
 }
 function writeRecordAppend(record) {
   writeFileSync3(getDataFile(), JSON.stringify(record) + "\n", { flag: "a", encoding: "utf-8" });
 }
 function maybeBackup() {
   const dataFile = getDataFile();
-  if (!existsSync2(dataFile)) return;
+  if (!existsSync(dataFile)) return;
   const today = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
   const backupFile = join3(getBackupsDir(), `data-${today}.jsonl`);
-  if (!existsSync2(backupFile)) {
+  if (!existsSync(backupFile)) {
     try {
       copyFileSync(dataFile, backupFile);
     } catch {
@@ -57955,7 +58008,7 @@ function buildWindowRecord(resetsAt, durationMs, nowMs) {
 }
 async function performSessionTracking() {
   ensureDirs();
-  if (!acquireLock()) return;
+  if (!acquireLock2()) return;
   try {
     const nowMs = Date.now();
     const nowISO = new Date(nowMs).toISOString();
@@ -57995,7 +58048,7 @@ async function performSessionTracking() {
     writeRecordAppend(record);
     maybeBackup();
   } finally {
-    releaseLock();
+    releaseLock2();
   }
 }
 function triggerSessionTracking() {
@@ -58022,7 +58075,7 @@ function removeStatusLineIfDisabled() {
   try {
     const claudeDir = process.env.CLAUDE_CONFIG_DIR ?? join7(homedir5(), ".claude");
     const settingsPath = join7(claudeDir, "settings.json");
-    if (!existsSync7(settingsPath)) return false;
+    if (!existsSync6(settingsPath)) return false;
     const settings = JSON.parse(readFileSync8(settingsPath, "utf8"));
     if (settings?.enabledPlugins?.[PLUGIN_KEY] !== false) return false;
     delete settings.statusLine;

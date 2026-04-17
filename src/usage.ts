@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, existsSync, statSync } from "fs";
+import { readFileSync, writeFileSync, statSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { tmpdir, homedir, platform } from "os";
@@ -31,6 +31,13 @@ export interface UsageData {
 interface UsageCache {
   fetchedAt: number;
   data: UsageData;
+  /** Unix timestamp (ms) — skip all fetches until after this time (rate-limited). */
+  rateLimitedUntil?: number;
+}
+
+interface LockData {
+  pid: number;
+  lockedAt: number;
 }
 
 interface OAuthCredentials {
@@ -43,7 +50,10 @@ interface OAuthCredentials {
 // --- Constants ---
 
 const CACHE_FILE = join(tmpdir(), "claude-statusline-usage.json");
+const LOCK_FILE = join(tmpdir(), "claude-statusline-usage.lock");
 const STALE_THRESHOLD_MS = 60_000; // 60 seconds
+/** A lock older than this is considered stale/abandoned and will be overwritten. */
+const LOCK_STALE_MS = 2 * 60_000; // 2 minutes
 const API_URL = "https://api.anthropic.com/api/oauth/usage";
 
 // --- Credential reading (cross-platform) ---
@@ -114,17 +124,72 @@ export function readUsageCache(): UsageCache | null {
   }
 }
 
-function writeUsageCache(data: UsageData): void {
+function writeUsageCache(data: UsageData, rateLimitedUntil?: number): void {
   const cache: UsageCache = { fetchedAt: Date.now(), data };
+  if (rateLimitedUntil !== undefined) cache.rateLimitedUntil = rateLimitedUntil;
   writeFileSync(CACHE_FILE, JSON.stringify(cache), "utf-8");
 }
 
 function isCacheStale(): boolean {
   try {
     const stat = statSync(CACHE_FILE);
-    return Date.now() - stat.mtimeMs > STALE_THRESHOLD_MS;
+    if (Date.now() - stat.mtimeMs <= STALE_THRESHOLD_MS) return false;
+
+    // Even if the mtime is old, respect any active rate-limit backoff.
+    const cached = readUsageCache();
+    if (cached?.rateLimitedUntil && Date.now() < cached.rateLimitedUntil) return false;
+
+    return true;
   } catch {
     return true; // no cache file = stale
+  }
+}
+
+// --- Lock helpers ---
+
+/**
+ * Acquire a PID-based lock file.  Returns true when the lock was taken,
+ * false when another live process already holds it.  Stale locks (older
+ * than LOCK_STALE_MS) are silently overwritten.
+ */
+function acquireLock(): boolean {
+  try {
+    const raw = readFileSync(LOCK_FILE, "utf-8");
+    const lock: LockData = JSON.parse(raw);
+    if (Date.now() - lock.lockedAt < LOCK_STALE_MS) {
+      return false; // another process holds a fresh lock
+    }
+  } catch {
+    // No lock file or parse error — proceed to acquire
+  }
+  try {
+    writeFileSync(LOCK_FILE, JSON.stringify({ pid: process.pid, lockedAt: Date.now() }), "utf-8");
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function releaseLock(): void {
+  try {
+    const raw = readFileSync(LOCK_FILE, "utf-8");
+    const lock: LockData = JSON.parse(raw);
+    if (lock.pid === process.pid) {
+      writeFileSync(LOCK_FILE, JSON.stringify({ pid: 0, lockedAt: 0 }), "utf-8");
+    }
+  } catch {
+    // Non-fatal
+  }
+}
+
+/** Returns true when a live (non-stale) lock is already held. */
+function isLocked(): boolean {
+  try {
+    const raw = readFileSync(LOCK_FILE, "utf-8");
+    const lock: LockData = JSON.parse(raw);
+    return lock.pid !== 0 && Date.now() - lock.lockedAt < LOCK_STALE_MS;
+  } catch {
+    return false;
   }
 }
 
@@ -133,9 +198,12 @@ function isCacheStale(): boolean {
 /**
  * Spawn a detached background process to fetch usage data.
  * The main render path never waits for this.
+ * Skipped when the cache is still fresh, when a rate-limit backoff is active,
+ * or when another process already holds the fetch lock.
  */
 export function triggerBackgroundFetch(): void {
   if (!isCacheStale()) return;
+  if (isLocked()) return; // another session already spawned a fetcher
 
   // Spawn ourselves with --fetch-usage flag, fully detached
   const child = spawn(
@@ -153,10 +221,13 @@ export function triggerBackgroundFetch(): void {
 /**
  * Actually fetch usage data from the API and write to cache.
  * Called by the background process (--fetch-usage flag).
+ * Uses a lock file to ensure only one fetch runs globally at a time.
  */
 export async function fetchAndCacheUsage(): Promise<void> {
   const token = getAccessToken();
   if (!token) return;
+
+  if (!acquireLock()) return; // another background process beat us to it
 
   try {
     const controller = new AbortController();
@@ -174,11 +245,26 @@ export async function fetchAndCacheUsage(): Promise<void> {
 
     clearTimeout(timeout);
 
+    if (res.status === 429) {
+      // Rate limited — compute backoff from Retry-After header (seconds) or
+      // fall back to a 5-minute default so we don't hammer the API.
+      const retryAfterHeader = res.headers.get("retry-after");
+      const retryAfterSec = retryAfterHeader ? parseInt(retryAfterHeader, 10) : NaN;
+      const backoffMs = !isNaN(retryAfterSec) && retryAfterSec > 0
+        ? retryAfterSec * 1000
+        : 5 * 60_000; // 5-minute default
+      const existing = readUsageCache();
+      writeUsageCache(existing?.data ?? {}, Date.now() + backoffMs);
+      return;
+    }
+
     if (!res.ok) return;
 
     const data: UsageData = await res.json();
     writeUsageCache(data);
   } catch {
     // Network error, timeout, etc. — silently ignore
+  } finally {
+    releaseLock();
   }
 }
