@@ -175,6 +175,9 @@ function releaseLock(): void {
     const raw = readFileSync(LOCK_FILE, "utf-8");
     const lock: LockData = JSON.parse(raw);
     if (lock.pid === process.pid) {
+      // Zero out the lock rather than deleting the file so that the file
+      // system entry is immediately visible to other processes checking
+      // isLocked(), matching the approach used in session-tracking.ts.
       writeFileSync(LOCK_FILE, JSON.stringify({ pid: 0, lockedAt: 0 }), "utf-8");
     }
   } catch {
@@ -246,14 +249,27 @@ export async function fetchAndCacheUsage(): Promise<void> {
     clearTimeout(timeout);
 
     if (res.status === 429) {
-      // Rate limited — compute backoff from Retry-After header (seconds) or
-      // fall back to a 5-minute default so we don't hammer the API.
+      // Rate limited — compute backoff from Retry-After header or fall back
+      // to a 5-minute default so we don't hammer the API.
+      //
+      // The Retry-After header can be an integer (delay in seconds) or an
+      // HTTP-date string per RFC 7231.  We handle both formats here.
       const retryAfterHeader = res.headers.get("retry-after");
-      const retryAfterSec = retryAfterHeader ? parseInt(retryAfterHeader, 10) : NaN;
-      const backoffMs = !isNaN(retryAfterSec) && retryAfterSec > 0
-        ? retryAfterSec * 1000
-        : 5 * 60_000; // 5-minute default
+      let backoffMs = 5 * 60_000; // 5-minute default
+      if (retryAfterHeader) {
+        const delaySec = parseInt(retryAfterHeader, 10);
+        if (!isNaN(delaySec) && delaySec > 0) {
+          backoffMs = delaySec * 1000;
+        } else {
+          // Try parsing as an HTTP-date string
+          const retryDate = new Date(retryAfterHeader).getTime();
+          if (!isNaN(retryDate) && retryDate > Date.now()) {
+            backoffMs = retryDate - Date.now();
+          }
+        }
+      }
       const existing = readUsageCache();
+      // Preserve existing data (may be null/empty) and only update the backoff.
       writeUsageCache(existing?.data ?? {}, Date.now() + backoffMs);
       return;
     }

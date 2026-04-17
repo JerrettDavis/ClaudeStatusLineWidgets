@@ -57699,8 +57699,18 @@ async function fetchAndCacheUsage() {
     clearTimeout(timeout);
     if (res.status === 429) {
       const retryAfterHeader = res.headers.get("retry-after");
-      const retryAfterSec = retryAfterHeader ? parseInt(retryAfterHeader, 10) : NaN;
-      const backoffMs = !isNaN(retryAfterSec) && retryAfterSec > 0 ? retryAfterSec * 1e3 : 5 * 6e4;
+      let backoffMs = 5 * 6e4;
+      if (retryAfterHeader) {
+        const delaySec = parseInt(retryAfterHeader, 10);
+        if (!isNaN(delaySec) && delaySec > 0) {
+          backoffMs = delaySec * 1e3;
+        } else {
+          const retryDate = new Date(retryAfterHeader).getTime();
+          if (!isNaN(retryDate) && retryDate > Date.now()) {
+            backoffMs = retryDate - Date.now();
+          }
+        }
+      }
       const existing = readUsageCache();
       writeUsageCache(existing?.data ?? {}, Date.now() + backoffMs);
       return;
