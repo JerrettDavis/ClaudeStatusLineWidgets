@@ -13,6 +13,12 @@ import { writeFileSync, mkdirSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 
+// Freeze time so SVG output is deterministic across runs and CI doesn't
+// produce noisy commits when nothing in the rendering logic has changed.
+// 2025-01-01T12:00:00.000Z — an arbitrary, stable reference point.
+const FROZEN_NOW = 1735732800000;
+Date.now = () => FROZEN_NOW;
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
 const IMAGES_DIR = join(ROOT, "docs", "images");
@@ -193,9 +199,7 @@ async function renderMock(overrides = {}) {
     },
     git_branch: "main",
     cwd: "/home/user/project",
-  };
-
-  const defaultContext = {
+  };  const defaultContext = {
     payload: defaultPayload,
     cacheTTL: {
       remainingSeconds: 180,
