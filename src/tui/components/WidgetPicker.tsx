@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { Box, Text, useInput } from "ink";
 import SelectInput from "ink-select-input";
-import { getWidgetCatalog, getWidgetCategories, getDataKeyGroups } from "../../widgets/registry.js";
+import { getWidgetCatalog, getDataKeyGroups } from "../../widgets/registry.js";
 import { getDataKeyInfo } from "../../widgets/data-keys.js";
 
 interface Props {
@@ -10,14 +10,18 @@ interface Props {
   onBack: () => void;
 }
 
+type PickerValue =
+  | { kind: "group"; dataKey: string }
+  | { kind: "widget"; type: string };
+
 export function WidgetPicker({ onSelect, onSelectGroup, onBack }: Props) {
   useInput((_input, key) => {
     if (key.escape) onBack();
   });
 
   const catalog = useMemo(() => getWidgetCatalog(), []);
-  const categories = useMemo(() => getWidgetCategories(), []);
-  const dataKeyGroups = useMemo(() => getDataKeyGroups(), []);
+  const categories = useMemo(() => [...new Set(catalog.map((e) => e.category))], [catalog]);
+  const dataKeyGroups = useMemo(() => getDataKeyGroups(catalog), [catalog]);
 
   const items = useMemo(() => {
     // Track which widget types are consumed by a data key group
@@ -31,7 +35,7 @@ export function WidgetPicker({ onSelect, onSelectGroup, onBack }: Props) {
     // Track which data keys we've already added (to avoid duplicates across categories)
     const addedDataKeys = new Set<string>();
 
-    const result: { label: string; value: string }[] = [];
+    const result: { label: string; value: PickerValue }[] = [];
     for (const cat of categories) {
       const widgets = catalog.filter((w) => w.category === cat);
       for (const w of widgets) {
@@ -46,14 +50,14 @@ export function WidgetPicker({ onSelect, onSelectGroup, onBack }: Props) {
             const groupCategory = info?.category ?? cat;
             result.push({
               label: `[${groupCategory}] ${displayName} (${groupEntries.length} widgets) — ${description}`,
-              value: `__group__${w.dataKey}`,
+              value: { kind: "group", dataKey: w.dataKey },
             });
           }
         } else {
           // Ungrouped widget — show individually as before
           result.push({
             label: `[${cat}] ${w.displayName}${w.variants?.length ? ` (${w.variants.join("/")})` : ""} — ${w.description}`,
-            value: w.type,
+            value: { kind: "widget", type: w.type },
           });
         }
       }
@@ -69,10 +73,10 @@ export function WidgetPicker({ onSelect, onSelectGroup, onBack }: Props) {
         <SelectInput
           items={items}
           onSelect={(item) => {
-            if (item.value.startsWith("__group__")) {
-              onSelectGroup(item.value.slice("__group__".length));
+            if (item.value.kind === "group") {
+              onSelectGroup(item.value.dataKey);
             } else {
-              onSelect(item.value);
+              onSelect(item.value.type);
             }
           }}
         />

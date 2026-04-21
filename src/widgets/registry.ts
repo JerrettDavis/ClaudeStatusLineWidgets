@@ -210,14 +210,14 @@ export async function loadExtensions(): Promise<void> {
   }
 }
 
-export function getWidgetsByDataKey(dataKey: string): WidgetCatalogEntry[] {
-  return getWidgetCatalog().filter(e => e.dataKey === dataKey);
+export function getWidgetsByDataKey(dataKey: string, catalog?: WidgetCatalogEntry[]): WidgetCatalogEntry[] {
+  return (catalog ?? getWidgetCatalog()).filter(e => e.dataKey === dataKey);
 }
 
-export function getDataKeyGroups(): Map<string, WidgetCatalogEntry[]> {
-  const catalog = getWidgetCatalog();
+export function getDataKeyGroups(catalog?: WidgetCatalogEntry[]): Map<string, WidgetCatalogEntry[]> {
+  const entries = catalog ?? getWidgetCatalog();
   const groups = new Map<string, WidgetCatalogEntry[]>();
-  for (const entry of catalog) {
+  for (const entry of entries) {
     if (!entry.dataKey) continue;
     const list = groups.get(entry.dataKey) ?? [];
     list.push(entry);

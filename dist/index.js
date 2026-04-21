@@ -573,7 +573,7 @@ var init_CacheTTLWidget = __esm({
         return "Cache expiry countdown";
       }
       getCategory() {
-        return "Context";
+        return "Cache";
       }
       getDefaultColor() {
         return "default";
@@ -2330,10 +2330,6 @@ function getWidgetCatalog() {
     };
   });
 }
-function getWidgetCategories() {
-  const cats = new Set(getWidgetCatalog().map((e) => e.category));
-  return [...cats];
-}
 function registerExtension(extension2) {
   for (const reg of extension2.widgets) {
     if (widgetRegistry.has(reg.type)) continue;
@@ -2349,13 +2345,13 @@ async function loadExtensions() {
     registerExtension(ext);
   }
 }
-function getWidgetsByDataKey(dataKey) {
-  return getWidgetCatalog().filter((e) => e.dataKey === dataKey);
+function getWidgetsByDataKey(dataKey, catalog) {
+  return (catalog ?? getWidgetCatalog()).filter((e) => e.dataKey === dataKey);
 }
-function getDataKeyGroups() {
-  const catalog = getWidgetCatalog();
+function getDataKeyGroups(catalog) {
+  const entries = catalog ?? getWidgetCatalog();
   const groups = /* @__PURE__ */ new Map();
-  for (const entry of catalog) {
+  for (const entry of entries) {
     if (!entry.dataKey) continue;
     const list = groups.get(entry.dataKey) ?? [];
     list.push(entry);
@@ -57245,8 +57241,8 @@ function WidgetPicker({ onSelect, onSelectGroup, onBack }) {
     if (key.escape) onBack();
   });
   const catalog = (0, import_react32.useMemo)(() => getWidgetCatalog(), []);
-  const categories = (0, import_react32.useMemo)(() => getWidgetCategories(), []);
-  const dataKeyGroups = (0, import_react32.useMemo)(() => getDataKeyGroups(), []);
+  const categories = (0, import_react32.useMemo)(() => [...new Set(catalog.map((e) => e.category))], [catalog]);
+  const dataKeyGroups = (0, import_react32.useMemo)(() => getDataKeyGroups(catalog), [catalog]);
   const items = (0, import_react32.useMemo)(() => {
     const groupedTypes = /* @__PURE__ */ new Set();
     for (const entries of dataKeyGroups.values()) {
@@ -57269,13 +57265,13 @@ function WidgetPicker({ onSelect, onSelectGroup, onBack }) {
             const groupCategory = info?.category ?? cat;
             result.push({
               label: `[${groupCategory}] ${displayName} (${groupEntries.length} widgets) \u2014 ${description}`,
-              value: `__group__${w.dataKey}`
+              value: { kind: "group", dataKey: w.dataKey }
             });
           }
         } else {
           result.push({
             label: `[${cat}] ${w.displayName}${w.variants?.length ? ` (${w.variants.join("/")})` : ""} \u2014 ${w.description}`,
-            value: w.type
+            value: { kind: "widget", type: w.type }
           });
         }
       }
@@ -57290,10 +57286,10 @@ function WidgetPicker({ onSelect, onSelectGroup, onBack }) {
       {
         items,
         onSelect: (item) => {
-          if (item.value.startsWith("__group__")) {
-            onSelectGroup(item.value.slice("__group__".length));
+          if (item.value.kind === "group") {
+            onSelectGroup(item.value.dataKey);
           } else {
-            onSelect(item.value);
+            onSelect(item.value.type);
           }
         }
       }

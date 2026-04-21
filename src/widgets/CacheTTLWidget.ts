@@ -5,7 +5,7 @@ import { formatDurationCompact, getVariant, renderBadge, renderLabel } from "./h
 export class CacheTTLWidget implements Widget {
   getDisplayName() { return "Cache TTL"; }
   getDescription() { return "Cache expiry countdown"; }
-  getCategory() { return "Context"; }
+  getCategory() { return "Cache"; }
   getDefaultColor() { return "default"; }
   supportsColors() { return false; }
   getVariants() { return ["time", "countdown", "badge"]; }
