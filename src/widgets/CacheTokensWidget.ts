@@ -5,7 +5,7 @@ import type { Widget, WidgetItem, RenderContext } from "./types.js";
 export class CacheTokensWidget implements Widget {
   getDisplayName() { return "Cache Tokens"; }
   getDescription() { return "Session cache reads, writes, break count, and last break time"; }
-  getCategory() { return "Context"; }
+  getCategory() { return "Cache"; }
   getDefaultColor() { return "default"; }
   supportsColors() { return false; }
   getDataKey() { return "cache-health"; }
