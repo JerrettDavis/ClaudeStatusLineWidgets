@@ -9,6 +9,7 @@ export class Usage5hWidget implements Widget {
   getDefaultColor() { return "default"; }
   supportsColors() { return false; }
   getVariants() { return ["bar", "percent", "countdown"]; }
+  getDataKey() { return "usage-5h"; }
   render(item: WidgetItem, ctx: RenderContext): string | null {
     const variant = getVariant(item, "bar");
     if (variant === "countdown") {

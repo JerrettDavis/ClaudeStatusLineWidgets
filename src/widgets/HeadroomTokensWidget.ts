@@ -7,6 +7,7 @@ export class HeadroomTokensWidget implements Widget {
   getCategory() { return "Headroom"; }
   getDefaultColor() { return "default"; }
   supportsColors() { return false; }
+  getDataKey() { return "headroom-stats"; }
   render(_item: WidgetItem, ctx: RenderContext): string | null {
     if (ctx.isPreview) return "\u2696\uFE0F 491k tokens saved";
     return formatHeadroomTokens(ctx.headroomStats);

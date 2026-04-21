@@ -7,6 +7,7 @@ export class HeadroomCompressionWidget implements Widget {
   getCategory() { return "Headroom"; }
   getDefaultColor() { return "default"; }
   supportsColors() { return false; }
+  getDataKey() { return "headroom-stats"; }
   render(_item: WidgetItem, ctx: RenderContext): string | null {
     if (ctx.isPreview) return "34% compressed";
     return formatHeadroomCompression(ctx.headroomStats);

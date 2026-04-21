@@ -538,6 +538,9 @@ var init_ContextBarWidget = __esm({
       getVariants() {
         return ["bar", "percent", "remaining"];
       }
+      getDataKey() {
+        return "context-usage";
+      }
       render(item, ctx) {
         const rawPercent = ctx.isPreview ? 45 : ctx.payload.context_window?.used_percentage ?? null;
         if (rawPercent === null) return null;
@@ -580,6 +583,9 @@ var init_CacheTTLWidget = __esm({
       }
       getVariants() {
         return ["time", "countdown", "badge"];
+      }
+      getDataKey() {
+        return "cache-health";
       }
       render(item, ctx) {
         const variant = getVariant(item, "time");
@@ -630,6 +636,9 @@ var init_CacheTokensWidget = __esm({
       supportsColors() {
         return false;
       }
+      getDataKey() {
+        return "cache-health";
+      }
       render(_item, ctx) {
         if (ctx.isPreview) {
           const reads = dim(`\u2193${compactTokens(123e4)}`);
@@ -668,6 +677,9 @@ var init_Usage5hWidget = __esm({
       }
       getVariants() {
         return ["bar", "percent", "countdown"];
+      }
+      getDataKey() {
+        return "usage-5h";
       }
       render(item, ctx) {
         const variant = getVariant(item, "bar");
@@ -712,6 +724,9 @@ var init_Usage7dWidget = __esm({
       getVariants() {
         return ["bar", "percent", "countdown"];
       }
+      getDataKey() {
+        return "usage-7d";
+      }
       render(item, ctx) {
         const variant = getVariant(item, "bar");
         if (variant === "countdown") {
@@ -755,6 +770,9 @@ var init_UsageOverageWidget = __esm({
       getVariants() {
         return ["bar", "percent"];
       }
+      getDataKey() {
+        return "usage-overage";
+      }
       render(item, ctx) {
         const variant = getVariant(item, "bar");
         if (variant === "percent") {
@@ -790,6 +808,9 @@ var init_HeadroomTokensWidget = __esm({
       supportsColors() {
         return false;
       }
+      getDataKey() {
+        return "headroom-stats";
+      }
       render(_item, ctx) {
         if (ctx.isPreview) return "\u2696\uFE0F 491k tokens saved";
         return formatHeadroomTokens(ctx.headroomStats);
@@ -819,6 +840,9 @@ var init_HeadroomCompressionWidget = __esm({
       }
       supportsColors() {
         return false;
+      }
+      getDataKey() {
+        return "headroom-stats";
       }
       render(_item, ctx) {
         if (ctx.isPreview) return "34% compressed";
@@ -850,6 +874,9 @@ var init_HeadroomCostWidget = __esm({
       supportsColors() {
         return false;
       }
+      getDataKey() {
+        return "headroom-stats";
+      }
       render(_item, ctx) {
         if (ctx.isPreview) return "$0.12 saved";
         return formatHeadroomCost(ctx.headroomStats);
@@ -879,6 +906,9 @@ var init_HeadroomCacheHitWidget = __esm({
       }
       supportsColors() {
         return false;
+      }
+      getDataKey() {
+        return "headroom-stats";
       }
       render(_item, ctx) {
         if (ctx.isPreview) return "78% cache hit";
@@ -1572,6 +1602,9 @@ var init_GitWidgets = __esm({
       getDescription() {
         return "Compact summary of staged, unstaged, untracked, and conflict counts";
       }
+      getDataKey() {
+        return "git-working-tree";
+      }
       render(item, ctx) {
         const git = ctx.runtime.git;
         if (ctx.isPreview) return renderLabel("Git", "+2 ~1 ?3", item, ctx);
@@ -1592,6 +1625,9 @@ var init_GitWidgets = __esm({
       getDescription() {
         return "Total changed paths in the working tree";
       }
+      getDataKey() {
+        return "git-working-tree";
+      }
       render(item, ctx) {
         const count = ctx.isPreview ? 6 : ctx.runtime.git.changes;
         return count > 0 ? renderLabel("Changes", String(count), item, ctx) : null;
@@ -1603,6 +1639,9 @@ var init_GitWidgets = __esm({
       }
       getDescription() {
         return "Count of staged files";
+      }
+      getDataKey() {
+        return "git-working-tree";
       }
       render(item, ctx) {
         const count = ctx.isPreview ? 2 : ctx.runtime.git.staged;
@@ -1616,6 +1655,9 @@ var init_GitWidgets = __esm({
       getDescription() {
         return "Count of unstaged files";
       }
+      getDataKey() {
+        return "git-working-tree";
+      }
       render(item, ctx) {
         const count = ctx.isPreview ? 1 : ctx.runtime.git.unstaged;
         return count > 0 ? renderLabel("Unstaged", String(count), item, ctx) : null;
@@ -1627,6 +1669,9 @@ var init_GitWidgets = __esm({
       }
       getDescription() {
         return "Count of untracked files";
+      }
+      getDataKey() {
+        return "git-working-tree";
       }
       render(item, ctx) {
         const count = ctx.isPreview ? 3 : ctx.runtime.git.untracked;
@@ -1656,6 +1701,9 @@ var init_GitWidgets = __esm({
       }
       getDescription() {
         return "Count of conflicted paths";
+      }
+      getDataKey() {
+        return "git-working-tree";
       }
       render(item, ctx) {
         const count = ctx.isPreview ? 1 : ctx.runtime.git.conflicts;
@@ -1724,6 +1772,9 @@ var init_GitWidgets = __esm({
       getDescription() {
         return this.description;
       }
+      getDataKey() {
+        return this.remote === "origin" ? "git-remote-origin" : "git-remote-upstream";
+      }
       render(item, ctx) {
         const remote = this.remote === "origin" ? ctx.runtime.git.origin : ctx.runtime.git.upstream;
         const preview = this.remote === "origin" ? { owner: "octocat", repo: "app" } : { owner: "upstream", repo: "app" };
@@ -1782,6 +1833,9 @@ var init_GitWidgets = __esm({
       getDescription() {
         return "Primary, linked, or detached worktree mode";
       }
+      getDataKey() {
+        return "git-worktree";
+      }
       render(item, ctx) {
         const value = ctx.isPreview ? "linked" : ctx.runtime.git.worktreeMode;
         return value ? renderLabel("Worktree", value, item, ctx) : null;
@@ -1793,6 +1847,9 @@ var init_GitWidgets = __esm({
       }
       getDescription() {
         return "Current worktree name";
+      }
+      getDataKey() {
+        return "git-worktree";
       }
       render(item, ctx) {
         const value = ctx.isPreview ? "my-repo" : ctx.runtime.git.worktreeName;
@@ -1806,6 +1863,9 @@ var init_GitWidgets = __esm({
       getDescription() {
         return "Branch associated with the current worktree";
       }
+      getDataKey() {
+        return "git-worktree";
+      }
       render(item, ctx) {
         const value = ctx.isPreview ? "feat/widgets" : ctx.runtime.git.worktreeBranch;
         return value ? renderLabel("Worktree Branch", value, item, ctx) : null;
@@ -1817,6 +1877,9 @@ var init_GitWidgets = __esm({
       }
       getDescription() {
         return "Original branch for the current worktree";
+      }
+      getDataKey() {
+        return "git-worktree";
       }
       render(item, ctx) {
         const value = ctx.isPreview ? "main" : ctx.runtime.git.worktreeOriginalBranch;
@@ -1850,6 +1913,9 @@ var init_MetricWidgets = __esm({
       getCategory() {
         return "Tokens";
       }
+      getDataKey() {
+        return "token-counts";
+      }
       render(item, ctx) {
         const value = ctx.isPreview ? 18200 : ctx.runtime.tokens.input;
         return value !== null ? renderLabel("Input", formatTokenCount(value), item, ctx) : null;
@@ -1864,6 +1930,9 @@ var init_MetricWidgets = __esm({
       }
       getCategory() {
         return "Tokens";
+      }
+      getDataKey() {
+        return "token-counts";
       }
       render(item, ctx) {
         const value = ctx.isPreview ? 2400 : ctx.runtime.tokens.output;
@@ -1880,6 +1949,9 @@ var init_MetricWidgets = __esm({
       getCategory() {
         return "Tokens";
       }
+      getDataKey() {
+        return "token-counts";
+      }
       render(item, ctx) {
         const value = ctx.isPreview ? 21600 : ctx.runtime.tokens.total;
         return value !== null ? renderLabel("Tokens", formatTokenCount(value), item, ctx) : null;
@@ -1894,6 +1966,9 @@ var init_MetricWidgets = __esm({
       }
       getCategory() {
         return "Tokens";
+      }
+      getDataKey() {
+        return "token-speed";
       }
       render(item, ctx) {
         const value = ctx.isPreview ? 1200 : ctx.runtime.tokens.inputSpeed;
@@ -1910,6 +1985,9 @@ var init_MetricWidgets = __esm({
       getCategory() {
         return "Tokens";
       }
+      getDataKey() {
+        return "token-speed";
+      }
       render(item, ctx) {
         const value = ctx.isPreview ? 180 : ctx.runtime.tokens.outputSpeed;
         return value !== null ? renderLabel("Output/s", formatSpeed(value), item, ctx) : null;
@@ -1924,6 +2002,9 @@ var init_MetricWidgets = __esm({
       }
       getCategory() {
         return "Tokens";
+      }
+      getDataKey() {
+        return "token-speed";
       }
       render(item, ctx) {
         const value = ctx.isPreview ? 1380 : ctx.runtime.tokens.totalSpeed;
@@ -1942,6 +2023,9 @@ var init_MetricWidgets = __esm({
       }
       getVariants() {
         return ["percent", "bar", "remaining"];
+      }
+      getDataKey() {
+        return "context-usage";
       }
       render(item, ctx) {
         const variant = getVariant(item, "percent");
@@ -1966,6 +2050,9 @@ var init_MetricWidgets = __esm({
       getCategory() {
         return "Context";
       }
+      getDataKey() {
+        return "context-size";
+      }
       render(item, ctx) {
         const value = ctx.isPreview ? 2e5 : ctx.payload.context_window?.context_window_size ?? null;
         return value !== null ? renderLabel("Context", formatTokenCount(value), item, ctx) : null;
@@ -1980,6 +2067,9 @@ var init_MetricWidgets = __esm({
       }
       getCategory() {
         return "Usage";
+      }
+      getDataKey() {
+        return "usage-5h";
       }
       render(item, ctx) {
         const value = ctx.isPreview ? 67 * 60 : ctx.runtime.usage.fiveHourResetSeconds;
@@ -1996,6 +2086,9 @@ var init_MetricWidgets = __esm({
       getCategory() {
         return "Usage";
       }
+      getDataKey() {
+        return "usage-7d";
+      }
       render(item, ctx) {
         const value = ctx.isPreview ? 3 * 24 * 3600 : ctx.runtime.usage.sevenDayResetSeconds;
         return value !== null ? renderLabel("7d Reset", formatDurationCompact(value), item, ctx) : null;
@@ -2010,6 +2103,9 @@ var init_MetricWidgets = __esm({
       }
       getCategory() {
         return "Cache";
+      }
+      getDataKey() {
+        return "cache-health";
       }
       render(item, ctx) {
         const current = ctx.payload.context_window?.current_usage;
@@ -2039,6 +2135,9 @@ var init_MetricWidgets = __esm({
       }
       getCategory() {
         return "Usage";
+      }
+      getDataKey() {
+        return "usage-runway";
       }
       render(item, ctx) {
         const sevenDayResetSeconds = ctx.runtime.usage.sevenDayResetSeconds;
@@ -2076,6 +2175,9 @@ var init_MetricWidgets = __esm({
       }
       getCategory() {
         return "Cache";
+      }
+      getDataKey() {
+        return "cache-health";
       }
       render(item, ctx) {
         const threshold = ctx.isPreview ? 1e6 : 2e6;
@@ -2223,7 +2325,8 @@ function getWidgetCatalog() {
       displayName: w.getDisplayName(),
       description: w.getDescription(),
       category: w.getCategory(),
-      variants: w.getVariants?.()
+      variants: w.getVariants?.(),
+      dataKey: w.getDataKey?.()
     };
   });
 }
@@ -2245,6 +2348,20 @@ async function loadExtensions() {
   for (const ext of extensions) {
     registerExtension(ext);
   }
+}
+function getWidgetsByDataKey(dataKey) {
+  return getWidgetCatalog().filter((e) => e.dataKey === dataKey);
+}
+function getDataKeyGroups() {
+  const catalog = getWidgetCatalog();
+  const groups = /* @__PURE__ */ new Map();
+  for (const entry of catalog) {
+    if (!entry.dataKey) continue;
+    const list = groups.get(entry.dataKey) ?? [];
+    list.push(entry);
+    groups.set(entry.dataKey, list);
+  }
+  return groups;
 }
 var WIDGET_MANIFEST, widgetRegistry, extensionManifest;
 var init_registry = __esm({
@@ -14679,14 +14796,14 @@ var require_react_reconciler_production = __commonJS({
       }
       var exports2 = {};
       "use strict";
-      var React18 = require_react(), Scheduler2 = require_scheduler(), assign = Object.assign, REACT_LEGACY_ELEMENT_TYPE = Symbol.for("react.element"), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy");
+      var React19 = require_react(), Scheduler2 = require_scheduler(), assign = Object.assign, REACT_LEGACY_ELEMENT_TYPE = Symbol.for("react.element"), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy");
       Symbol.for("react.scope");
       var REACT_ACTIVITY_TYPE = Symbol.for("react.activity");
       Symbol.for("react.legacy_hidden");
       Symbol.for("react.tracing_marker");
       var REACT_MEMO_CACHE_SENTINEL = Symbol.for("react.memo_cache_sentinel");
       Symbol.for("react.view_transition");
-      var MAYBE_ITERATOR_SYMBOL = Symbol.iterator, REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), isArrayImpl = Array.isArray, ReactSharedInternals = React18.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, rendererVersion = $$$config.rendererVersion, rendererPackageName = $$$config.rendererPackageName, extraDevToolsConfig = $$$config.extraDevToolsConfig, getPublicInstance = $$$config.getPublicInstance, getRootHostContext = $$$config.getRootHostContext, getChildHostContext = $$$config.getChildHostContext, prepareForCommit = $$$config.prepareForCommit, resetAfterCommit = $$$config.resetAfterCommit, createInstance = $$$config.createInstance;
+      var MAYBE_ITERATOR_SYMBOL = Symbol.iterator, REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), isArrayImpl = Array.isArray, ReactSharedInternals = React19.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, rendererVersion = $$$config.rendererVersion, rendererPackageName = $$$config.rendererPackageName, extraDevToolsConfig = $$$config.extraDevToolsConfig, getPublicInstance = $$$config.getPublicInstance, getRootHostContext = $$$config.getRootHostContext, getChildHostContext = $$$config.getChildHostContext, prepareForCommit = $$$config.prepareForCommit, resetAfterCommit = $$$config.resetAfterCommit, createInstance = $$$config.createInstance;
       $$$config.cloneMutableInstance;
       var appendInitialChild = $$$config.appendInitialChild, finalizeInitialChildren = $$$config.finalizeInitialChildren, shouldSetTextContent = $$$config.shouldSetTextContent, createTextInstance = $$$config.createTextInstance;
       $$$config.cloneMutableTextInstance;
@@ -27279,14 +27396,14 @@ var require_react_reconciler_development = __commonJS({
       }
       var exports2 = {};
       "use strict";
-      var React18 = require_react(), Scheduler2 = require_scheduler(), assign = Object.assign, REACT_LEGACY_ELEMENT_TYPE = Symbol.for("react.element"), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy");
+      var React19 = require_react(), Scheduler2 = require_scheduler(), assign = Object.assign, REACT_LEGACY_ELEMENT_TYPE = Symbol.for("react.element"), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy");
       Symbol.for("react.scope");
       var REACT_ACTIVITY_TYPE = Symbol.for("react.activity");
       Symbol.for("react.legacy_hidden");
       Symbol.for("react.tracing_marker");
       var REACT_MEMO_CACHE_SENTINEL = Symbol.for("react.memo_cache_sentinel");
       Symbol.for("react.view_transition");
-      var MAYBE_ITERATOR_SYMBOL = Symbol.iterator, REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), isArrayImpl = Array.isArray, ReactSharedInternals = React18.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, rendererVersion = $$$config.rendererVersion, rendererPackageName = $$$config.rendererPackageName, extraDevToolsConfig = $$$config.extraDevToolsConfig, getPublicInstance = $$$config.getPublicInstance, getRootHostContext = $$$config.getRootHostContext, getChildHostContext = $$$config.getChildHostContext, prepareForCommit = $$$config.prepareForCommit, resetAfterCommit = $$$config.resetAfterCommit, createInstance = $$$config.createInstance;
+      var MAYBE_ITERATOR_SYMBOL = Symbol.iterator, REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), isArrayImpl = Array.isArray, ReactSharedInternals = React19.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, rendererVersion = $$$config.rendererVersion, rendererPackageName = $$$config.rendererPackageName, extraDevToolsConfig = $$$config.extraDevToolsConfig, getPublicInstance = $$$config.getPublicInstance, getRootHostContext = $$$config.getRootHostContext, getChildHostContext = $$$config.getChildHostContext, prepareForCommit = $$$config.prepareForCommit, resetAfterCommit = $$$config.resetAfterCommit, createInstance = $$$config.createInstance;
       $$$config.cloneMutableInstance;
       var appendInitialChild = $$$config.appendInitialChild, finalizeInitialChildren = $$$config.finalizeInitialChildren, shouldSetTextContent = $$$config.shouldSetTextContent, createTextInstance = $$$config.createTextInstance;
       $$$config.cloneMutableTextInstance;
@@ -34822,7 +34939,7 @@ var require_backend = __commonJS({
                     return o2 && "function" == typeof Symbol && o2.constructor === Symbol && o2 !== Symbol.prototype ? "symbol" : typeof o2;
                   }, _typeof(o);
                 }
-                var ErrorStackParser = __webpack_require__2(206), React18 = __webpack_require__2(189), assign = Object.assign, ReactSharedInternals = React18.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_MEMO_CACHE_SENTINEL = Symbol.for("react.memo_cache_sentinel"), hasOwnProperty = Object.prototype.hasOwnProperty, hookLog = [], primitiveStackCache = null;
+                var ErrorStackParser = __webpack_require__2(206), React19 = __webpack_require__2(189), assign = Object.assign, ReactSharedInternals = React19.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_MEMO_CACHE_SENTINEL = Symbol.for("react.memo_cache_sentinel"), hasOwnProperty = Object.prototype.hasOwnProperty, hookLog = [], primitiveStackCache = null;
                 function getPrimitiveStackCache() {
                   if (null === primitiveStackCache) {
                     var cache3 = /* @__PURE__ */ new Map();
@@ -35030,7 +35147,7 @@ var require_backend = __commonJS({
                       dispatcherHookName: "InsertionEffect"
                     });
                   },
-                  useMemo: function useMemo5(nextCreate) {
+                  useMemo: function useMemo6(nextCreate) {
                     var hook = nextHook();
                     nextCreate = null !== hook ? hook.memoizedState[0] : nextCreate();
                     hookLog.push({
@@ -56865,18 +56982,18 @@ var require_react_jsx_runtime_development = __commonJS({
       function isValidElement(object) {
         return "object" === typeof object && null !== object && object.$$typeof === REACT_ELEMENT_TYPE;
       }
-      var React18 = require_react(), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = Symbol.for("react.activity"), REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), ReactSharedInternals = React18.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, hasOwnProperty = Object.prototype.hasOwnProperty, isArrayImpl = Array.isArray, createTask = console.createTask ? console.createTask : function() {
+      var React19 = require_react(), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = Symbol.for("react.activity"), REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), ReactSharedInternals = React19.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, hasOwnProperty = Object.prototype.hasOwnProperty, isArrayImpl = Array.isArray, createTask = console.createTask ? console.createTask : function() {
         return null;
       };
-      React18 = {
+      React19 = {
         react_stack_bottom_frame: function(callStackForError) {
           return callStackForError();
         }
       };
       var specialPropKeyWarningShown;
       var didWarnAboutElementRef = {};
-      var unknownOwnerDebugStack = React18.react_stack_bottom_frame.bind(
-        React18,
+      var unknownOwnerDebugStack = React19.react_stack_bottom_frame.bind(
+        React19,
         UnknownOwner
       )();
       var unknownOwnerDebugTask = createTask(getTaskName(UnknownOwner));
@@ -57095,34 +57212,90 @@ var init_ItemsEditor = __esm({
   }
 });
 
+// src/widgets/data-keys.ts
+function getDataKeyInfo(key) {
+  return DATA_KEYS.find((dk) => dk.key === key);
+}
+var DATA_KEYS;
+var init_data_keys = __esm({
+  "src/widgets/data-keys.ts"() {
+    "use strict";
+    DATA_KEYS = [
+      { key: "context-usage", displayName: "Context Usage", description: "Context window utilization (bar, percent, remaining)", category: "Context" },
+      { key: "context-size", displayName: "Context Size", description: "Raw context window size", category: "Context" },
+      { key: "cache-health", displayName: "Cache Health", description: "Cache TTL, token counts, and warnings", category: "Cache" },
+      { key: "usage-5h", displayName: "5h Rate Limit", description: "5-hour usage window (bar, percent, countdown, reset)", category: "Usage" },
+      { key: "usage-7d", displayName: "7d Rate Limit", description: "7-day usage window (bar, percent, countdown, reset)", category: "Usage" },
+      { key: "usage-runway", displayName: "Usage Runway", description: "Burn rate and estimated remaining active hours", category: "Usage" },
+      { key: "usage-overage", displayName: "Usage Overage", description: "Extra usage / overage spend", category: "Usage" },
+      { key: "headroom-stats", displayName: "Headroom Proxy", description: "Compression proxy stats (tokens, ratio, cost, cache hit)", category: "Headroom" },
+      { key: "git-remote-origin", displayName: "Git Origin", description: "Origin remote info (owner, repo, owner/repo)", category: "Git" },
+      { key: "git-remote-upstream", displayName: "Git Upstream", description: "Upstream remote info (owner, repo, owner/repo)", category: "Git" },
+      { key: "git-working-tree", displayName: "Git Working Tree", description: "Staged, unstaged, untracked, conflicts", category: "Git" },
+      { key: "git-worktree", displayName: "Git Worktree", description: "Worktree mode, name, branch", category: "Git" },
+      { key: "token-counts", displayName: "Token Counts", description: "Input, output, total, and cached token counts", category: "Tokens" },
+      { key: "token-speed", displayName: "Token Speed", description: "Input, output, and total throughput", category: "Tokens" }
+    ];
+  }
+});
+
 // src/tui/components/WidgetPicker.tsx
-function WidgetPicker({ onSelect, onBack }) {
+function WidgetPicker({ onSelect, onSelectGroup, onBack }) {
   use_input_default((_input, key) => {
     if (key.escape) onBack();
   });
   const catalog = (0, import_react32.useMemo)(() => getWidgetCatalog(), []);
   const categories = (0, import_react32.useMemo)(() => getWidgetCategories(), []);
+  const dataKeyGroups = (0, import_react32.useMemo)(() => getDataKeyGroups(), []);
   const items = (0, import_react32.useMemo)(() => {
+    const groupedTypes = /* @__PURE__ */ new Set();
+    for (const entries of dataKeyGroups.values()) {
+      for (const entry of entries) {
+        groupedTypes.add(entry.type);
+      }
+    }
+    const addedDataKeys = /* @__PURE__ */ new Set();
     const result = [];
     for (const cat of categories) {
       const widgets = catalog.filter((w) => w.category === cat);
       for (const w of widgets) {
-        result.push({
-          label: `[${cat}] ${w.displayName}${w.variants?.length ? ` (${w.variants.join("/")})` : ""} \u2014 ${w.description}`,
-          value: w.type
-        });
+        if (w.dataKey && groupedTypes.has(w.type)) {
+          if (!addedDataKeys.has(w.dataKey)) {
+            addedDataKeys.add(w.dataKey);
+            const info = getDataKeyInfo(w.dataKey);
+            const groupEntries = dataKeyGroups.get(w.dataKey) ?? [];
+            const displayName = info?.displayName ?? w.dataKey;
+            const description = info?.description ?? "";
+            const groupCategory = info?.category ?? cat;
+            result.push({
+              label: `[${groupCategory}] ${displayName} (${groupEntries.length} widgets) \u2014 ${description}`,
+              value: `__group__${w.dataKey}`
+            });
+          }
+        } else {
+          result.push({
+            label: `[${cat}] ${w.displayName}${w.variants?.length ? ` (${w.variants.join("/")})` : ""} \u2014 ${w.description}`,
+            value: w.type
+          });
+        }
       }
     }
     return result;
-  }, [catalog, categories]);
+  }, [catalog, categories, dataKeyGroups]);
   return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(Box_default, { flexDirection: "column", children: [
     /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Text, { bold: true, children: "Add Widget" }),
-    /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Text, { dimColor: true, children: "esc = cancel" }),
+    /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Text, { dimColor: true, children: "esc = cancel | groups show related widgets" }),
     /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Box_default, { marginTop: 1, children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(
       SelectInput_default,
       {
         items,
-        onSelect: (item) => onSelect(item.value)
+        onSelect: (item) => {
+          if (item.value.startsWith("__group__")) {
+            onSelectGroup(item.value.slice("__group__".length));
+          } else {
+            onSelect(item.value);
+          }
+        }
       }
     ) })
   ] });
@@ -57135,14 +57308,54 @@ var init_WidgetPicker = __esm({
     await init_build2();
     await init_build3();
     init_registry();
+    init_data_keys();
     import_jsx_runtime4 = __toESM(require_jsx_runtime(), 1);
+  }
+});
+
+// src/tui/components/WidgetPickerGroup.tsx
+function WidgetPickerGroup({ dataKey, onSelect, onBack }) {
+  use_input_default((_input, key) => {
+    if (key.escape) onBack();
+  });
+  const info = (0, import_react33.useMemo)(() => getDataKeyInfo(dataKey), [dataKey]);
+  const widgets = (0, import_react33.useMemo)(() => getWidgetsByDataKey(dataKey), [dataKey]);
+  const items = (0, import_react33.useMemo)(() => {
+    return widgets.map((w) => ({
+      label: `${w.displayName}${w.variants?.length ? ` (${w.variants.join("/")})` : ""} \u2014 ${w.description}`,
+      value: w.type
+    }));
+  }, [widgets]);
+  return /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(Box_default, { flexDirection: "column", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Text, { bold: true, children: info?.displayName ?? dataKey }),
+    /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Text, { dimColor: true, children: info?.description ?? "Select a widget variation" }),
+    /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Text, { dimColor: true, children: "esc = back to picker" }),
+    /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Box_default, { marginTop: 1, children: items.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Text, { dimColor: true, children: "No widgets available for this group" }) : /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(
+      SelectInput_default,
+      {
+        items,
+        onSelect: (item) => onSelect(item.value)
+      }
+    ) })
+  ] });
+}
+var import_react33, import_jsx_runtime5;
+var init_WidgetPickerGroup = __esm({
+  async "src/tui/components/WidgetPickerGroup.tsx"() {
+    "use strict";
+    import_react33 = __toESM(require_react(), 1);
+    await init_build2();
+    await init_build3();
+    init_registry();
+    init_data_keys();
+    import_jsx_runtime5 = __toESM(require_jsx_runtime(), 1);
   }
 });
 
 // src/tui/components/ColorMenu.tsx
 function ColorMenu({ settings, onChange, onBack }) {
-  const [screen, setScreen] = (0, import_react33.useState)("select-widget");
-  const [selectedWidget, setSelectedWidget] = (0, import_react33.useState)(null);
+  const [screen, setScreen] = (0, import_react34.useState)("select-widget");
+  const [selectedWidget, setSelectedWidget] = (0, import_react34.useState)(null);
   use_input_default((_input, key) => {
     if (key.escape) {
       if (screen === "select-color") setScreen("select-widget");
@@ -57166,15 +57379,15 @@ function ColorMenu({ settings, onChange, onBack }) {
   }
   if (screen === "select-widget") {
     if (allWidgets.length === 0) {
-      return /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(Box_default, { flexDirection: "column", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Text, { bold: true, children: "Edit Colors" }),
-        /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Text, { dimColor: true, children: "No colorable widgets found. esc = back" })
+      return /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(Box_default, { flexDirection: "column", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Text, { bold: true, children: "Edit Colors" }),
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Text, { dimColor: true, children: "No colorable widgets found. esc = back" })
       ] });
     }
-    return /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(Box_default, { flexDirection: "column", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Text, { bold: true, children: "Edit Colors \u2014 Select Widget" }),
-      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Text, { dimColor: true, children: "esc = back" }),
-      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Box_default, { marginTop: 1, children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(Box_default, { flexDirection: "column", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Text, { bold: true, children: "Edit Colors \u2014 Select Widget" }),
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Text, { dimColor: true, children: "esc = back" }),
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Box_default, { marginTop: 1, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
         SelectInput_default,
         {
           items: allWidgets.map((w, i) => ({ label: w.label, value: String(i) })),
@@ -57188,10 +57401,10 @@ function ColorMenu({ settings, onChange, onBack }) {
     ] });
   }
   const colorItems = COLORS.map((c) => ({ label: c, value: c }));
-  return /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)(Box_default, { flexDirection: "column", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Text, { bold: true, children: "Select Color" }),
-    /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Text, { dimColor: true, children: "esc = back to widget list" }),
-    /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(Box_default, { marginTop: 1, children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(
+  return /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(Box_default, { flexDirection: "column", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Text, { bold: true, children: "Select Color" }),
+    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Text, { dimColor: true, children: "esc = back to widget list" }),
+    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Box_default, { marginTop: 1, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
       SelectInput_default,
       {
         items: colorItems,
@@ -57209,15 +57422,15 @@ function ColorMenu({ settings, onChange, onBack }) {
     ) })
   ] });
 }
-var import_react33, import_jsx_runtime5, COLORS;
+var import_react34, import_jsx_runtime6, COLORS;
 var init_ColorMenu = __esm({
   async "src/tui/components/ColorMenu.tsx"() {
     "use strict";
-    import_react33 = __toESM(require_react(), 1);
+    import_react34 = __toESM(require_react(), 1);
     await init_build2();
     await init_build3();
     init_registry();
-    import_jsx_runtime5 = __toESM(require_jsx_runtime(), 1);
+    import_jsx_runtime6 = __toESM(require_jsx_runtime(), 1);
     COLORS = [
       "default",
       "red",
@@ -57241,12 +57454,13 @@ var init_ColorMenu = __esm({
 // src/tui/app.tsx
 function App2() {
   const { exit } = use_app_default();
-  const [settings, setSettings] = (0, import_react34.useState)(createDefaultSettings);
-  const [screen, setScreen] = (0, import_react34.useState)("main");
-  const [editingLine, setEditingLine] = (0, import_react34.useState)(0);
-  const [hasChanges, setHasChanges] = (0, import_react34.useState)(false);
-  const [flash, setFlash] = (0, import_react34.useState)(null);
-  (0, import_react34.useEffect)(() => {
+  const [settings, setSettings] = (0, import_react35.useState)(createDefaultSettings);
+  const [screen, setScreen] = (0, import_react35.useState)("main");
+  const [editingLine, setEditingLine] = (0, import_react35.useState)(0);
+  const [selectedDataKey, setSelectedDataKey] = (0, import_react35.useState)(null);
+  const [hasChanges, setHasChanges] = (0, import_react35.useState)(false);
+  const [flash, setFlash] = (0, import_react35.useState)(null);
+  (0, import_react35.useEffect)(() => {
     setSettings(loadSettings());
   }, []);
   use_input_default((input, key) => {
@@ -57366,21 +57580,21 @@ function App2() {
     isPreview: true
   };
   const previewOutput = renderStatusLine(settings, previewCtx);
-  return /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(Box_default, { flexDirection: "column", padding: 1, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(Box_default, { marginBottom: 1, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Text, { bold: true, color: "cyan", children: "Claude StatusLine Widgets" }),
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Text, { children: " " }),
-      hasChanges && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Text, { color: "yellow", children: "[unsaved]" }),
-      flash && /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(Text, { color: "green", children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(Box_default, { flexDirection: "column", padding: 1, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(Box_default, { marginBottom: 1, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Text, { bold: true, color: "cyan", children: "Claude StatusLine Widgets" }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Text, { children: " " }),
+      hasChanges && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Text, { color: "yellow", children: "[unsaved]" }),
+      flash && /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(Text, { color: "green", children: [
         " ",
         flash
       ] })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(Box_default, { flexDirection: "column", marginBottom: 1, borderStyle: "round", borderColor: "gray", paddingX: 1, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Text, { dimColor: true, children: "Preview:" }),
-      previewOutput.split("\n").map((line, i) => /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Text, { children: line }, i))
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(Box_default, { flexDirection: "column", marginBottom: 1, borderStyle: "round", borderColor: "gray", paddingX: 1, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Text, { dimColor: true, children: "Preview:" }),
+      previewOutput.split("\n").map((line, i) => /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Text, { children: line }, i))
     ] }),
-    screen === "main" && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
+    screen === "main" && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
       MainMenu,
       {
         minimalistMode: settings.minimalistMode,
@@ -57399,7 +57613,7 @@ function App2() {
         }
       }
     ),
-    screen === "lines" && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
+    screen === "lines" && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
       LineSelector,
       {
         settings,
@@ -57413,7 +57627,7 @@ function App2() {
         onBack: () => setScreen("main")
       }
     ),
-    screen === "items" && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
+    screen === "items" && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
       ItemsEditor,
       {
         line: settings.lines[editingLine] ?? [],
@@ -57432,7 +57646,7 @@ function App2() {
         onBack: () => setScreen("lines")
       }
     ),
-    screen === "picker" && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
+    screen === "picker" && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
       WidgetPicker,
       {
         onSelect: (type) => {
@@ -57442,10 +57656,28 @@ function App2() {
           updateSettings({ ...settings, lines: newLines });
           setScreen("items");
         },
+        onSelectGroup: (dataKey) => {
+          setSelectedDataKey(dataKey);
+          setScreen("picker-group");
+        },
         onBack: () => setScreen("items")
       }
     ),
-    screen === "colors" && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
+    screen === "picker-group" && selectedDataKey && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
+      WidgetPickerGroup,
+      {
+        dataKey: selectedDataKey,
+        onSelect: (type) => {
+          const newItem = createWidgetItem(type);
+          const newLines = [...settings.lines];
+          newLines[editingLine] = [...newLines[editingLine] ?? [], newItem];
+          updateSettings({ ...settings, lines: newLines });
+          setScreen("items");
+        },
+        onBack: () => setScreen("picker")
+      }
+    ),
+    screen === "colors" && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
       ColorMenu,
       {
         settings,
@@ -57453,14 +57685,14 @@ function App2() {
         onBack: () => setScreen("main")
       }
     ),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Box_default, { marginTop: 1, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Text, { dimColor: true, children: "Ctrl+S save | Ctrl+C quit" }) })
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Box_default, { marginTop: 1, children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Text, { dimColor: true, children: "Ctrl+S save | Ctrl+C quit" }) })
   ] });
 }
-var import_react34, import_jsx_runtime6;
+var import_react35, import_jsx_runtime7;
 var init_app = __esm({
   async "src/tui/app.tsx"() {
     "use strict";
-    import_react34 = __toESM(require_react(), 1);
+    import_react35 = __toESM(require_react(), 1);
     await init_build2();
     init_loader();
     init_schema();
@@ -57469,8 +57701,9 @@ var init_app = __esm({
     await init_LineSelector();
     await init_ItemsEditor();
     await init_WidgetPicker();
+    await init_WidgetPickerGroup();
     await init_ColorMenu();
-    import_jsx_runtime6 = __toESM(require_jsx_runtime(), 1);
+    import_jsx_runtime7 = __toESM(require_jsx_runtime(), 1);
   }
 });
 
@@ -57480,16 +57713,16 @@ __export(tui_exports, {
   runTUI: () => runTUI
 });
 async function runTUI() {
-  const { waitUntilExit } = render_default(/* @__PURE__ */ (0, import_jsx_runtime7.jsx)(App2, {}));
+  const { waitUntilExit } = render_default(/* @__PURE__ */ (0, import_jsx_runtime8.jsx)(App2, {}));
   await waitUntilExit();
 }
-var import_jsx_runtime7;
+var import_jsx_runtime8;
 var init_tui = __esm({
   async "src/tui/index.tsx"() {
     "use strict";
     await init_build2();
     await init_app();
-    import_jsx_runtime7 = __toESM(require_jsx_runtime(), 1);
+    import_jsx_runtime8 = __toESM(require_jsx_runtime(), 1);
   }
 });
 

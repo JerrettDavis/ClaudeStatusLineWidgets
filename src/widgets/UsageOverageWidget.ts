@@ -9,6 +9,7 @@ export class UsageOverageWidget implements Widget {
   getDefaultColor() { return "default"; }
   supportsColors() { return false; }
   getVariants() { return ["bar", "percent"]; }
+  getDataKey() { return "usage-overage"; }
   render(item: WidgetItem, ctx: RenderContext): string | null {
     const variant = getVariant(item, "bar");
     if (variant === "percent") {

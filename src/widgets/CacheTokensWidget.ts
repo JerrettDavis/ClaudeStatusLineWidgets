@@ -8,6 +8,7 @@ export class CacheTokensWidget implements Widget {
   getCategory() { return "Context"; }
   getDefaultColor() { return "default"; }
   supportsColors() { return false; }
+  getDataKey() { return "cache-health"; }
 
   render(_item: WidgetItem, ctx: RenderContext): string | null {
     if (ctx.isPreview) {

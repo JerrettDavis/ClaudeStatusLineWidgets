@@ -9,6 +9,7 @@ export class CacheTTLWidget implements Widget {
   getDefaultColor() { return "default"; }
   supportsColors() { return false; }
   getVariants() { return ["time", "countdown", "badge"]; }
+  getDataKey() { return "cache-health"; }
   render(item: WidgetItem, ctx: RenderContext): string | null {
     const variant = getVariant(item, "time");
     const cache = ctx.isPreview

@@ -7,6 +7,7 @@ export class HeadroomCostWidget implements Widget {
   getCategory() { return "Headroom"; }
   getDefaultColor() { return "default"; }
   supportsColors() { return false; }
+  getDataKey() { return "headroom-stats"; }
   render(_item: WidgetItem, ctx: RenderContext): string | null {
     if (ctx.isPreview) return "$0.12 saved";
     return formatHeadroomCost(ctx.headroomStats);

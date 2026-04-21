@@ -9,6 +9,7 @@ export class ContextBarWidget implements Widget {
   getDefaultColor() { return "default"; }
   supportsColors() { return false; }
   getVariants() { return ["bar", "percent", "remaining"]; }
+  getDataKey() { return "context-usage"; }
   render(item: WidgetItem, ctx: RenderContext): string | null {
     const rawPercent = ctx.isPreview ? 45 : ctx.payload.context_window?.used_percentage ?? null;
     if (rawPercent === null) return null;

@@ -7,6 +7,7 @@ export class HeadroomCacheHitWidget implements Widget {
   getCategory() { return "Headroom"; }
   getDefaultColor() { return "default"; }
   supportsColors() { return false; }
+  getDataKey() { return "headroom-stats"; }
   render(_item: WidgetItem, ctx: RenderContext): string | null {
     if (ctx.isPreview) return "78% cache hit";
     return formatHeadroomCacheHit(ctx.headroomStats);
