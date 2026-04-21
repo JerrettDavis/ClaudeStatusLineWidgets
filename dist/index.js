@@ -57244,18 +57244,12 @@ function WidgetPicker({ onSelect, onSelectGroup, onBack }) {
   const categories = (0, import_react32.useMemo)(() => [...new Set(catalog.map((e) => e.category))], [catalog]);
   const dataKeyGroups = (0, import_react32.useMemo)(() => getDataKeyGroups(catalog), [catalog]);
   const items = (0, import_react32.useMemo)(() => {
-    const groupedTypes = /* @__PURE__ */ new Set();
-    for (const entries of dataKeyGroups.values()) {
-      for (const entry of entries) {
-        groupedTypes.add(entry.type);
-      }
-    }
     const addedDataKeys = /* @__PURE__ */ new Set();
     const result = [];
     for (const cat of categories) {
       const widgets = catalog.filter((w) => w.category === cat);
       for (const w of widgets) {
-        if (w.dataKey && groupedTypes.has(w.type)) {
+        if (w.dataKey) {
           if (!addedDataKeys.has(w.dataKey)) {
             addedDataKeys.add(w.dataKey);
             const info = getDataKeyInfo(w.dataKey);

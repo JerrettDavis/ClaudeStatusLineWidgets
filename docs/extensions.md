@@ -26,7 +26,7 @@ The loader identifies extension packages by the `claude-statusline-widget` keywo
   "main": "dist/index.js",
   "keywords": ["claude-statusline-widget"],  // ← required
   "peerDependencies": {
-    "claude-statusline-widgets": ">=1.1.0"
+    "claude-statusline-widgets": ">=1.2.0"
   }
 }
 ```

@@ -24,14 +24,6 @@ export function WidgetPicker({ onSelect, onSelectGroup, onBack }: Props) {
   const dataKeyGroups = useMemo(() => getDataKeyGroups(catalog), [catalog]);
 
   const items = useMemo(() => {
-    // Track which widget types are consumed by a data key group
-    const groupedTypes = new Set<string>();
-    for (const entries of dataKeyGroups.values()) {
-      for (const entry of entries) {
-        groupedTypes.add(entry.type);
-      }
-    }
-
     // Track which data keys we've already added (to avoid duplicates across categories)
     const addedDataKeys = new Set<string>();
 
@@ -39,7 +31,7 @@ export function WidgetPicker({ onSelect, onSelectGroup, onBack }: Props) {
     for (const cat of categories) {
       const widgets = catalog.filter((w) => w.category === cat);
       for (const w of widgets) {
-        if (w.dataKey && groupedTypes.has(w.type)) {
+        if (w.dataKey) {
           // This widget belongs to a data key group — show the group entry instead
           if (!addedDataKeys.has(w.dataKey)) {
             addedDataKeys.add(w.dataKey);
