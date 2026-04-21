@@ -13,10 +13,12 @@ import { writeFileSync, mkdirSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 
-// Freeze time so SVG output is deterministic across runs and CI doesn't
-// produce noisy commits when nothing in the rendering logic has changed.
+// Freeze time and normalize timezone so SVG output is deterministic across
+// runs and CI doesn't produce noisy commits when nothing in the rendering
+// logic has changed.
 // 2025-01-01T12:00:00.000Z — an arbitrary, stable reference point.
 const FROZEN_NOW = 1735732800000;
+process.env.TZ = "UTC";
 Date.now = () => FROZEN_NOW;
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -181,11 +183,76 @@ ${textElems}
 
 // --- Rendering helpers ---
 
+/**
+ * Deterministic, environment-independent RuntimeData for use in screenshot
+ * generation. Avoids git commands, credential file reads, and system queries
+ * that would make SVG output non-deterministic across machines or CI runs.
+ */
+function buildMockRuntime(payload = {}) {
+  const cwd = payload.cwd ?? null;
+  const branch = payload.git_branch ?? "main";
+  const rootName = cwd ? cwd.split("/").filter(Boolean).pop() ?? null : null;
+  return {
+    git: {
+      available: true,
+      cwd,
+      branch,
+      rootPath: cwd,
+      rootName,
+      sha: "abc1234",
+      staged: 0,
+      unstaged: 0,
+      untracked: 0,
+      conflicts: 0,
+      changes: 0,
+      insertions: 0,
+      deletions: 0,
+      ahead: 0,
+      behind: 0,
+      origin: null,
+      upstream: null,
+      isFork: false,
+      worktreeMode: "primary",
+      worktreeName: rootName,
+      worktreeBranch: branch,
+      worktreeOriginalBranch: branch,
+    },
+    session: {
+      sessionId: null,
+      version: null,
+      outputStyle: null,
+      vimMode: null,
+      thinkingEffort: null,
+      skills: [],
+      accountEmail: null,
+      startedAt: null,
+      elapsedSeconds: null,
+    },
+    system: {
+      terminalWidth: 120,
+      memoryUsedBytes: 4 * 1024 * 1024 * 1024,
+      memoryTotalBytes: 16 * 1024 * 1024 * 1024,
+    },
+    tokens: {
+      input: null,
+      output: null,
+      cached: null,
+      total: null,
+      inputSpeed: null,
+      outputSpeed: null,
+      totalSpeed: null,
+    },
+    usage: {
+      fiveHourResetSeconds: null,
+      sevenDayResetSeconds: null,
+    },
+  };
+}
+
 /** Render a statusline with mock context using isPreview semantics */
 async function renderMock(overrides = {}) {
   const { renderStatusLine } = await import("../dist/renderer.js");
   const { createDefaultSettings } = await import("../dist/config/schema.js");
-  const { buildRuntimeData } = await import("../dist/runtime.js");
 
   const now = Date.now();
   const settings = createDefaultSettings();
@@ -218,11 +285,11 @@ async function renderMock(overrides = {}) {
     },
     usageData: null,
     headroomStats: null,
-    runtime: buildRuntimeData(defaultPayload, null),
     isPreview: true,
   };
 
   const context = deepMerge(defaultContext, overrides);
+  context.runtime = buildMockRuntime(context.payload);
   return renderStatusLine(settings, context);
 }
 
@@ -265,7 +332,6 @@ async function main() {
   {
     const { renderStatusLine } = await import("../dist/renderer.js");
     const { createDefaultSettings } = await import("../dist/config/schema.js");
-    const { buildRuntimeData } = await import("../dist/runtime.js");
     const settings = createDefaultSettings();
     // Override to only show Line 1
     settings.lines = [settings.lines[0]];
@@ -288,7 +354,7 @@ async function main() {
       cacheStats: { totalReads: 10, totalWrites: 3, breakCount: 1, lastBreakTime: null },
       usageData: null,
       headroomStats: null,
-      runtime: buildRuntimeData(payload, null),
+      runtime: buildMockRuntime(payload),
       isPreview: false,
     });
     const lines = raw.split("\n");
@@ -320,7 +386,6 @@ async function main() {
   {
     const { renderStatusLine } = await import("../dist/renderer.js");
     const { createDefaultSettings } = await import("../dist/config/schema.js");
-    const { buildRuntimeData } = await import("../dist/runtime.js");
 
     const basePayload = {
       model: { id: "claude-opus-4-6", display_name: "Opus" },
@@ -330,7 +395,7 @@ async function main() {
       cwd: "/home/user/project",
     };
     const cacheStats = { totalReads: 20, totalWrites: 5, breakCount: 1, lastBreakTime: null };
-    const runtime = buildRuntimeData(basePayload, null);
+    const runtime = buildMockRuntime(basePayload);
 
     const states = [
       {
@@ -382,7 +447,6 @@ async function main() {
   {
     const { renderStatusLine } = await import("../dist/renderer.js");
     const { createDefaultSettings } = await import("../dist/config/schema.js");
-    const { buildRuntimeData } = await import("../dist/runtime.js");
     const settings = createDefaultSettings();
     settings.lines = [settings.lines[1]]; // Line 2 only (usage)
     const payload = {};
@@ -392,7 +456,7 @@ async function main() {
       cacheStats: { totalReads: 0, totalWrites: 0, breakCount: 0, lastBreakTime: null },
       usageData: null,
       headroomStats: null,
-      runtime: buildRuntimeData(payload, null),
+      runtime: buildMockRuntime(payload),
       isPreview: true,
     });
     if (raw.trim()) {
@@ -410,7 +474,6 @@ async function main() {
   {
     const { renderStatusLine } = await import("../dist/renderer.js");
     const { createDefaultSettings } = await import("../dist/config/schema.js");
-    const { buildRuntimeData } = await import("../dist/runtime.js");
     const settings = createDefaultSettings();
     settings.lines = [settings.lines[2]]; // Line 3 only (headroom)
     const payload = {};
@@ -427,7 +490,7 @@ async function main() {
         requests: 150,
         cacheHitRate: 0.78,
       },
-      runtime: buildRuntimeData(payload, null),
+      runtime: buildMockRuntime(payload),
       isPreview: false,
     });
     if (raw.trim()) {
