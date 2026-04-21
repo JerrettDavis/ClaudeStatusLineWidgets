@@ -199,7 +199,9 @@ async function renderMock(overrides = {}) {
     },
     git_branch: "main",
     cwd: "/home/user/project",
-  };  const defaultContext = {
+  };
+
+  const defaultContext = {
     payload: defaultPayload,
     cacheTTL: {
       remainingSeconds: 180,
