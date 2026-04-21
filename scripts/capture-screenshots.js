@@ -179,21 +179,24 @@ ${textElems}
 async function renderMock(overrides = {}) {
   const { renderStatusLine } = await import("../dist/renderer.js");
   const { createDefaultSettings } = await import("../dist/config/schema.js");
+  const { buildRuntimeData } = await import("../dist/runtime.js");
 
   const now = Date.now();
   const settings = createDefaultSettings();
 
-  const defaultContext = {
-    payload: {
-      model: { id: "claude-opus-4-6", display_name: "Opus" },
-      cost: { total_cost_usd: 0.45 },
-      context_window: {
-        used_percentage: 45,
-        context_window_size: 200000,
-      },
-      git_branch: "main",
-      cwd: "/home/user/project",
+  const defaultPayload = {
+    model: { id: "claude-opus-4-6", display_name: "Opus" },
+    cost: { total_cost_usd: 0.45 },
+    context_window: {
+      used_percentage: 45,
+      context_window_size: 200000,
     },
+    git_branch: "main",
+    cwd: "/home/user/project",
+  };
+
+  const defaultContext = {
+    payload: defaultPayload,
     cacheTTL: {
       remainingSeconds: 180,
       tier: "5m",
@@ -209,6 +212,7 @@ async function renderMock(overrides = {}) {
     },
     usageData: null,
     headroomStats: null,
+    runtime: buildRuntimeData(defaultPayload, null),
     isPreview: true,
   };
 
@@ -255,17 +259,19 @@ async function main() {
   {
     const { renderStatusLine } = await import("../dist/renderer.js");
     const { createDefaultSettings } = await import("../dist/config/schema.js");
+    const { buildRuntimeData } = await import("../dist/runtime.js");
     const settings = createDefaultSettings();
     // Override to only show Line 1
     settings.lines = [settings.lines[0]];
+    const payload = {
+      model: { id: "claude-sonnet-4-5", display_name: "Sonnet" },
+      cost: { total_cost_usd: 0.12 },
+      context_window: { used_percentage: 28, context_window_size: 200000 },
+      git_branch: "feat/add-widgets",
+      cwd: "/home/user/my-app",
+    };
     const raw = renderStatusLine(settings, {
-      payload: {
-        model: { id: "claude-sonnet-4-5", display_name: "Sonnet" },
-        cost: { total_cost_usd: 0.12 },
-        context_window: { used_percentage: 28, context_window_size: 200000 },
-        git_branch: "feat/add-widgets",
-        cwd: "/home/user/my-app",
-      },
+      payload,
       cacheTTL: {
         remainingSeconds: 180,
         tier: "5m",
@@ -276,6 +282,7 @@ async function main() {
       cacheStats: { totalReads: 10, totalWrites: 3, breakCount: 1, lastBreakTime: null },
       usageData: null,
       headroomStats: null,
+      runtime: buildRuntimeData(payload, null),
       isPreview: false,
     });
     const lines = raw.split("\n");
@@ -307,6 +314,7 @@ async function main() {
   {
     const { renderStatusLine } = await import("../dist/renderer.js");
     const { createDefaultSettings } = await import("../dist/config/schema.js");
+    const { buildRuntimeData } = await import("../dist/runtime.js");
 
     const basePayload = {
       model: { id: "claude-opus-4-6", display_name: "Opus" },
@@ -316,6 +324,7 @@ async function main() {
       cwd: "/home/user/project",
     };
     const cacheStats = { totalReads: 20, totalWrites: 5, breakCount: 1, lastBreakTime: null };
+    const runtime = buildRuntimeData(basePayload, null);
 
     const states = [
       {
@@ -348,6 +357,7 @@ async function main() {
         cacheStats,
         usageData: null,
         headroomStats: null,
+        runtime,
         isPreview: false,
       });
       const firstLine = out.split("\n")[0];
@@ -366,14 +376,17 @@ async function main() {
   {
     const { renderStatusLine } = await import("../dist/renderer.js");
     const { createDefaultSettings } = await import("../dist/config/schema.js");
+    const { buildRuntimeData } = await import("../dist/runtime.js");
     const settings = createDefaultSettings();
     settings.lines = [settings.lines[1]]; // Line 2 only (usage)
+    const payload = {};
     const raw = renderStatusLine(settings, {
-      payload: {},
+      payload,
       cacheTTL: { remainingSeconds: 0, tier: "none", lastWriteTime: null, expiresAt: null, cacheReadActive: false },
       cacheStats: { totalReads: 0, totalWrites: 0, breakCount: 0, lastBreakTime: null },
       usageData: null,
       headroomStats: null,
+      runtime: buildRuntimeData(payload, null),
       isPreview: true,
     });
     if (raw.trim()) {
@@ -391,10 +404,12 @@ async function main() {
   {
     const { renderStatusLine } = await import("../dist/renderer.js");
     const { createDefaultSettings } = await import("../dist/config/schema.js");
+    const { buildRuntimeData } = await import("../dist/runtime.js");
     const settings = createDefaultSettings();
     settings.lines = [settings.lines[2]]; // Line 3 only (headroom)
+    const payload = {};
     const raw = renderStatusLine(settings, {
-      payload: {},
+      payload,
       cacheTTL: { remainingSeconds: 0, tier: "none", lastWriteTime: null, expiresAt: null, cacheReadActive: false },
       cacheStats: { totalReads: 0, totalWrites: 0, breakCount: 0, lastBreakTime: null },
       usageData: null,
@@ -406,6 +421,7 @@ async function main() {
         requests: 150,
         cacheHitRate: 0.78,
       },
+      runtime: buildRuntimeData(payload, null),
       isPreview: false,
     });
     if (raw.trim()) {
