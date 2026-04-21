@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/compare/v1.2.0...v1.3.0) (2026-04-21)
+
+
+### Features
+
+* add replay cost, runway, and large cache warning widgets ([452cc36](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/commit/452cc36d81855ec0b1d678af358f6a6bed2ebd7d))
+
 # [1.2.0](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/compare/v1.1.6...v1.2.0) (2026-04-17)
 
 
