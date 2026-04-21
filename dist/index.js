@@ -628,7 +628,7 @@ var init_CacheTokensWidget = __esm({
         return "Session cache reads, writes, break count, and last break time";
       }
       getCategory() {
-        return "Context";
+        return "Cache";
       }
       getDefaultColor() {
         return "default";
