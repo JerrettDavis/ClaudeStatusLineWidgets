@@ -41,7 +41,7 @@ export function WidgetPicker({ onSelect, onSelectGroup, onBack }: Props) {
             const description = info?.description ?? "";
             const groupCategory = info?.category ?? cat;
             result.push({
-              label: `[${groupCategory}] ${displayName} (${groupEntries.length} widgets) — ${description}`,
+              label: `[${groupCategory}] ${displayName} (${groupEntries.length} widgets)${description ? ` — ${description}` : ""}`,
               value: { kind: "group", dataKey: w.dataKey },
             });
           }

@@ -57258,7 +57258,7 @@ function WidgetPicker({ onSelect, onSelectGroup, onBack }) {
             const description = info?.description ?? "";
             const groupCategory = info?.category ?? cat;
             result.push({
-              label: `[${groupCategory}] ${displayName} (${groupEntries.length} widgets) \u2014 ${description}`,
+              label: `[${groupCategory}] ${displayName} (${groupEntries.length} widgets)${description ? ` \u2014 ${description}` : ""}`,
               value: { kind: "group", dataKey: w.dataKey }
             });
           }
