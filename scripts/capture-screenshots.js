@@ -10,7 +10,7 @@
  */
 
 import { writeFileSync, mkdirSync } from "fs";
-import { join, dirname } from "path";
+import { join, dirname, basename } from "path";
 import { fileURLToPath } from "url";
 
 // Freeze time and normalize timezone so SVG output is deterministic across
@@ -190,11 +190,12 @@ ${textElems}
  */
 function buildMockRuntime(payload = {}) {
   const cwd = payload.cwd ?? null;
-  const branch = payload.git_branch ?? "main";
-  const rootName = cwd ? cwd.split("/").filter(Boolean).pop() ?? null : null;
+  const gitAvailable = cwd !== null;
+  const branch = payload.git_branch ?? null;
+  const rootName = cwd ? basename(cwd) : null;
   return {
     git: {
-      available: true,
+      available: gitAvailable,
       cwd,
       branch,
       rootPath: cwd,
@@ -282,6 +283,8 @@ async function renderMock(overrides = {}) {
       totalWrites: 10,
       breakCount: 1,
       lastBreakTime: null,
+      lastBreakTokens: 0,
+      avgBreakTokens: 0,
     },
     usageData: null,
     headroomStats: null,
@@ -351,7 +354,7 @@ async function main() {
         expiresAt: now + 180_000,
         cacheReadActive: true,
       },
-      cacheStats: { totalReads: 10, totalWrites: 3, breakCount: 1, lastBreakTime: null },
+      cacheStats: { totalReads: 10, totalWrites: 3, breakCount: 1, lastBreakTime: null, lastBreakTokens: 0, avgBreakTokens: 0 },
       usageData: null,
       headroomStats: null,
       runtime: buildMockRuntime(payload),
@@ -394,7 +397,7 @@ async function main() {
       git_branch: "main",
       cwd: "/home/user/project",
     };
-    const cacheStats = { totalReads: 20, totalWrites: 5, breakCount: 1, lastBreakTime: null };
+    const cacheStats = { totalReads: 20, totalWrites: 5, breakCount: 1, lastBreakTime: null, lastBreakTokens: 0, avgBreakTokens: 0 };
     const runtime = buildMockRuntime(basePayload);
 
     const states = [
@@ -453,7 +456,7 @@ async function main() {
     const raw = renderStatusLine(settings, {
       payload,
       cacheTTL: { remainingSeconds: 0, tier: "none", lastWriteTime: null, expiresAt: null, cacheReadActive: false },
-      cacheStats: { totalReads: 0, totalWrites: 0, breakCount: 0, lastBreakTime: null },
+      cacheStats: { totalReads: 0, totalWrites: 0, breakCount: 0, lastBreakTime: null, lastBreakTokens: 0, avgBreakTokens: 0 },
       usageData: null,
       headroomStats: null,
       runtime: buildMockRuntime(payload),
@@ -480,7 +483,7 @@ async function main() {
     const raw = renderStatusLine(settings, {
       payload,
       cacheTTL: { remainingSeconds: 0, tier: "none", lastWriteTime: null, expiresAt: null, cacheReadActive: false },
-      cacheStats: { totalReads: 0, totalWrites: 0, breakCount: 0, lastBreakTime: null },
+      cacheStats: { totalReads: 0, totalWrites: 0, breakCount: 0, lastBreakTime: null, lastBreakTokens: 0, avgBreakTokens: 0 },
       usageData: null,
       headroomStats: {
         compressionPct: 34,
