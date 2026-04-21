@@ -67,6 +67,9 @@ import {
   TotalTokensWidget,
   UsageReset5hWidget,
   UsageReset7dWidget,
+  ReplayCostWidget,
+  RunwayWidget,
+  LargeCacheWarningWidget,
 } from "./MetricWidgets.js";
 
 interface ManifestEntry {
@@ -137,6 +140,9 @@ const WIDGET_MANIFEST: ManifestEntry[] = [
   { type: "context-length", create: () => new ContextLengthWidget() },
   { type: "usage-reset-5h", create: () => new UsageReset5hWidget() },
   { type: "usage-reset-7d", create: () => new UsageReset7dWidget() },
+  { type: "replay-cost", create: () => new ReplayCostWidget() },
+  { type: "runway", create: () => new RunwayWidget() },
+  { type: "large-cache-warning", create: () => new LargeCacheWarningWidget() },
 ];
 
 const widgetRegistry = new Map<string, Widget>(

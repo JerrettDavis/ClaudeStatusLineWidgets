@@ -1827,7 +1827,7 @@ var init_GitWidgets = __esm({
 });
 
 // src/widgets/MetricWidgets.ts
-var BaseWidget2, InputTokensWidget, OutputTokensWidget, TotalTokensWidget, InputSpeedWidget, OutputSpeedWidget, TotalSpeedWidget, ContextPercentageWidget, ContextLengthWidget, UsageReset5hWidget, UsageReset7dWidget;
+var BaseWidget2, InputTokensWidget, OutputTokensWidget, TotalTokensWidget, InputSpeedWidget, OutputSpeedWidget, TotalSpeedWidget, ContextPercentageWidget, ContextLengthWidget, UsageReset5hWidget, UsageReset7dWidget, ReplayCostWidget, RunwayWidget, LargeCacheWarningWidget;
 var init_MetricWidgets = __esm({
   "src/widgets/MetricWidgets.ts"() {
     "use strict";
@@ -1999,6 +1999,94 @@ var init_MetricWidgets = __esm({
       render(item, ctx) {
         const value = ctx.isPreview ? 3 * 24 * 3600 : ctx.runtime.usage.sevenDayResetSeconds;
         return value !== null ? renderLabel("7d Reset", formatDurationCompact(value), item, ctx) : null;
+      }
+    };
+    ReplayCostWidget = class extends BaseWidget2 {
+      getDisplayName() {
+        return "Replay Cost";
+      }
+      getDescription() {
+        return "Tokens that will be re-sent on the next turn (cache_read + input)";
+      }
+      getCategory() {
+        return "Cache";
+      }
+      render(item, ctx) {
+        const current = ctx.payload.context_window?.current_usage;
+        if (!current) return null;
+        const cacheRead = current.cache_read_input_tokens ?? 0;
+        const input = current.input_tokens ?? 0;
+        const replayCost = ctx.isPreview ? 142e3 : cacheRead + input;
+        if (replayCost === 0) return null;
+        let coloredValue;
+        const compact = formatTokenCount(replayCost);
+        if (replayCost < 2e5) {
+          coloredValue = compact;
+        } else if (replayCost < 5e5) {
+          coloredValue = `${compact} \u26A0`;
+        } else {
+          coloredValue = `${compact} \u26A0`;
+        }
+        return renderLabel("R", coloredValue, item, ctx);
+      }
+    };
+    RunwayWidget = class extends BaseWidget2 {
+      getDisplayName() {
+        return "Usage Runway";
+      }
+      getDescription() {
+        return "Estimated remaining active hours at current burn rate (7-day window)";
+      }
+      getCategory() {
+        return "Usage";
+      }
+      render(item, ctx) {
+        const sevenDayResetSeconds = ctx.runtime.usage.sevenDayResetSeconds;
+        const elapsedSeconds = ctx.runtime.session.elapsedSeconds;
+        if (sevenDayResetSeconds === null || elapsedSeconds === null || elapsedSeconds === 0) {
+          return null;
+        }
+        const totalWindow = 7 * 24 * 3600;
+        const utilizationPercent = (totalWindow - sevenDayResetSeconds) / totalWindow * 100;
+        if (ctx.isPreview) {
+          return renderLabel("Runway", "12h", item, ctx);
+        }
+        if (utilizationPercent === 0) return null;
+        const elapsedHours = elapsedSeconds / 3600;
+        const burnRate = utilizationPercent / elapsedHours;
+        const remaining = burnRate > 0 ? (100 - utilizationPercent) / burnRate : Infinity;
+        if (!Number.isFinite(remaining) || remaining < 0) return null;
+        let formatted;
+        if (remaining >= 10) {
+          formatted = `${Math.round(remaining)}h`;
+        } else if (remaining >= 3) {
+          formatted = `${remaining.toFixed(1)}h \u26A0`;
+        } else {
+          formatted = `${remaining.toFixed(1)}h \u26A0`;
+        }
+        return renderLabel("Runway", formatted, item, ctx);
+      }
+    };
+    LargeCacheWarningWidget = class extends BaseWidget2 {
+      getDisplayName() {
+        return "Large Cache Warning";
+      }
+      getDescription() {
+        return "Warning indicator when cached tool results exceed threshold";
+      }
+      getCategory() {
+        return "Cache";
+      }
+      render(item, ctx) {
+        const threshold = ctx.isPreview ? 1e6 : 2e6;
+        const lastBreakTokens = ctx.cacheStats.lastBreakTokens;
+        if (ctx.isPreview) {
+          return "\u26A0 large cache";
+        }
+        if (lastBreakTokens > threshold) {
+          return "\u26A0 large cache";
+        }
+        return null;
       }
     };
   }
@@ -2243,7 +2331,10 @@ var init_registry = __esm({
       { type: "context-percent", create: () => new ContextPercentageWidget() },
       { type: "context-length", create: () => new ContextLengthWidget() },
       { type: "usage-reset-5h", create: () => new UsageReset5hWidget() },
-      { type: "usage-reset-7d", create: () => new UsageReset7dWidget() }
+      { type: "usage-reset-7d", create: () => new UsageReset7dWidget() },
+      { type: "replay-cost", create: () => new ReplayCostWidget() },
+      { type: "runway", create: () => new RunwayWidget() },
+      { type: "large-cache-warning", create: () => new LargeCacheWarningWidget() }
     ];
     widgetRegistry = new Map(
       WIDGET_MANIFEST.map((entry) => [entry.type, entry.create()])

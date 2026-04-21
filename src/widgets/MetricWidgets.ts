@@ -128,3 +128,98 @@ export class UsageReset7dWidget extends BaseWidget {
     return value !== null ? renderLabel("7d Reset", formatDurationCompact(value), item, ctx) : null;
   }
 }
+
+export class ReplayCostWidget extends BaseWidget {
+  getDisplayName() { return "Replay Cost"; }
+  getDescription() { return "Tokens that will be re-sent on the next turn (cache_read + input)"; }
+  getCategory() { return "Cache"; }
+  render(item: WidgetItem, ctx: RenderContext): string | null {
+    const current = ctx.payload.context_window?.current_usage;
+    if (!current) return null;
+
+    const cacheRead = current.cache_read_input_tokens ?? 0;
+    const input = current.input_tokens ?? 0;
+    const replayCost = ctx.isPreview ? 142000 : cacheRead + input;
+
+    if (replayCost === 0) return null;
+
+    // Color code: green (<200K), yellow (200-499K), red (500K+)
+    let coloredValue: string;
+    const compact = formatTokenCount(replayCost);
+    if (replayCost < 200000) {
+      coloredValue = compact;
+    } else if (replayCost < 500000) {
+      coloredValue = `${compact} ⚠`;
+    } else {
+      coloredValue = `${compact} ⚠`;
+    }
+
+    return renderLabel("R", coloredValue, item, ctx);
+  }
+}
+
+export class RunwayWidget extends BaseWidget {
+  getDisplayName() { return "Usage Runway"; }
+  getDescription() { return "Estimated remaining active hours at current burn rate (7-day window)"; }
+  getCategory() { return "Usage"; }
+  render(item: WidgetItem, ctx: RenderContext): string | null {
+    const sevenDayResetSeconds = ctx.runtime.usage.sevenDayResetSeconds;
+    const elapsedSeconds = ctx.runtime.session.elapsedSeconds;
+
+    if (sevenDayResetSeconds === null || elapsedSeconds === null || elapsedSeconds === 0) {
+      return null;
+    }
+
+    // Estimate utilization from remaining reset seconds
+    // If sevenDayResetSeconds is available, total 7-day window is 7*24*3600 = 604800 seconds
+    const totalWindow = 7 * 24 * 3600;
+    const utilizationPercent = ((totalWindow - sevenDayResetSeconds) / totalWindow) * 100;
+
+    if (ctx.isPreview) {
+      return renderLabel("Runway", "12h", item, ctx);
+    }
+
+    if (utilizationPercent === 0) return null;
+
+    // Burn rate = utilization% / elapsed_hours
+    const elapsedHours = elapsedSeconds / 3600;
+    const burnRate = utilizationPercent / elapsedHours;
+
+    // Remaining hours = (100 - utilization%) / burn_rate
+    const remaining = burnRate > 0 ? (100 - utilizationPercent) / burnRate : Infinity;
+
+    if (!Number.isFinite(remaining) || remaining < 0) return null;
+
+    // Format: "Runway: 12h" or "Runway: 2.5h ⚠"
+    let formatted: string;
+    if (remaining >= 10) {
+      formatted = `${Math.round(remaining)}h`;
+    } else if (remaining >= 3) {
+      formatted = `${remaining.toFixed(1)}h ⚠`;
+    } else {
+      formatted = `${remaining.toFixed(1)}h ⚠`;
+    }
+
+    return renderLabel("Runway", formatted, item, ctx);
+  }
+}
+
+export class LargeCacheWarningWidget extends BaseWidget {
+  getDisplayName() { return "Large Cache Warning"; }
+  getDescription() { return "Warning indicator when cached tool results exceed threshold"; }
+  getCategory() { return "Cache"; }
+  render(item: WidgetItem, ctx: RenderContext): string | null {
+    const threshold = ctx.isPreview ? 1000000 : 2000000; // 2M tokens threshold
+    const lastBreakTokens = ctx.cacheStats.lastBreakTokens;
+
+    if (ctx.isPreview) {
+      return "⚠ large cache";
+    }
+
+    if (lastBreakTokens > threshold) {
+      return "⚠ large cache";
+    }
+
+    return null;
+  }
+}
