@@ -40,6 +40,19 @@ class FrozenDate extends RealDate {
     return RealDate.UTC(...args);
   }
 
+  // Override local-time getters to always return UTC values so rendering code
+  // that calls getHours()/getMinutes() etc. (e.g. formatTime in segments.ts)
+  // produces identical output regardless of the machine's local timezone.
+  getFullYear() { return this.getUTCFullYear(); }
+  getMonth() { return this.getUTCMonth(); }
+  getDate() { return this.getUTCDate(); }
+  getDay() { return this.getUTCDay(); }
+  getHours() { return this.getUTCHours(); }
+  getMinutes() { return this.getUTCMinutes(); }
+  getSeconds() { return this.getUTCSeconds(); }
+  getMilliseconds() { return this.getUTCMilliseconds(); }
+  getTimezoneOffset() { return 0; }
+
   toString() {
     return this.toUTCString();
   }
@@ -257,9 +270,9 @@ function buildMockRuntime(payload = {}) {
       available: gitAvailable,
       cwd,
       branch,
-      rootPath: cwd,
-      rootName,
-      sha: "abc1234",
+      rootPath: gitAvailable ? cwd : null,
+      rootName: gitAvailable ? rootName : null,
+      sha: gitAvailable ? "abc1234" : null,
       staged: 0,
       unstaged: 0,
       untracked: 0,
@@ -272,10 +285,10 @@ function buildMockRuntime(payload = {}) {
       origin: null,
       upstream: null,
       isFork: false,
-      worktreeMode: "primary",
-      worktreeName: rootName,
-      worktreeBranch: branch,
-      worktreeOriginalBranch: branch,
+      worktreeMode: gitAvailable ? "primary" : null,
+      worktreeName: gitAvailable ? rootName : null,
+      worktreeBranch: gitAvailable ? branch : null,
+      worktreeOriginalBranch: gitAvailable ? branch : null,
     },
     session: {
       sessionId: null,
