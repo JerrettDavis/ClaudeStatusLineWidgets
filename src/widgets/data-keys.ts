@@ -23,5 +23,5 @@ export const DATA_KEYS: DataKeyInfo[] = [
 ];
 
 export function getDataKeyInfo(key: string): DataKeyInfo | undefined {
-  return DATA_KEYS.find(dk => dk.key === key);
+  return DATA_KEYS.find((dk) => dk.key === key);
 }

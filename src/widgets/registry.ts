@@ -211,7 +211,7 @@ export async function loadExtensions(): Promise<void> {
 }
 
 export function getWidgetsByDataKey(dataKey: string, catalog?: WidgetCatalogEntry[]): WidgetCatalogEntry[] {
-  return (catalog ?? getWidgetCatalog()).filter(e => e.dataKey === dataKey);
+  return (catalog ?? getWidgetCatalog()).filter((e) => e.dataKey === dataKey);
 }
 
 export function getDataKeyGroups(catalog?: WidgetCatalogEntry[]): Map<string, WidgetCatalogEntry[]> {
