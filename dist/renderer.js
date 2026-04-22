@@ -249,6 +249,40 @@ var CostWidget = class {
   }
 };
 
+// src/widgets/data-keys.ts
+var DATA_KEY = {
+  CONTEXT_USAGE: "context-usage",
+  CONTEXT_SIZE: "context-size",
+  CACHE_HEALTH: "cache-health",
+  USAGE_5H: "usage-5h",
+  USAGE_7D: "usage-7d",
+  USAGE_RUNWAY: "usage-runway",
+  USAGE_OVERAGE: "usage-overage",
+  HEADROOM_STATS: "headroom-stats",
+  GIT_REMOTE_ORIGIN: "git-remote-origin",
+  GIT_REMOTE_UPSTREAM: "git-remote-upstream",
+  GIT_WORKING_TREE: "git-working-tree",
+  GIT_WORKTREE: "git-worktree",
+  TOKEN_COUNTS: "token-counts",
+  TOKEN_SPEED: "token-speed"
+};
+var DATA_KEYS = [
+  { key: DATA_KEY.CONTEXT_USAGE, displayName: "Context Usage", description: "Context window utilization (bar, percent, remaining)", category: "Context" },
+  { key: DATA_KEY.CONTEXT_SIZE, displayName: "Context Size", description: "Raw context window size", category: "Context" },
+  { key: DATA_KEY.CACHE_HEALTH, displayName: "Cache Health", description: "Cache TTL, token counts, and warnings", category: "Cache" },
+  { key: DATA_KEY.USAGE_5H, displayName: "5h Rate Limit", description: "5-hour usage window (bar, percent, countdown, reset)", category: "Usage" },
+  { key: DATA_KEY.USAGE_7D, displayName: "7d Rate Limit", description: "7-day usage window (bar, percent, countdown, reset)", category: "Usage" },
+  { key: DATA_KEY.USAGE_RUNWAY, displayName: "Usage Runway", description: "Burn rate and estimated remaining active hours", category: "Usage" },
+  { key: DATA_KEY.USAGE_OVERAGE, displayName: "Usage Overage", description: "Extra usage / overage spend", category: "Usage" },
+  { key: DATA_KEY.HEADROOM_STATS, displayName: "Headroom Proxy", description: "Compression proxy stats (tokens, ratio, cost, cache hit)", category: "Headroom" },
+  { key: DATA_KEY.GIT_REMOTE_ORIGIN, displayName: "Git Origin", description: "Origin remote info (owner, repo, owner/repo)", category: "Git" },
+  { key: DATA_KEY.GIT_REMOTE_UPSTREAM, displayName: "Git Upstream", description: "Upstream remote info (owner, repo, owner/repo)", category: "Git" },
+  { key: DATA_KEY.GIT_WORKING_TREE, displayName: "Git Working Tree", description: "Staged, unstaged, untracked, conflicts", category: "Git" },
+  { key: DATA_KEY.GIT_WORKTREE, displayName: "Git Worktree", description: "Worktree mode, name, branch", category: "Git" },
+  { key: DATA_KEY.TOKEN_COUNTS, displayName: "Token Counts", description: "Input, output, total, and cached token counts", category: "Tokens" },
+  { key: DATA_KEY.TOKEN_SPEED, displayName: "Token Speed", description: "Input, output, and total throughput", category: "Tokens" }
+];
+
 // src/widgets/helpers.ts
 function getVariant(item, fallback) {
   return item.variant ?? fallback;
@@ -326,6 +360,9 @@ var ContextBarWidget = class {
   getVariants() {
     return ["bar", "percent", "remaining"];
   }
+  getDataKey() {
+    return DATA_KEY.CONTEXT_USAGE;
+  }
   render(item, ctx) {
     const rawPercent = ctx.isPreview ? 45 : ctx.payload.context_window?.used_percentage ?? null;
     if (rawPercent === null) return null;
@@ -350,7 +387,7 @@ var CacheTTLWidget = class {
     return "Cache expiry countdown";
   }
   getCategory() {
-    return "Context";
+    return "Cache";
   }
   getDefaultColor() {
     return "default";
@@ -360,6 +397,9 @@ var CacheTTLWidget = class {
   }
   getVariants() {
     return ["time", "countdown", "badge"];
+  }
+  getDataKey() {
+    return DATA_KEY.CACHE_HEALTH;
   }
   render(item, ctx) {
     const variant = getVariant(item, "time");
@@ -394,13 +434,16 @@ var CacheTokensWidget = class {
     return "Session cache reads, writes, break count, and last break time";
   }
   getCategory() {
-    return "Context";
+    return "Cache";
   }
   getDefaultColor() {
     return "default";
   }
   supportsColors() {
     return false;
+  }
+  getDataKey() {
+    return DATA_KEY.CACHE_HEALTH;
   }
   render(_item, ctx) {
     if (ctx.isPreview) {
@@ -432,6 +475,9 @@ var Usage5hWidget = class {
   }
   getVariants() {
     return ["bar", "percent", "countdown"];
+  }
+  getDataKey() {
+    return DATA_KEY.USAGE_5H;
   }
   render(item, ctx) {
     const variant = getVariant(item, "bar");
@@ -468,6 +514,9 @@ var Usage7dWidget = class {
   getVariants() {
     return ["bar", "percent", "countdown"];
   }
+  getDataKey() {
+    return DATA_KEY.USAGE_7D;
+  }
   render(item, ctx) {
     const variant = getVariant(item, "bar");
     if (variant === "countdown") {
@@ -503,6 +552,9 @@ var UsageOverageWidget = class {
   getVariants() {
     return ["bar", "percent"];
   }
+  getDataKey() {
+    return DATA_KEY.USAGE_OVERAGE;
+  }
   render(item, ctx) {
     const variant = getVariant(item, "bar");
     if (variant === "percent") {
@@ -531,6 +583,9 @@ var HeadroomTokensWidget = class {
   supportsColors() {
     return false;
   }
+  getDataKey() {
+    return DATA_KEY.HEADROOM_STATS;
+  }
   render(_item, ctx) {
     if (ctx.isPreview) return "\u2696\uFE0F 491k tokens saved";
     return formatHeadroomTokens(ctx.headroomStats);
@@ -553,6 +608,9 @@ var HeadroomCompressionWidget = class {
   }
   supportsColors() {
     return false;
+  }
+  getDataKey() {
+    return DATA_KEY.HEADROOM_STATS;
   }
   render(_item, ctx) {
     if (ctx.isPreview) return "34% compressed";
@@ -577,6 +635,9 @@ var HeadroomCostWidget = class {
   supportsColors() {
     return false;
   }
+  getDataKey() {
+    return DATA_KEY.HEADROOM_STATS;
+  }
   render(_item, ctx) {
     if (ctx.isPreview) return "$0.12 saved";
     return formatHeadroomCost(ctx.headroomStats);
@@ -599,6 +660,9 @@ var HeadroomCacheHitWidget = class {
   }
   supportsColors() {
     return false;
+  }
+  getDataKey() {
+    return DATA_KEY.HEADROOM_STATS;
   }
   render(_item, ctx) {
     if (ctx.isPreview) return "78% cache hit";
@@ -946,6 +1010,9 @@ var GitStatusWidget = class extends BaseGitWidget {
   getDescription() {
     return "Compact summary of staged, unstaged, untracked, and conflict counts";
   }
+  getDataKey() {
+    return DATA_KEY.GIT_WORKING_TREE;
+  }
   render(item, ctx) {
     const git = ctx.runtime.git;
     if (ctx.isPreview) return renderLabel("Git", "+2 ~1 ?3", item, ctx);
@@ -966,6 +1033,9 @@ var GitChangesWidget = class extends BaseGitWidget {
   getDescription() {
     return "Total changed paths in the working tree";
   }
+  getDataKey() {
+    return DATA_KEY.GIT_WORKING_TREE;
+  }
   render(item, ctx) {
     const count = ctx.isPreview ? 6 : ctx.runtime.git.changes;
     return count > 0 ? renderLabel("Changes", String(count), item, ctx) : null;
@@ -977,6 +1047,9 @@ var GitStagedWidget = class extends BaseGitWidget {
   }
   getDescription() {
     return "Count of staged files";
+  }
+  getDataKey() {
+    return DATA_KEY.GIT_WORKING_TREE;
   }
   render(item, ctx) {
     const count = ctx.isPreview ? 2 : ctx.runtime.git.staged;
@@ -990,6 +1063,9 @@ var GitUnstagedWidget = class extends BaseGitWidget {
   getDescription() {
     return "Count of unstaged files";
   }
+  getDataKey() {
+    return DATA_KEY.GIT_WORKING_TREE;
+  }
   render(item, ctx) {
     const count = ctx.isPreview ? 1 : ctx.runtime.git.unstaged;
     return count > 0 ? renderLabel("Unstaged", String(count), item, ctx) : null;
@@ -1001,6 +1077,9 @@ var GitUntrackedWidget = class extends BaseGitWidget {
   }
   getDescription() {
     return "Count of untracked files";
+  }
+  getDataKey() {
+    return DATA_KEY.GIT_WORKING_TREE;
   }
   render(item, ctx) {
     const count = ctx.isPreview ? 3 : ctx.runtime.git.untracked;
@@ -1030,6 +1109,9 @@ var GitConflictsWidget = class extends BaseGitWidget {
   }
   getDescription() {
     return "Count of conflicted paths";
+  }
+  getDataKey() {
+    return DATA_KEY.GIT_WORKING_TREE;
   }
   render(item, ctx) {
     const count = ctx.isPreview ? 1 : ctx.runtime.git.conflicts;
@@ -1098,6 +1180,9 @@ var RemoteFieldWidget = class extends BaseGitWidget {
   getDescription() {
     return this.description;
   }
+  getDataKey() {
+    return this.remote === "origin" ? DATA_KEY.GIT_REMOTE_ORIGIN : DATA_KEY.GIT_REMOTE_UPSTREAM;
+  }
   render(item, ctx) {
     const remote = this.remote === "origin" ? ctx.runtime.git.origin : ctx.runtime.git.upstream;
     const preview = this.remote === "origin" ? { owner: "octocat", repo: "app" } : { owner: "upstream", repo: "app" };
@@ -1156,6 +1241,9 @@ var GitWorktreeModeWidget = class extends BaseGitWidget {
   getDescription() {
     return "Primary, linked, or detached worktree mode";
   }
+  getDataKey() {
+    return DATA_KEY.GIT_WORKTREE;
+  }
   render(item, ctx) {
     const value = ctx.isPreview ? "linked" : ctx.runtime.git.worktreeMode;
     return value ? renderLabel("Worktree", value, item, ctx) : null;
@@ -1167,6 +1255,9 @@ var GitWorktreeNameWidget = class extends BaseGitWidget {
   }
   getDescription() {
     return "Current worktree name";
+  }
+  getDataKey() {
+    return DATA_KEY.GIT_WORKTREE;
   }
   render(item, ctx) {
     const value = ctx.isPreview ? "my-repo" : ctx.runtime.git.worktreeName;
@@ -1180,6 +1271,9 @@ var GitWorktreeBranchWidget = class extends BaseGitWidget {
   getDescription() {
     return "Branch associated with the current worktree";
   }
+  getDataKey() {
+    return DATA_KEY.GIT_WORKTREE;
+  }
   render(item, ctx) {
     const value = ctx.isPreview ? "feat/widgets" : ctx.runtime.git.worktreeBranch;
     return value ? renderLabel("Worktree Branch", value, item, ctx) : null;
@@ -1191,6 +1285,9 @@ var GitWorktreeOriginalBranchWidget = class extends BaseGitWidget {
   }
   getDescription() {
     return "Original branch for the current worktree";
+  }
+  getDataKey() {
+    return DATA_KEY.GIT_WORKTREE;
   }
   render(item, ctx) {
     const value = ctx.isPreview ? "main" : ctx.runtime.git.worktreeOriginalBranch;
@@ -1217,6 +1314,9 @@ var InputTokensWidget = class extends BaseWidget2 {
   getCategory() {
     return "Tokens";
   }
+  getDataKey() {
+    return DATA_KEY.TOKEN_COUNTS;
+  }
   render(item, ctx) {
     const value = ctx.isPreview ? 18200 : ctx.runtime.tokens.input;
     return value !== null ? renderLabel("Input", formatTokenCount(value), item, ctx) : null;
@@ -1231,6 +1331,9 @@ var OutputTokensWidget = class extends BaseWidget2 {
   }
   getCategory() {
     return "Tokens";
+  }
+  getDataKey() {
+    return DATA_KEY.TOKEN_COUNTS;
   }
   render(item, ctx) {
     const value = ctx.isPreview ? 2400 : ctx.runtime.tokens.output;
@@ -1247,6 +1350,9 @@ var TotalTokensWidget = class extends BaseWidget2 {
   getCategory() {
     return "Tokens";
   }
+  getDataKey() {
+    return DATA_KEY.TOKEN_COUNTS;
+  }
   render(item, ctx) {
     const value = ctx.isPreview ? 21600 : ctx.runtime.tokens.total;
     return value !== null ? renderLabel("Tokens", formatTokenCount(value), item, ctx) : null;
@@ -1261,6 +1367,9 @@ var InputSpeedWidget = class extends BaseWidget2 {
   }
   getCategory() {
     return "Tokens";
+  }
+  getDataKey() {
+    return DATA_KEY.TOKEN_SPEED;
   }
   render(item, ctx) {
     const value = ctx.isPreview ? 1200 : ctx.runtime.tokens.inputSpeed;
@@ -1277,6 +1386,9 @@ var OutputSpeedWidget = class extends BaseWidget2 {
   getCategory() {
     return "Tokens";
   }
+  getDataKey() {
+    return DATA_KEY.TOKEN_SPEED;
+  }
   render(item, ctx) {
     const value = ctx.isPreview ? 180 : ctx.runtime.tokens.outputSpeed;
     return value !== null ? renderLabel("Output/s", formatSpeed(value), item, ctx) : null;
@@ -1291,6 +1403,9 @@ var TotalSpeedWidget = class extends BaseWidget2 {
   }
   getCategory() {
     return "Tokens";
+  }
+  getDataKey() {
+    return DATA_KEY.TOKEN_SPEED;
   }
   render(item, ctx) {
     const value = ctx.isPreview ? 1380 : ctx.runtime.tokens.totalSpeed;
@@ -1309,6 +1424,9 @@ var ContextPercentageWidget = class extends BaseWidget2 {
   }
   getVariants() {
     return ["percent", "bar", "remaining"];
+  }
+  getDataKey() {
+    return DATA_KEY.CONTEXT_USAGE;
   }
   render(item, ctx) {
     const variant = getVariant(item, "percent");
@@ -1333,6 +1451,9 @@ var ContextLengthWidget = class extends BaseWidget2 {
   getCategory() {
     return "Context";
   }
+  getDataKey() {
+    return DATA_KEY.CONTEXT_SIZE;
+  }
   render(item, ctx) {
     const value = ctx.isPreview ? 2e5 : ctx.payload.context_window?.context_window_size ?? null;
     return value !== null ? renderLabel("Context", formatTokenCount(value), item, ctx) : null;
@@ -1347,6 +1468,9 @@ var UsageReset5hWidget = class extends BaseWidget2 {
   }
   getCategory() {
     return "Usage";
+  }
+  getDataKey() {
+    return DATA_KEY.USAGE_5H;
   }
   render(item, ctx) {
     const value = ctx.isPreview ? 67 * 60 : ctx.runtime.usage.fiveHourResetSeconds;
@@ -1363,6 +1487,9 @@ var UsageReset7dWidget = class extends BaseWidget2 {
   getCategory() {
     return "Usage";
   }
+  getDataKey() {
+    return DATA_KEY.USAGE_7D;
+  }
   render(item, ctx) {
     const value = ctx.isPreview ? 3 * 24 * 3600 : ctx.runtime.usage.sevenDayResetSeconds;
     return value !== null ? renderLabel("7d Reset", formatDurationCompact(value), item, ctx) : null;
@@ -1377,6 +1504,9 @@ var ReplayCostWidget = class extends BaseWidget2 {
   }
   getCategory() {
     return "Cache";
+  }
+  getDataKey() {
+    return DATA_KEY.CACHE_HEALTH;
   }
   render(item, ctx) {
     const current = ctx.payload.context_window?.current_usage;
@@ -1406,6 +1536,9 @@ var RunwayWidget = class extends BaseWidget2 {
   }
   getCategory() {
     return "Usage";
+  }
+  getDataKey() {
+    return DATA_KEY.USAGE_RUNWAY;
   }
   render(item, ctx) {
     const sevenDayResetSeconds = ctx.runtime.usage.sevenDayResetSeconds;
@@ -1443,6 +1576,9 @@ var LargeCacheWarningWidget = class extends BaseWidget2 {
   }
   getCategory() {
     return "Cache";
+  }
+  getDataKey() {
+    return DATA_KEY.CACHE_HEALTH;
   }
   render(item, ctx) {
     const threshold = ctx.isPreview ? 1e6 : 2e6;

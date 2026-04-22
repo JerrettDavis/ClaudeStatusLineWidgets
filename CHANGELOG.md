@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/compare/v1.3.1...v1.4.0) (2026-04-22)
+
+
+### Features
+
+* widget variations with data key grouping ([#23](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/issues/23)) ([88ed287](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/commit/88ed287889355d0d873b23b92f37f02cef2f8171))
+
 ## [1.3.1](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/compare/v1.3.0...v1.3.1) (2026-04-22)
 
 
