@@ -17,9 +17,68 @@ import { fileURLToPath } from "url";
 // runs and CI doesn't produce noisy commits when nothing in the rendering
 // logic has changed.
 // 2025-01-01T12:00:00.000Z — an arbitrary, stable reference point.
+// A full FrozenDate wrapper is used instead of process.env.TZ because
+// TZ is ignored by Node on Windows, so this approach ensures cross-platform
+// determinism by forcing UTC formatting at the Date API level.
 const FROZEN_NOW = 1735732800000;
-process.env.TZ = "UTC";
-Date.now = () => FROZEN_NOW;
+const RealDate = Date;
+
+class FrozenDate extends RealDate {
+  constructor(...args) {
+    super(...(args.length === 0 ? [FROZEN_NOW] : args));
+  }
+
+  static now() {
+    return FROZEN_NOW;
+  }
+
+  static parse(value) {
+    return RealDate.parse(value);
+  }
+
+  static UTC(...args) {
+    return RealDate.UTC(...args);
+  }
+
+  toString() {
+    return this.toUTCString();
+  }
+
+  toDateString() {
+    return new Intl.DateTimeFormat("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "2-digit",
+      year: "numeric",
+      timeZone: "UTC",
+    }).format(this);
+  }
+
+  toTimeString() {
+    return new Intl.DateTimeFormat("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+      timeZone: "UTC",
+      timeZoneName: "short",
+    }).format(this);
+  }
+
+  toLocaleString(locales, options) {
+    return super.toLocaleString(locales, { ...options, timeZone: "UTC" });
+  }
+
+  toLocaleDateString(locales, options) {
+    return super.toLocaleDateString(locales, { ...options, timeZone: "UTC" });
+  }
+
+  toLocaleTimeString(locales, options) {
+    return super.toLocaleTimeString(locales, { ...options, timeZone: "UTC" });
+  }
+}
+
+globalThis.Date = FrozenDate;
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
