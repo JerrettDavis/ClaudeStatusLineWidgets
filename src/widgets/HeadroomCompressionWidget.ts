@@ -1,5 +1,6 @@
 import { formatHeadroomCompression } from "../segments.js";
 import type { Widget, WidgetItem, RenderContext } from "./types.js";
+import { DATA_KEY } from "./data-keys.js";
 
 export class HeadroomCompressionWidget implements Widget {
   getDisplayName() { return "Compression"; }
@@ -7,7 +8,7 @@ export class HeadroomCompressionWidget implements Widget {
   getCategory() { return "Headroom"; }
   getDefaultColor() { return "default"; }
   supportsColors() { return false; }
-  getDataKey() { return "headroom-stats"; }
+  getDataKey() { return DATA_KEY.HEADROOM_STATS; }
   render(_item: WidgetItem, ctx: RenderContext): string | null {
     if (ctx.isPreview) return "34% compressed";
     return formatHeadroomCompression(ctx.headroomStats);

@@ -1,5 +1,6 @@
 import { formatCache } from "../segments.js";
 import type { Widget, WidgetItem, RenderContext } from "./types.js";
+import { DATA_KEY } from "./data-keys.js";
 import { formatDurationCompact, getVariant, renderBadge, renderLabel } from "./helpers.js";
 
 export class CacheTTLWidget implements Widget {
@@ -9,7 +10,7 @@ export class CacheTTLWidget implements Widget {
   getDefaultColor() { return "default"; }
   supportsColors() { return false; }
   getVariants() { return ["time", "countdown", "badge"]; }
-  getDataKey() { return "cache-health"; }
+  getDataKey() { return DATA_KEY.CACHE_HEALTH; }
   render(item: WidgetItem, ctx: RenderContext): string | null {
     const variant = getVariant(item, "time");
     const cache = ctx.isPreview

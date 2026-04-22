@@ -1,5 +1,6 @@
 import { formatContext } from "../segments.js";
 import type { Widget, WidgetItem, RenderContext } from "./types.js";
+import { DATA_KEY } from "./data-keys.js";
 import { formatPercent, getVariant, renderLabel } from "./helpers.js";
 
 export class ContextBarWidget implements Widget {
@@ -9,7 +10,7 @@ export class ContextBarWidget implements Widget {
   getDefaultColor() { return "default"; }
   supportsColors() { return false; }
   getVariants() { return ["bar", "percent", "remaining"]; }
-  getDataKey() { return "context-usage"; }
+  getDataKey() { return DATA_KEY.CONTEXT_USAGE; }
   render(item: WidgetItem, ctx: RenderContext): string | null {
     const rawPercent = ctx.isPreview ? 45 : ctx.payload.context_window?.used_percentage ?? null;
     if (rawPercent === null) return null;

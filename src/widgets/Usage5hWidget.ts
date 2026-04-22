@@ -1,5 +1,6 @@
 import { formatUsage5h } from "../segments.js";
 import type { Widget, WidgetItem, RenderContext } from "./types.js";
+import { DATA_KEY } from "./data-keys.js";
 import { formatDurationCompact, getVariant, renderLabel } from "./helpers.js";
 
 export class Usage5hWidget implements Widget {
@@ -9,7 +10,7 @@ export class Usage5hWidget implements Widget {
   getDefaultColor() { return "default"; }
   supportsColors() { return false; }
   getVariants() { return ["bar", "percent", "countdown"]; }
-  getDataKey() { return "usage-5h"; }
+  getDataKey() { return DATA_KEY.USAGE_5H; }
   render(item: WidgetItem, ctx: RenderContext): string | null {
     const variant = getVariant(item, "bar");
     if (variant === "countdown") {

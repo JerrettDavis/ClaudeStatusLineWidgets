@@ -1,5 +1,6 @@
 import { formatUsageOverage } from "../segments.js";
 import type { Widget, WidgetItem, RenderContext } from "./types.js";
+import { DATA_KEY } from "./data-keys.js";
 import { getVariant, renderLabel } from "./helpers.js";
 
 export class UsageOverageWidget implements Widget {
@@ -9,7 +10,7 @@ export class UsageOverageWidget implements Widget {
   getDefaultColor() { return "default"; }
   supportsColors() { return false; }
   getVariants() { return ["bar", "percent"]; }
-  getDataKey() { return "usage-overage"; }
+  getDataKey() { return DATA_KEY.USAGE_OVERAGE; }
   render(item: WidgetItem, ctx: RenderContext): string | null {
     const variant = getVariant(item, "bar");
     if (variant === "percent") {
