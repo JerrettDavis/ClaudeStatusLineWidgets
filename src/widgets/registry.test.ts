@@ -3,12 +3,16 @@ import { getWidgetsByDataKey, getDataKeyGroups, getWidgetCatalog } from "./regis
 import { DATA_KEY } from "./data-keys.js";
 import type { WidgetCatalogEntry } from "./types.js";
 
+function entry(type: string, dataKey?: string): WidgetCatalogEntry {
+  return { type, displayName: type, description: "", category: "Test", dataKey };
+}
+
 describe("getWidgetsByDataKey", () => {
   it("returns all entries matching the given data key", () => {
     const results = getWidgetsByDataKey(DATA_KEY.CACHE_HEALTH);
     expect(results.length).toBeGreaterThan(0);
-    for (const entry of results) {
-      expect(entry.dataKey).toBe(DATA_KEY.CACHE_HEALTH);
+    for (const result of results) {
+      expect(result.dataKey).toBe(DATA_KEY.CACHE_HEALTH);
     }
   });
 
@@ -18,19 +22,24 @@ describe("getWidgetsByDataKey", () => {
   });
 
   it("ignores entries whose dataKey is undefined", () => {
-    const catalog = getWidgetCatalog();
-    const ungrouped = catalog.filter((e) => e.dataKey === undefined);
-    expect(ungrouped.length).toBeGreaterThan(0);
-    for (const entry of ungrouped) {
-      expect(getWidgetsByDataKey(entry.type)).toEqual([]);
-    }
+    const catalog: WidgetCatalogEntry[] = [
+      entry("grouped-a", "group-1"),
+      entry("ungrouped-a", undefined),
+      entry("grouped-b", "group-1"),
+      entry("ungrouped-b"),
+      entry("other-group", "group-2"),
+    ];
+    const results = getWidgetsByDataKey("group-1", catalog);
+    expect(results).toHaveLength(2);
+    expect(results.map((e) => e.type)).toEqual(["grouped-a", "grouped-b"]);
+    expect(results.every((e) => e.dataKey === "group-1")).toBe(true);
   });
 
   it("accepts a pre-built catalog to avoid redundant builds", () => {
     const catalog: WidgetCatalogEntry[] = [
-      { type: "a", widget: {} as any, dataKey: "my-group" },
-      { type: "b", widget: {} as any, dataKey: "my-group" },
-      { type: "c", widget: {} as any },
+      entry("a", "my-group"),
+      entry("b", "my-group"),
+      entry("c"),
     ];
     const results = getWidgetsByDataKey("my-group", catalog);
     expect(results).toHaveLength(2);
@@ -44,8 +53,8 @@ describe("getDataKeyGroups", () => {
     expect(groups.size).toBeGreaterThan(0);
     for (const [key, entries] of groups) {
       expect(entries.length).toBeGreaterThan(0);
-      for (const entry of entries) {
-        expect(entry.dataKey).toBe(key);
+      for (const e of entries) {
+        expect(e.dataKey).toBe(key);
       }
     }
   });
@@ -62,9 +71,9 @@ describe("getDataKeyGroups", () => {
 
   it("groups multiple entries under the same key", () => {
     const catalog: WidgetCatalogEntry[] = [
-      { type: "x", widget: {} as any, dataKey: "shared" },
-      { type: "y", widget: {} as any, dataKey: "shared" },
-      { type: "z", widget: {} as any, dataKey: "other" },
+      entry("x", "shared"),
+      entry("y", "shared"),
+      entry("z", "other"),
     ];
     const groups = getDataKeyGroups(catalog);
     expect(groups.get("shared")).toHaveLength(2);
@@ -73,8 +82,8 @@ describe("getDataKeyGroups", () => {
 
   it("returns an empty map for a catalog with no data keys", () => {
     const catalog: WidgetCatalogEntry[] = [
-      { type: "p", widget: {} as any },
-      { type: "q", widget: {} as any },
+      entry("p"),
+      entry("q"),
     ];
     const groups = getDataKeyGroups(catalog);
     expect(groups.size).toBe(0);
@@ -82,8 +91,8 @@ describe("getDataKeyGroups", () => {
 
   it("accepts a pre-built catalog to avoid redundant builds", () => {
     const catalog: WidgetCatalogEntry[] = [
-      { type: "a", widget: {} as any, dataKey: "g1" },
-      { type: "b", widget: {} as any, dataKey: "g2" },
+      entry("a", "g1"),
+      entry("b", "g2"),
     ];
     const groups = getDataKeyGroups(catalog);
     expect(groups.size).toBe(2);
