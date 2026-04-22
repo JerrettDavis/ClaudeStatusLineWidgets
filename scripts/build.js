@@ -45,3 +45,23 @@ await build({
   target: "node22",
   jsx: "automatic"
 });
+
+await build({
+  absWorkingDir: root,
+  entryPoints: [
+    "src/renderer.ts",
+    "src/runtime.ts",
+    "src/config/schema.ts",
+  ],
+  outdir: "dist",
+  outbase: "src",
+  bundle: true,
+  format: "esm",
+  platform: "node",
+  target: "node22",
+  jsx: "automatic",
+  packages: "bundle",
+  banner: {
+    js: `import { createRequire } from "module";\nconst require = createRequire(import.meta.url);`,
+  },
+});

@@ -10,8 +10,88 @@
  */
 
 import { writeFileSync, mkdirSync } from "fs";
-import { join, dirname } from "path";
+import { join, dirname, basename } from "path";
 import { fileURLToPath } from "url";
+
+// Freeze time and normalize timezone so SVG output is deterministic across
+// runs and CI doesn't produce noisy commits when nothing in the rendering
+// logic has changed.
+// 2025-01-01T12:00:00.000Z — an arbitrary, stable reference point.
+// A full FrozenDate wrapper is used instead of process.env.TZ because
+// TZ is ignored by Node on Windows, so this approach ensures cross-platform
+// determinism by forcing UTC formatting at the Date API level.
+const FROZEN_NOW = 1735732800000;
+const RealDate = Date;
+
+class FrozenDate extends RealDate {
+  constructor(...args) {
+    super(...(args.length === 0 ? [FROZEN_NOW] : args));
+  }
+
+  static now() {
+    return FROZEN_NOW;
+  }
+
+  static parse(value) {
+    return RealDate.parse(value);
+  }
+
+  static UTC(...args) {
+    return RealDate.UTC(...args);
+  }
+
+  // Override local-time getters to always return UTC values so rendering code
+  // that calls getHours()/getMinutes() etc. (e.g. formatTime in segments.ts)
+  // produces identical output regardless of the machine's local timezone.
+  getFullYear() { return this.getUTCFullYear(); }
+  getMonth() { return this.getUTCMonth(); }
+  getDate() { return this.getUTCDate(); }
+  getDay() { return this.getUTCDay(); }
+  getHours() { return this.getUTCHours(); }
+  getMinutes() { return this.getUTCMinutes(); }
+  getSeconds() { return this.getUTCSeconds(); }
+  getMilliseconds() { return this.getUTCMilliseconds(); }
+  getTimezoneOffset() { return 0; }
+
+  toString() {
+    return this.toUTCString();
+  }
+
+  toDateString() {
+    return new Intl.DateTimeFormat("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "2-digit",
+      year: "numeric",
+      timeZone: "UTC",
+    }).format(this);
+  }
+
+  toTimeString() {
+    return new Intl.DateTimeFormat("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+      timeZone: "UTC",
+      timeZoneName: "short",
+    }).format(this);
+  }
+
+  toLocaleString(locales, options) {
+    return super.toLocaleString(locales, { ...options, timeZone: "UTC" });
+  }
+
+  toLocaleDateString(locales, options) {
+    return super.toLocaleDateString(locales, { ...options, timeZone: "UTC" });
+  }
+
+  toLocaleTimeString(locales, options) {
+    return super.toLocaleTimeString(locales, { ...options, timeZone: "UTC" });
+  }
+}
+
+globalThis.Date = FrozenDate;
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
@@ -175,6 +255,75 @@ ${textElems}
 
 // --- Rendering helpers ---
 
+/**
+ * Deterministic, environment-independent RuntimeData for use in screenshot
+ * generation. Avoids git commands, credential file reads, and system queries
+ * that would make SVG output non-deterministic across machines or CI runs.
+ */
+function buildMockRuntime(payload = {}) {
+  const rawCwd = payload.cwd;
+  const cwd =
+    typeof rawCwd === "string" ? (rawCwd.trim() || null) : (rawCwd ?? null);
+  const gitAvailable = !!cwd;
+  const branch = gitAvailable ? (payload.git_branch ?? null) : null;
+  const rootName = cwd ? basename(cwd) : null;
+  return {
+    git: {
+      available: gitAvailable,
+      cwd,
+      branch,
+      rootPath: gitAvailable ? cwd : null,
+      rootName: gitAvailable ? rootName : null,
+      sha: gitAvailable ? "abc1234" : null,
+      staged: 0,
+      unstaged: 0,
+      untracked: 0,
+      conflicts: 0,
+      changes: 0,
+      insertions: 0,
+      deletions: 0,
+      ahead: 0,
+      behind: 0,
+      origin: null,
+      upstream: null,
+      isFork: false,
+      worktreeMode: gitAvailable ? "primary" : null,
+      worktreeName: gitAvailable ? rootName : null,
+      worktreeBranch: gitAvailable ? branch : null,
+      worktreeOriginalBranch: gitAvailable ? branch : null,
+    },
+    session: {
+      sessionId: null,
+      version: null,
+      outputStyle: null,
+      vimMode: null,
+      thinkingEffort: null,
+      skills: [],
+      accountEmail: null,
+      startedAt: null,
+      elapsedSeconds: null,
+    },
+    system: {
+      terminalWidth: 120,
+      memoryUsedBytes: 4 * 1024 * 1024 * 1024,
+      memoryTotalBytes: 16 * 1024 * 1024 * 1024,
+    },
+    tokens: {
+      input: null,
+      output: null,
+      cached: null,
+      total: null,
+      inputSpeed: null,
+      outputSpeed: null,
+      totalSpeed: null,
+    },
+    usage: {
+      fiveHourResetSeconds: null,
+      sevenDayResetSeconds: null,
+    },
+  };
+}
+
 /** Render a statusline with mock context using isPreview semantics */
 async function renderMock(overrides = {}) {
   const { renderStatusLine } = await import("../dist/renderer.js");
@@ -183,17 +332,19 @@ async function renderMock(overrides = {}) {
   const now = Date.now();
   const settings = createDefaultSettings();
 
-  const defaultContext = {
-    payload: {
-      model: { id: "claude-opus-4-6", display_name: "Opus" },
-      cost: { total_cost_usd: 0.45 },
-      context_window: {
-        used_percentage: 45,
-        context_window_size: 200000,
-      },
-      git_branch: "main",
-      cwd: "/home/user/project",
+  const defaultPayload = {
+    model: { id: "claude-opus-4-6", display_name: "Opus" },
+    cost: { total_cost_usd: 0.45 },
+    context_window: {
+      used_percentage: 45,
+      context_window_size: 200000,
     },
+    git_branch: "main",
+    cwd: "/home/user/project",
+  };
+
+  const defaultContext = {
+    payload: defaultPayload,
     cacheTTL: {
       remainingSeconds: 180,
       tier: "5m",
@@ -206,6 +357,8 @@ async function renderMock(overrides = {}) {
       totalWrites: 10,
       breakCount: 1,
       lastBreakTime: null,
+      lastBreakTokens: 0,
+      avgBreakTokens: 0,
     },
     usageData: null,
     headroomStats: null,
@@ -213,6 +366,7 @@ async function renderMock(overrides = {}) {
   };
 
   const context = deepMerge(defaultContext, overrides);
+  context.runtime = buildMockRuntime(context.payload);
   return renderStatusLine(settings, context);
 }
 
@@ -258,14 +412,15 @@ async function main() {
     const settings = createDefaultSettings();
     // Override to only show Line 1
     settings.lines = [settings.lines[0]];
+    const payload = {
+      model: { id: "claude-sonnet-4-5", display_name: "Sonnet" },
+      cost: { total_cost_usd: 0.12 },
+      context_window: { used_percentage: 28, context_window_size: 200000 },
+      git_branch: "feat/add-widgets",
+      cwd: "/home/user/my-app",
+    };
     const raw = renderStatusLine(settings, {
-      payload: {
-        model: { id: "claude-sonnet-4-5", display_name: "Sonnet" },
-        cost: { total_cost_usd: 0.12 },
-        context_window: { used_percentage: 28, context_window_size: 200000 },
-        git_branch: "feat/add-widgets",
-        cwd: "/home/user/my-app",
-      },
+      payload,
       cacheTTL: {
         remainingSeconds: 180,
         tier: "5m",
@@ -273,9 +428,10 @@ async function main() {
         expiresAt: now + 180_000,
         cacheReadActive: true,
       },
-      cacheStats: { totalReads: 10, totalWrites: 3, breakCount: 1, lastBreakTime: null },
+      cacheStats: { totalReads: 10, totalWrites: 3, breakCount: 1, lastBreakTime: null, lastBreakTokens: 0, avgBreakTokens: 0 },
       usageData: null,
       headroomStats: null,
+      runtime: buildMockRuntime(payload),
       isPreview: false,
     });
     const lines = raw.split("\n");
@@ -315,7 +471,8 @@ async function main() {
       git_branch: "main",
       cwd: "/home/user/project",
     };
-    const cacheStats = { totalReads: 20, totalWrites: 5, breakCount: 1, lastBreakTime: null };
+    const cacheStats = { totalReads: 20, totalWrites: 5, breakCount: 1, lastBreakTime: null, lastBreakTokens: 0, avgBreakTokens: 0 };
+    const runtime = buildMockRuntime(basePayload);
 
     const states = [
       {
@@ -348,6 +505,7 @@ async function main() {
         cacheStats,
         usageData: null,
         headroomStats: null,
+        runtime,
         isPreview: false,
       });
       const firstLine = out.split("\n")[0];
@@ -368,12 +526,14 @@ async function main() {
     const { createDefaultSettings } = await import("../dist/config/schema.js");
     const settings = createDefaultSettings();
     settings.lines = [settings.lines[1]]; // Line 2 only (usage)
+    const payload = {};
     const raw = renderStatusLine(settings, {
-      payload: {},
+      payload,
       cacheTTL: { remainingSeconds: 0, tier: "none", lastWriteTime: null, expiresAt: null, cacheReadActive: false },
-      cacheStats: { totalReads: 0, totalWrites: 0, breakCount: 0, lastBreakTime: null },
+      cacheStats: { totalReads: 0, totalWrites: 0, breakCount: 0, lastBreakTime: null, lastBreakTokens: 0, avgBreakTokens: 0 },
       usageData: null,
       headroomStats: null,
+      runtime: buildMockRuntime(payload),
       isPreview: true,
     });
     if (raw.trim()) {
@@ -393,10 +553,11 @@ async function main() {
     const { createDefaultSettings } = await import("../dist/config/schema.js");
     const settings = createDefaultSettings();
     settings.lines = [settings.lines[2]]; // Line 3 only (headroom)
+    const payload = {};
     const raw = renderStatusLine(settings, {
-      payload: {},
+      payload,
       cacheTTL: { remainingSeconds: 0, tier: "none", lastWriteTime: null, expiresAt: null, cacheReadActive: false },
-      cacheStats: { totalReads: 0, totalWrites: 0, breakCount: 0, lastBreakTime: null },
+      cacheStats: { totalReads: 0, totalWrites: 0, breakCount: 0, lastBreakTime: null, lastBreakTokens: 0, avgBreakTokens: 0 },
       usageData: null,
       headroomStats: {
         compressionPct: 34,
@@ -406,6 +567,7 @@ async function main() {
         requests: 150,
         cacheHitRate: 0.78,
       },
+      runtime: buildMockRuntime(payload),
       isPreview: false,
     });
     if (raw.trim()) {
