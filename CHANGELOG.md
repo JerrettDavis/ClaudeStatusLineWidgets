@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/compare/v1.3.0...v1.3.1) (2026-04-22)
+
+
+### Bug Fixes
+
+* build renderer.js, runtime.js, config/schema.js for screenshots script ([#24](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/issues/24)) ([b6c9c1c](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/commit/b6c9c1c46d24ab47adca95b1811fdc9e0e7fee7c))
+
 # [1.3.0](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/compare/v1.2.0...v1.3.0) (2026-04-21)
 
 
