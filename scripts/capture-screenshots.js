@@ -261,8 +261,10 @@ ${textElems}
  * that would make SVG output non-deterministic across machines or CI runs.
  */
 function buildMockRuntime(payload = {}) {
-  const cwd = payload.cwd ?? null;
-  const gitAvailable = cwd !== null;
+  const rawCwd = payload.cwd;
+  const cwd =
+    typeof rawCwd === "string" ? (rawCwd.trim() || null) : (rawCwd ?? null);
+  const gitAvailable = !!cwd;
   const branch = gitAvailable ? (payload.git_branch ?? null) : null;
   const rootName = cwd ? basename(cwd) : null;
   return {
