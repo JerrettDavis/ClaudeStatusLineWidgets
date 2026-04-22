@@ -168,14 +168,15 @@ export function getWidgetCatalog(): WidgetCatalogEntry[] {
   const allEntries = [...WIDGET_MANIFEST, ...extensionManifest];
   return allEntries.map((entry) => {
     const w = widgetRegistry.get(entry.type)!;
-      return {
-        type: entry.type,
-        displayName: w.getDisplayName(),
-        description: w.getDescription(),
-        category: w.getCategory(),
-        variants: w.getVariants?.(),
-      };
-    });
+    return {
+      type: entry.type,
+      displayName: w.getDisplayName(),
+      description: w.getDescription(),
+      category: w.getCategory(),
+      variants: w.getVariants?.(),
+      dataKey: w.getDataKey?.(),
+    };
+  });
 }
 
 export function getWidgetCategories(): string[] {
@@ -207,4 +208,20 @@ export async function loadExtensions(): Promise<void> {
   for (const ext of extensions) {
     registerExtension(ext);
   }
+}
+
+export function getWidgetsByDataKey(dataKey: string, catalog?: WidgetCatalogEntry[]): WidgetCatalogEntry[] {
+  return (catalog ?? getWidgetCatalog()).filter((e) => e.dataKey === dataKey);
+}
+
+export function getDataKeyGroups(catalog?: WidgetCatalogEntry[]): Map<string, WidgetCatalogEntry[]> {
+  const entries = catalog ?? getWidgetCatalog();
+  const groups = new Map<string, WidgetCatalogEntry[]>();
+  for (const entry of entries) {
+    if (!entry.dataKey) continue;
+    const list = groups.get(entry.dataKey) ?? [];
+    list.push(entry);
+    groups.set(entry.dataKey, list);
+  }
+  return groups;
 }

@@ -26,7 +26,7 @@ The loader identifies extension packages by the `claude-statusline-widget` keywo
   "main": "dist/index.js",
   "keywords": ["claude-statusline-widget"],  // ← required
   "peerDependencies": {
-    "claude-statusline-widgets": ">=1.1.0"
+    "claude-statusline-widgets": ">=1.2.0"
   }
 }
 ```
@@ -110,6 +110,31 @@ const extension: WidgetExtension = {
 | **Type prefix** | Namespacing types (e.g. `"my-org.my-widget"`) is strongly recommended to avoid collisions with built-in types |
 | **Built-in protection** | A type that already exists in the built-in registry is silently skipped |
 | **Graceful failure** | A broken extension (import error, invalid shape) is silently ignored so the rest of the app continues working |
+
+## Widget groups (data keys)
+
+Extension widgets can opt into the TUI's group-based picker by implementing the optional `getDataKey()` method:
+
+```ts
+export class MyContextWidget implements Widget {
+  getDisplayName() { return "My Context View"; }
+  getDescription() { return "Alternative context visualization."; }
+  getCategory()    { return "Context"; }
+  getDefaultColor() { return "cyan"; }
+  supportsColors() { return true; }
+  getDataKey()     { return "context-usage"; }  // ← group with built-in context widgets
+
+  render(item: WidgetItem, ctx: RenderContext): string | null {
+    // ...
+  }
+}
+```
+
+Returning a built-in data key (e.g. `"context-usage"`) places your widget alongside the built-in context widgets in the picker. Returning a novel key creates a new group automatically. Omitting `getDataKey()` keeps the widget ungrouped (legacy behavior).
+
+See [widgets.md](widgets.md#widget-groups-data-keys) for the full list of built-in data keys.
+
+---
 
 ## Available types
 

@@ -9,15 +9,17 @@ import { MainMenu } from "./components/MainMenu.js";
 import { LineSelector } from "./components/LineSelector.js";
 import { ItemsEditor } from "./components/ItemsEditor.js";
 import { WidgetPicker } from "./components/WidgetPicker.js";
+import { WidgetPickerGroup } from "./components/WidgetPickerGroup.js";
 import { ColorMenu } from "./components/ColorMenu.js";
 
-type Screen = "main" | "lines" | "items" | "picker" | "colors";
+type Screen = "main" | "lines" | "items" | "picker" | "picker-group" | "colors";
 
 export function App() {
   const { exit } = useApp();
   const [settings, setSettings] = useState<Settings>(createDefaultSettings);
   const [screen, setScreen] = useState<Screen>("main");
   const [editingLine, setEditingLine] = useState(0);
+  const [selectedDataKey, setSelectedDataKey] = useState<string | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
   const [flash, setFlash] = useState<string | null>(null);
 
@@ -232,7 +234,25 @@ export function App() {
             updateSettings({ ...settings, lines: newLines });
             setScreen("items");
           }}
+          onSelectGroup={(dataKey) => {
+            setSelectedDataKey(dataKey);
+            setScreen("picker-group");
+          }}
           onBack={() => setScreen("items")}
+        />
+      )}
+
+      {screen === "picker-group" && selectedDataKey && (
+        <WidgetPickerGroup
+          dataKey={selectedDataKey}
+          onSelect={(type) => {
+            const newItem = createWidgetItem(type);
+            const newLines = [...settings.lines];
+            newLines[editingLine] = [...(newLines[editingLine] ?? []), newItem];
+            updateSettings({ ...settings, lines: newLines });
+            setScreen("items");
+          }}
+          onBack={() => setScreen("picker")}
         />
       )}
 

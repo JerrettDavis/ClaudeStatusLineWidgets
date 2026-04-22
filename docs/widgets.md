@@ -153,6 +153,33 @@ Headroom widgets are shown when `ANTHROPIC_BASE_URL` points at a local Headroom 
 
 ---
 
+## Widget Groups (Data Keys)
+
+Many widgets visualize the same underlying data in different ways. In the TUI picker, these related widgets are collapsed into **groups** — select a group to see all available variations, then pick the one you want.
+
+| Group | Widgets | Description |
+|-------|---------|-------------|
+| Context Usage | `context-bar`, `context-percent` | Context window utilization (bar, percent, remaining) |
+| Context Size | `context-length` | Raw context window size |
+| Cache Health | `cache-ttl`, `cache-tokens`, `replay-cost`, `large-cache-warning` | Cache TTL, token counts, and warnings |
+| 5h Rate Limit | `usage-5h`, `usage-reset-5h` | 5-hour usage window (bar, percent, countdown, reset) |
+| 7d Rate Limit | `usage-7d`, `usage-reset-7d` | 7-day usage window (bar, percent, countdown, reset) |
+| Usage Runway | `runway` | Burn rate and estimated remaining active hours |
+| Usage Overage | `usage-overage` | Extra usage / overage spend |
+| Headroom Proxy | `headroom-tokens`, `headroom-compression`, `headroom-cost`, `headroom-cache-hit` | Compression proxy stats |
+| Token Counts | `tokens-input`, `tokens-output`, `tokens-total` | Input, output, total token counts |
+| Token Speed | `input-speed`, `output-speed`, `total-speed` | Token throughput |
+| Git Origin | `git-origin-owner`, `git-origin-repo`, `git-origin-owner-repo` | Origin remote info |
+| Git Upstream | `git-upstream-owner`, `git-upstream-repo`, `git-upstream-owner-repo` | Upstream remote info |
+| Git Working Tree | `git-status`, `git-changes`, `git-staged`, `git-unstaged`, `git-untracked`, `git-conflicts` | Working tree status |
+| Git Worktree | `git-worktree-mode`, `git-worktree-name`, `git-worktree-branch`, `git-worktree-original-branch` | Worktree info |
+
+You can add multiple widgets from the same group simultaneously — they are different visualizations of the same data.
+
+Third-party extensions can register widgets under existing groups or create new ones by implementing the optional `getDataKey()` method on their `Widget` class.
+
+---
+
 ## Variants in the TUI
 
 When a widget supports more than one display style, the line editor shows the active variant beside the widget name. Press **`v`** to cycle through the available variants.

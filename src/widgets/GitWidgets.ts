@@ -1,4 +1,5 @@
 import type { Widget, WidgetItem, RenderContext } from "./types.js";
+import { DATA_KEY } from "./data-keys.js";
 import { renderBadge, renderLabel } from "./helpers.js";
 
 abstract class BaseGitWidget implements Widget {
@@ -13,6 +14,7 @@ abstract class BaseGitWidget implements Widget {
 export class GitStatusWidget extends BaseGitWidget {
   getDisplayName() { return "Git Status"; }
   getDescription() { return "Compact summary of staged, unstaged, untracked, and conflict counts"; }
+  getDataKey() { return DATA_KEY.GIT_WORKING_TREE; }
   render(item: WidgetItem, ctx: RenderContext): string | null {
     const git = ctx.runtime.git;
     if (ctx.isPreview) return renderLabel("Git", "+2 ~1 ?3", item, ctx);
@@ -30,6 +32,7 @@ export class GitStatusWidget extends BaseGitWidget {
 export class GitChangesWidget extends BaseGitWidget {
   getDisplayName() { return "Git Changes"; }
   getDescription() { return "Total changed paths in the working tree"; }
+  getDataKey() { return DATA_KEY.GIT_WORKING_TREE; }
   render(item: WidgetItem, ctx: RenderContext): string | null {
     const count = ctx.isPreview ? 6 : ctx.runtime.git.changes;
     return count > 0 ? renderLabel("Changes", String(count), item, ctx) : null;
@@ -39,6 +42,7 @@ export class GitChangesWidget extends BaseGitWidget {
 export class GitStagedWidget extends BaseGitWidget {
   getDisplayName() { return "Git Staged"; }
   getDescription() { return "Count of staged files"; }
+  getDataKey() { return DATA_KEY.GIT_WORKING_TREE; }
   render(item: WidgetItem, ctx: RenderContext): string | null {
     const count = ctx.isPreview ? 2 : ctx.runtime.git.staged;
     return count > 0 ? renderLabel("Staged", String(count), item, ctx) : null;
@@ -48,6 +52,7 @@ export class GitStagedWidget extends BaseGitWidget {
 export class GitUnstagedWidget extends BaseGitWidget {
   getDisplayName() { return "Git Unstaged"; }
   getDescription() { return "Count of unstaged files"; }
+  getDataKey() { return DATA_KEY.GIT_WORKING_TREE; }
   render(item: WidgetItem, ctx: RenderContext): string | null {
     const count = ctx.isPreview ? 1 : ctx.runtime.git.unstaged;
     return count > 0 ? renderLabel("Unstaged", String(count), item, ctx) : null;
@@ -57,6 +62,7 @@ export class GitUnstagedWidget extends BaseGitWidget {
 export class GitUntrackedWidget extends BaseGitWidget {
   getDisplayName() { return "Git Untracked"; }
   getDescription() { return "Count of untracked files"; }
+  getDataKey() { return DATA_KEY.GIT_WORKING_TREE; }
   render(item: WidgetItem, ctx: RenderContext): string | null {
     const count = ctx.isPreview ? 3 : ctx.runtime.git.untracked;
     return count > 0 ? renderLabel("Untracked", String(count), item, ctx) : null;
@@ -80,6 +86,7 @@ export class GitAheadBehindWidget extends BaseGitWidget {
 export class GitConflictsWidget extends BaseGitWidget {
   getDisplayName() { return "Git Conflicts"; }
   getDescription() { return "Count of conflicted paths"; }
+  getDataKey() { return DATA_KEY.GIT_WORKING_TREE; }
   render(item: WidgetItem, ctx: RenderContext): string | null {
     const count = ctx.isPreview ? 1 : ctx.runtime.git.conflicts;
     return count > 0 ? renderLabel("Conflicts", String(count), item, ctx) : null;
@@ -132,6 +139,7 @@ class RemoteFieldWidget extends BaseGitWidget {
 
   getDisplayName() { return this.displayName; }
   getDescription() { return this.description; }
+  getDataKey() { return this.remote === "origin" ? DATA_KEY.GIT_REMOTE_ORIGIN : DATA_KEY.GIT_REMOTE_UPSTREAM; }
 
   render(item: WidgetItem, ctx: RenderContext): string | null {
     const remote = this.remote === "origin" ? ctx.runtime.git.origin : ctx.runtime.git.upstream;
@@ -185,6 +193,7 @@ export class GitIsForkWidget extends BaseGitWidget {
 export class GitWorktreeModeWidget extends BaseGitWidget {
   getDisplayName() { return "Git Worktree Mode"; }
   getDescription() { return "Primary, linked, or detached worktree mode"; }
+  getDataKey() { return DATA_KEY.GIT_WORKTREE; }
   render(item: WidgetItem, ctx: RenderContext): string | null {
     const value = ctx.isPreview ? "linked" : ctx.runtime.git.worktreeMode;
     return value ? renderLabel("Worktree", value, item, ctx) : null;
@@ -194,6 +203,7 @@ export class GitWorktreeModeWidget extends BaseGitWidget {
 export class GitWorktreeNameWidget extends BaseGitWidget {
   getDisplayName() { return "Git Worktree Name"; }
   getDescription() { return "Current worktree name"; }
+  getDataKey() { return DATA_KEY.GIT_WORKTREE; }
   render(item: WidgetItem, ctx: RenderContext): string | null {
     const value = ctx.isPreview ? "my-repo" : ctx.runtime.git.worktreeName;
     return value ? renderLabel("Worktree", value, item, ctx) : null;
@@ -203,6 +213,7 @@ export class GitWorktreeNameWidget extends BaseGitWidget {
 export class GitWorktreeBranchWidget extends BaseGitWidget {
   getDisplayName() { return "Git Worktree Branch"; }
   getDescription() { return "Branch associated with the current worktree"; }
+  getDataKey() { return DATA_KEY.GIT_WORKTREE; }
   render(item: WidgetItem, ctx: RenderContext): string | null {
     const value = ctx.isPreview ? "feat/widgets" : ctx.runtime.git.worktreeBranch;
     return value ? renderLabel("Worktree Branch", value, item, ctx) : null;
@@ -212,6 +223,7 @@ export class GitWorktreeBranchWidget extends BaseGitWidget {
 export class GitWorktreeOriginalBranchWidget extends BaseGitWidget {
   getDisplayName() { return "Git Worktree Original Branch"; }
   getDescription() { return "Original branch for the current worktree"; }
+  getDataKey() { return DATA_KEY.GIT_WORKTREE; }
   render(item: WidgetItem, ctx: RenderContext): string | null {
     const value = ctx.isPreview ? "main" : ctx.runtime.git.worktreeOriginalBranch;
     return value ? renderLabel("Origin Branch", value, item, ctx) : null;

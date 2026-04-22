@@ -76,6 +76,7 @@ export interface WidgetCatalogEntry {
   description: string;
   category: string;
   variants?: string[];
+  dataKey?: string;
 }
 
 export interface Widget {
@@ -86,4 +87,5 @@ export interface Widget {
   render(item: WidgetItem, context: RenderContext): string | null;
   supportsColors(): boolean;
   getVariants?(): string[];
+  getDataKey?(): string;
 }
