@@ -57272,30 +57272,35 @@ function WidgetPicker({ onSelect, onSelectGroup, onBack }) {
   const categories = (0, import_react32.useMemo)(() => [...new Set(catalog.map((e) => e.category))], [catalog]);
   const dataKeyGroups = (0, import_react32.useMemo)(() => getDataKeyGroups(catalog), [catalog]);
   const items = (0, import_react32.useMemo)(() => {
-    const addedDataKeys = /* @__PURE__ */ new Set();
+    const groupItemsByCategory = /* @__PURE__ */ new Map();
+    for (const [dataKey, groupEntries] of dataKeyGroups) {
+      const info = getDataKeyInfo(dataKey);
+      const canonicalCategory = info?.category ?? groupEntries[0]?.category ?? "Other";
+      const displayName = info?.displayName ?? dataKey;
+      const description = info?.description ?? "";
+      const item = {
+        label: `[${canonicalCategory}] ${displayName} (${groupEntries.length} widgets)${description ? ` \u2014 ${description}` : ""}`,
+        value: { kind: "group", dataKey }
+      };
+      const bucket = groupItemsByCategory.get(canonicalCategory) ?? [];
+      bucket.push(item);
+      groupItemsByCategory.set(canonicalCategory, bucket);
+    }
     const result = [];
-    for (const cat of categories) {
-      const widgets = catalog.filter((w) => w.category === cat);
+    const allCategories = [
+      ...categories,
+      ...[...groupItemsByCategory.keys()].filter((c) => !categories.includes(c))
+    ];
+    for (const cat of allCategories) {
+      for (const groupItem of groupItemsByCategory.get(cat) ?? []) {
+        result.push(groupItem);
+      }
+      const widgets = catalog.filter((w) => w.category === cat && !w.dataKey);
       for (const w of widgets) {
-        if (w.dataKey) {
-          if (!addedDataKeys.has(w.dataKey)) {
-            addedDataKeys.add(w.dataKey);
-            const info = getDataKeyInfo(w.dataKey);
-            const groupEntries = dataKeyGroups.get(w.dataKey) ?? [];
-            const displayName = info?.displayName ?? w.dataKey;
-            const description = info?.description ?? "";
-            const groupCategory = info?.category ?? cat;
-            result.push({
-              label: `[${groupCategory}] ${displayName} (${groupEntries.length} widgets)${description ? ` \u2014 ${description}` : ""}`,
-              value: { kind: "group", dataKey: w.dataKey }
-            });
-          }
-        } else {
-          result.push({
-            label: `[${cat}] ${w.displayName}${w.variants?.length ? ` (${w.variants.join("/")})` : ""} \u2014 ${w.description}`,
-            value: { kind: "widget", type: w.type }
-          });
-        }
+        result.push({
+          label: `[${cat}] ${w.displayName}${w.variants?.length ? ` (${w.variants.join("/")})` : ""} \u2014 ${w.description}`,
+          value: { kind: "widget", type: w.type }
+        });
       }
     }
     return result;

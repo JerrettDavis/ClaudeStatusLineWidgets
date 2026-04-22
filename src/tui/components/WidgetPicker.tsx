@@ -24,34 +24,46 @@ export function WidgetPicker({ onSelect, onSelectGroup, onBack }: Props) {
   const dataKeyGroups = useMemo(() => getDataKeyGroups(catalog), [catalog]);
 
   const items = useMemo(() => {
-    // Track which data keys we've already added (to avoid duplicates across categories)
-    const addedDataKeys = new Set<string>();
+    // Pre-build group entries keyed by their canonical category so each group
+    // always appears under the correct category regardless of widget order.
+    const groupItemsByCategory = new Map<string, { label: string; value: PickerValue }[]>();
+    for (const [dataKey, groupEntries] of dataKeyGroups) {
+      const info = getDataKeyInfo(dataKey);
+      // Use the canonical category from data-key metadata; fall back to the
+      // first entry's category so extension-defined groups still work.
+      const canonicalCategory = info?.category ?? groupEntries[0]?.category ?? "Other";
+      const displayName = info?.displayName ?? dataKey;
+      const description = info?.description ?? "";
+      const item = {
+        label: `[${canonicalCategory}] ${displayName} (${groupEntries.length} widgets)${description ? ` — ${description}` : ""}`,
+        value: { kind: "group" as const, dataKey },
+      };
+      const bucket = groupItemsByCategory.get(canonicalCategory) ?? [];
+      bucket.push(item);
+      groupItemsByCategory.set(canonicalCategory, bucket);
+    }
 
     const result: { label: string; value: PickerValue }[] = [];
-    for (const cat of categories) {
-      const widgets = catalog.filter((w) => w.category === cat);
+
+    // Collect all categories: ones from the catalog plus any from data-key groups
+    const allCategories = [
+      ...categories,
+      ...[...groupItemsByCategory.keys()].filter((c) => !categories.includes(c)),
+    ];
+
+    for (const cat of allCategories) {
+      // Emit group entries whose canonical category is this one
+      for (const groupItem of groupItemsByCategory.get(cat) ?? []) {
+        result.push(groupItem);
+      }
+
+      // Emit ungrouped widgets in this category
+      const widgets = catalog.filter((w) => w.category === cat && !w.dataKey);
       for (const w of widgets) {
-        if (w.dataKey) {
-          // This widget belongs to a data key group — show the group entry instead
-          if (!addedDataKeys.has(w.dataKey)) {
-            addedDataKeys.add(w.dataKey);
-            const info = getDataKeyInfo(w.dataKey);
-            const groupEntries = dataKeyGroups.get(w.dataKey) ?? [];
-            const displayName = info?.displayName ?? w.dataKey;
-            const description = info?.description ?? "";
-            const groupCategory = info?.category ?? cat;
-            result.push({
-              label: `[${groupCategory}] ${displayName} (${groupEntries.length} widgets)${description ? ` — ${description}` : ""}`,
-              value: { kind: "group", dataKey: w.dataKey },
-            });
-          }
-        } else {
-          // Ungrouped widget — show individually as before
-          result.push({
-            label: `[${cat}] ${w.displayName}${w.variants?.length ? ` (${w.variants.join("/")})` : ""} — ${w.description}`,
-            value: { kind: "widget", type: w.type },
-          });
-        }
+        result.push({
+          label: `[${cat}] ${w.displayName}${w.variants?.length ? ` (${w.variants.join("/")})` : ""} — ${w.description}`,
+          value: { kind: "widget", type: w.type },
+        });
       }
     }
     return result;
