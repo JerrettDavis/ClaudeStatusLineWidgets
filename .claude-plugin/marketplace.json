@@ -6,14 +6,14 @@
   },
   "metadata": {
     "description": "StatusLine widgets for Claude Code — cache TTL, usage rates, context, cost, and more",
-    "version": "1.4.0"
+    "version": "1.5.0"
   },
   "plugins": [
     {
       "name": "cache-ttl-statusline",
       "source": "./",
       "description": "StatusLine showing cache TTL countdown, model, cost, context usage, API rate limits, and Headroom proxy stats — with interactive TUI configurator",
-      "version": "1.4.0",
+      "version": "1.5.0",
       "author": {
         "name": "Jerrett Davis"
       },

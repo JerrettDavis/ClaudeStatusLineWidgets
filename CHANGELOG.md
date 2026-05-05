@@ -1,3 +1,15 @@
+# [1.5.0](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/compare/v1.4.0...v1.5.0) (2026-05-05)
+
+
+### Bug Fixes
+
+* **postinstall:** replace base64 blob with readable install-global.js ([18e4624](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/commit/18e4624a64fabff3772c922bb3233433f51875ed))
+
+
+### Features
+
+* add install-global.js for GitHub URL install support ([936e90b](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/commit/936e90b9f1728d10eb650cfc32dc564c39f91c11))
+
 # [1.4.0](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/compare/v1.3.1...v1.4.0) (2026-04-22)
 
 
