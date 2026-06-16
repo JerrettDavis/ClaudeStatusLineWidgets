@@ -12,11 +12,20 @@ var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require
   if (typeof require !== "undefined") return require.apply(this, arguments);
   throw Error('Dynamic require of "' + x + '" is not supported');
 });
-var __esm = (fn, res) => function __init() {
-  return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
+var __esm = (fn, res, err) => function __init() {
+  if (err) throw err[0];
+  try {
+    return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
+  } catch (e) {
+    throw err = [e], e;
+  }
 };
 var __commonJS = (cb, mod) => function __require2() {
-  return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+  try {
+    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+  } catch (e) {
+    throw mod = 0, e;
+  }
 };
 var __export = (target, all) => {
   for (var name in all)
@@ -1820,6 +1829,10 @@ var init_GitWidgets = __esm({
         this.remote = remote;
         this.field = field;
       }
+      displayName;
+      description;
+      remote;
+      field;
       getDisplayName() {
         return this.displayName;
       }
@@ -2558,18 +2571,18 @@ var init_renderer = __esm({
 var require_react_production = __commonJS({
   "node_modules/react/cjs/react.production.js"(exports) {
     "use strict";
-    var REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element");
-    var REACT_PORTAL_TYPE = Symbol.for("react.portal");
-    var REACT_FRAGMENT_TYPE = Symbol.for("react.fragment");
-    var REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode");
-    var REACT_PROFILER_TYPE = Symbol.for("react.profiler");
-    var REACT_CONSUMER_TYPE = Symbol.for("react.consumer");
-    var REACT_CONTEXT_TYPE = Symbol.for("react.context");
-    var REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref");
-    var REACT_SUSPENSE_TYPE = Symbol.for("react.suspense");
-    var REACT_MEMO_TYPE = Symbol.for("react.memo");
-    var REACT_LAZY_TYPE = Symbol.for("react.lazy");
-    var REACT_ACTIVITY_TYPE = Symbol.for("react.activity");
+    var REACT_ELEMENT_TYPE = /* @__PURE__ */ Symbol.for("react.transitional.element");
+    var REACT_PORTAL_TYPE = /* @__PURE__ */ Symbol.for("react.portal");
+    var REACT_FRAGMENT_TYPE = /* @__PURE__ */ Symbol.for("react.fragment");
+    var REACT_STRICT_MODE_TYPE = /* @__PURE__ */ Symbol.for("react.strict_mode");
+    var REACT_PROFILER_TYPE = /* @__PURE__ */ Symbol.for("react.profiler");
+    var REACT_CONSUMER_TYPE = /* @__PURE__ */ Symbol.for("react.consumer");
+    var REACT_CONTEXT_TYPE = /* @__PURE__ */ Symbol.for("react.context");
+    var REACT_FORWARD_REF_TYPE = /* @__PURE__ */ Symbol.for("react.forward_ref");
+    var REACT_SUSPENSE_TYPE = /* @__PURE__ */ Symbol.for("react.suspense");
+    var REACT_MEMO_TYPE = /* @__PURE__ */ Symbol.for("react.memo");
+    var REACT_LAZY_TYPE = /* @__PURE__ */ Symbol.for("react.lazy");
+    var REACT_ACTIVITY_TYPE = /* @__PURE__ */ Symbol.for("react.activity");
     var MAYBE_ITERATOR_SYMBOL = Symbol.iterator;
     function getIteratorFn(maybeIterable) {
       if (null === maybeIterable || "object" !== typeof maybeIterable) return null;
@@ -2861,21 +2874,21 @@ var require_react_production = __commonJS({
       }
       return ReactElement(element.type, key, props);
     };
-    exports.createContext = function(defaultValue) {
-      defaultValue = {
+    exports.createContext = function(defaultValue2) {
+      defaultValue2 = {
         $$typeof: REACT_CONTEXT_TYPE,
-        _currentValue: defaultValue,
-        _currentValue2: defaultValue,
+        _currentValue: defaultValue2,
+        _currentValue2: defaultValue2,
         _threadCount: 0,
         Provider: null,
         Consumer: null
       };
-      defaultValue.Provider = defaultValue;
-      defaultValue.Consumer = {
+      defaultValue2.Provider = defaultValue2;
+      defaultValue2.Consumer = {
         $$typeof: REACT_CONSUMER_TYPE,
-        _context: defaultValue
+        _context: defaultValue2
       };
-      return defaultValue;
+      return defaultValue2;
     };
     exports.createElement = function(type, config, children) {
       var propName, props = {}, key = null;
@@ -2991,7 +3004,7 @@ var require_react_production = __commonJS({
     exports.useTransition = function() {
       return ReactSharedInternals.H.useTransition();
     };
-    exports.version = "19.2.4";
+    exports.version = "19.2.7";
   }
 });
 
@@ -3464,7 +3477,7 @@ var require_react_development = __commonJS({
         }
       }
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-      var REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = Symbol.for("react.activity"), MAYBE_ITERATOR_SYMBOL = Symbol.iterator, didWarnStateUpdateForUnmountedComponent = {}, ReactNoopUpdateQueue = {
+      var REACT_ELEMENT_TYPE = /* @__PURE__ */ Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = /* @__PURE__ */ Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = /* @__PURE__ */ Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = /* @__PURE__ */ Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = /* @__PURE__ */ Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = /* @__PURE__ */ Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = /* @__PURE__ */ Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = /* @__PURE__ */ Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = /* @__PURE__ */ Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = /* @__PURE__ */ Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = /* @__PURE__ */ Symbol.for("react.memo"), REACT_LAZY_TYPE = /* @__PURE__ */ Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = /* @__PURE__ */ Symbol.for("react.activity"), MAYBE_ITERATOR_SYMBOL = Symbol.iterator, didWarnStateUpdateForUnmountedComponent = {}, ReactNoopUpdateQueue = {
         isMounted: function() {
           return false;
         },
@@ -3507,7 +3520,7 @@ var require_react_development = __commonJS({
       deprecatedAPIs.constructor = PureComponent2;
       assign(deprecatedAPIs, Component.prototype);
       deprecatedAPIs.isPureReactComponent = true;
-      var isArrayImpl = Array.isArray, REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), ReactSharedInternals = {
+      var isArrayImpl = Array.isArray, REACT_CLIENT_REFERENCE = /* @__PURE__ */ Symbol.for("react.client.reference"), ReactSharedInternals = {
         H: null,
         A: null,
         T: null,
@@ -3733,23 +3746,23 @@ var require_react_development = __commonJS({
           validateChildKeys(arguments[key]);
         return props;
       };
-      exports.createContext = function(defaultValue) {
-        defaultValue = {
+      exports.createContext = function(defaultValue2) {
+        defaultValue2 = {
           $$typeof: REACT_CONTEXT_TYPE,
-          _currentValue: defaultValue,
-          _currentValue2: defaultValue,
+          _currentValue: defaultValue2,
+          _currentValue2: defaultValue2,
           _threadCount: 0,
           Provider: null,
           Consumer: null
         };
-        defaultValue.Provider = defaultValue;
-        defaultValue.Consumer = {
+        defaultValue2.Provider = defaultValue2;
+        defaultValue2.Consumer = {
           $$typeof: REACT_CONSUMER_TYPE,
-          _context: defaultValue
+          _context: defaultValue2
         };
-        defaultValue._currentRenderer = null;
-        defaultValue._currentRenderer2 = null;
-        return defaultValue;
+        defaultValue2._currentRenderer = null;
+        defaultValue2._currentRenderer2 = null;
+        return defaultValue2;
       };
       exports.createElement = function(type, config, children) {
         for (var i = 2; i < arguments.length; i++)
@@ -3961,7 +3974,7 @@ var require_react_development = __commonJS({
       exports.useTransition = function() {
         return resolveDispatcher().useTransition();
       };
-      exports.version = "19.2.4";
+      exports.version = "19.2.7";
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop(Error());
     })();
   }
@@ -6372,68 +6385,82 @@ var init_get_east_asian_width = __esm({
   }
 });
 
-// node_modules/emoji-regex/index.js
-var require_emoji_regex = __commonJS({
-  "node_modules/emoji-regex/index.js"(exports, module) {
-    module.exports = () => {
-      return /[#*0-9]\uFE0F?\u20E3|[\xA9\xAE\u203C\u2049\u2122\u2139\u2194-\u2199\u21A9\u21AA\u231A\u231B\u2328\u23CF\u23ED-\u23EF\u23F1\u23F2\u23F8-\u23FA\u24C2\u25AA\u25AB\u25B6\u25C0\u25FB\u25FC\u25FE\u2600-\u2604\u260E\u2611\u2614\u2615\u2618\u2620\u2622\u2623\u2626\u262A\u262E\u262F\u2638-\u263A\u2640\u2642\u2648-\u2653\u265F\u2660\u2663\u2665\u2666\u2668\u267B\u267E\u267F\u2692\u2694-\u2697\u2699\u269B\u269C\u26A0\u26A7\u26AA\u26B0\u26B1\u26BD\u26BE\u26C4\u26C8\u26CF\u26D1\u26E9\u26F0-\u26F5\u26F7\u26F8\u26FA\u2702\u2708\u2709\u270F\u2712\u2714\u2716\u271D\u2721\u2733\u2734\u2744\u2747\u2757\u2763\u27A1\u2934\u2935\u2B05-\u2B07\u2B1B\u2B1C\u2B55\u3030\u303D\u3297\u3299]\uFE0F?|[\u261D\u270C\u270D](?:\uD83C[\uDFFB-\uDFFF]|\uFE0F)?|[\u270A\u270B](?:\uD83C[\uDFFB-\uDFFF])?|[\u23E9-\u23EC\u23F0\u23F3\u25FD\u2693\u26A1\u26AB\u26C5\u26CE\u26D4\u26EA\u26FD\u2705\u2728\u274C\u274E\u2753-\u2755\u2795-\u2797\u27B0\u27BF\u2B50]|\u26D3\uFE0F?(?:\u200D\uD83D\uDCA5)?|\u26F9(?:\uD83C[\uDFFB-\uDFFF]|\uFE0F)?(?:\u200D[\u2640\u2642]\uFE0F?)?|\u2764\uFE0F?(?:\u200D(?:\uD83D\uDD25|\uD83E\uDE79))?|\uD83C(?:[\uDC04\uDD70\uDD71\uDD7E\uDD7F\uDE02\uDE37\uDF21\uDF24-\uDF2C\uDF36\uDF7D\uDF96\uDF97\uDF99-\uDF9B\uDF9E\uDF9F\uDFCD\uDFCE\uDFD4-\uDFDF\uDFF5\uDFF7]\uFE0F?|[\uDF85\uDFC2\uDFC7](?:\uD83C[\uDFFB-\uDFFF])?|[\uDFC4\uDFCA](?:\uD83C[\uDFFB-\uDFFF])?(?:\u200D[\u2640\u2642]\uFE0F?)?|[\uDFCB\uDFCC](?:\uD83C[\uDFFB-\uDFFF]|\uFE0F)?(?:\u200D[\u2640\u2642]\uFE0F?)?|[\uDCCF\uDD8E\uDD91-\uDD9A\uDE01\uDE1A\uDE2F\uDE32-\uDE36\uDE38-\uDE3A\uDE50\uDE51\uDF00-\uDF20\uDF2D-\uDF35\uDF37-\uDF43\uDF45-\uDF4A\uDF4C-\uDF7C\uDF7E-\uDF84\uDF86-\uDF93\uDFA0-\uDFC1\uDFC5\uDFC6\uDFC8\uDFC9\uDFCF-\uDFD3\uDFE0-\uDFF0\uDFF8-\uDFFF]|\uDDE6\uD83C[\uDDE8-\uDDEC\uDDEE\uDDF1\uDDF2\uDDF4\uDDF6-\uDDFA\uDDFC\uDDFD\uDDFF]|\uDDE7\uD83C[\uDDE6\uDDE7\uDDE9-\uDDEF\uDDF1-\uDDF4\uDDF6-\uDDF9\uDDFB\uDDFC\uDDFE\uDDFF]|\uDDE8\uD83C[\uDDE6\uDDE8\uDDE9\uDDEB-\uDDEE\uDDF0-\uDDF7\uDDFA-\uDDFF]|\uDDE9\uD83C[\uDDEA\uDDEC\uDDEF\uDDF0\uDDF2\uDDF4\uDDFF]|\uDDEA\uD83C[\uDDE6\uDDE8\uDDEA\uDDEC\uDDED\uDDF7-\uDDFA]|\uDDEB\uD83C[\uDDEE-\uDDF0\uDDF2\uDDF4\uDDF7]|\uDDEC\uD83C[\uDDE6\uDDE7\uDDE9-\uDDEE\uDDF1-\uDDF3\uDDF5-\uDDFA\uDDFC\uDDFE]|\uDDED\uD83C[\uDDF0\uDDF2\uDDF3\uDDF7\uDDF9\uDDFA]|\uDDEE\uD83C[\uDDE8-\uDDEA\uDDF1-\uDDF4\uDDF6-\uDDF9]|\uDDEF\uD83C[\uDDEA\uDDF2\uDDF4\uDDF5]|\uDDF0\uD83C[\uDDEA\uDDEC-\uDDEE\uDDF2\uDDF3\uDDF5\uDDF7\uDDFC\uDDFE\uDDFF]|\uDDF1\uD83C[\uDDE6-\uDDE8\uDDEE\uDDF0\uDDF7-\uDDFB\uDDFE]|\uDDF2\uD83C[\uDDE6\uDDE8-\uDDED\uDDF0-\uDDFF]|\uDDF3\uD83C[\uDDE6\uDDE8\uDDEA-\uDDEC\uDDEE\uDDF1\uDDF4\uDDF5\uDDF7\uDDFA\uDDFF]|\uDDF4\uD83C\uDDF2|\uDDF5\uD83C[\uDDE6\uDDEA-\uDDED\uDDF0-\uDDF3\uDDF7-\uDDF9\uDDFC\uDDFE]|\uDDF6\uD83C\uDDE6|\uDDF7\uD83C[\uDDEA\uDDF4\uDDF8\uDDFA\uDDFC]|\uDDF8\uD83C[\uDDE6-\uDDEA\uDDEC-\uDDF4\uDDF7-\uDDF9\uDDFB\uDDFD-\uDDFF]|\uDDF9\uD83C[\uDDE6\uDDE8\uDDE9\uDDEB-\uDDED\uDDEF-\uDDF4\uDDF7\uDDF9\uDDFB\uDDFC\uDDFF]|\uDDFA\uD83C[\uDDE6\uDDEC\uDDF2\uDDF3\uDDF8\uDDFE\uDDFF]|\uDDFB\uD83C[\uDDE6\uDDE8\uDDEA\uDDEC\uDDEE\uDDF3\uDDFA]|\uDDFC\uD83C[\uDDEB\uDDF8]|\uDDFD\uD83C\uDDF0|\uDDFE\uD83C[\uDDEA\uDDF9]|\uDDFF\uD83C[\uDDE6\uDDF2\uDDFC]|\uDF44(?:\u200D\uD83D\uDFEB)?|\uDF4B(?:\u200D\uD83D\uDFE9)?|\uDFC3(?:\uD83C[\uDFFB-\uDFFF])?(?:\u200D(?:[\u2640\u2642]\uFE0F?(?:\u200D\u27A1\uFE0F?)?|\u27A1\uFE0F?))?|\uDFF3\uFE0F?(?:\u200D(?:\u26A7\uFE0F?|\uD83C\uDF08))?|\uDFF4(?:\u200D\u2620\uFE0F?|\uDB40\uDC67\uDB40\uDC62\uDB40(?:\uDC65\uDB40\uDC6E\uDB40\uDC67|\uDC73\uDB40\uDC63\uDB40\uDC74|\uDC77\uDB40\uDC6C\uDB40\uDC73)\uDB40\uDC7F)?)|\uD83D(?:[\uDC3F\uDCFD\uDD49\uDD4A\uDD6F\uDD70\uDD73\uDD76-\uDD79\uDD87\uDD8A-\uDD8D\uDDA5\uDDA8\uDDB1\uDDB2\uDDBC\uDDC2-\uDDC4\uDDD1-\uDDD3\uDDDC-\uDDDE\uDDE1\uDDE3\uDDE8\uDDEF\uDDF3\uDDFA\uDECB\uDECD-\uDECF\uDEE0-\uDEE5\uDEE9\uDEF0\uDEF3]\uFE0F?|[\uDC42\uDC43\uDC46-\uDC50\uDC66\uDC67\uDC6B-\uDC6D\uDC72\uDC74-\uDC76\uDC78\uDC7C\uDC83\uDC85\uDC8F\uDC91\uDCAA\uDD7A\uDD95\uDD96\uDE4C\uDE4F\uDEC0\uDECC](?:\uD83C[\uDFFB-\uDFFF])?|[\uDC6E-\uDC71\uDC73\uDC77\uDC81\uDC82\uDC86\uDC87\uDE45-\uDE47\uDE4B\uDE4D\uDE4E\uDEA3\uDEB4\uDEB5](?:\uD83C[\uDFFB-\uDFFF])?(?:\u200D[\u2640\u2642]\uFE0F?)?|[\uDD74\uDD90](?:\uD83C[\uDFFB-\uDFFF]|\uFE0F)?|[\uDC00-\uDC07\uDC09-\uDC14\uDC16-\uDC25\uDC27-\uDC3A\uDC3C-\uDC3E\uDC40\uDC44\uDC45\uDC51-\uDC65\uDC6A\uDC79-\uDC7B\uDC7D-\uDC80\uDC84\uDC88-\uDC8E\uDC90\uDC92-\uDCA9\uDCAB-\uDCFC\uDCFF-\uDD3D\uDD4B-\uDD4E\uDD50-\uDD67\uDDA4\uDDFB-\uDE2D\uDE2F-\uDE34\uDE37-\uDE41\uDE43\uDE44\uDE48-\uDE4A\uDE80-\uDEA2\uDEA4-\uDEB3\uDEB7-\uDEBF\uDEC1-\uDEC5\uDED0-\uDED2\uDED5-\uDED8\uDEDC-\uDEDF\uDEEB\uDEEC\uDEF4-\uDEFC\uDFE0-\uDFEB\uDFF0]|\uDC08(?:\u200D\u2B1B)?|\uDC15(?:\u200D\uD83E\uDDBA)?|\uDC26(?:\u200D(?:\u2B1B|\uD83D\uDD25))?|\uDC3B(?:\u200D\u2744\uFE0F?)?|\uDC41\uFE0F?(?:\u200D\uD83D\uDDE8\uFE0F?)?|\uDC68(?:\u200D(?:[\u2695\u2696\u2708]\uFE0F?|\u2764\uFE0F?\u200D\uD83D(?:\uDC8B\u200D\uD83D)?\uDC68|\uD83C[\uDF3E\uDF73\uDF7C\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D(?:[\uDC68\uDC69]\u200D\uD83D(?:\uDC66(?:\u200D\uD83D\uDC66)?|\uDC67(?:\u200D\uD83D[\uDC66\uDC67])?)|[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uDC66(?:\u200D\uD83D\uDC66)?|\uDC67(?:\u200D\uD83D[\uDC66\uDC67])?)|\uD83E(?:[\uDDAF\uDDBC\uDDBD](?:\u200D\u27A1\uFE0F?)?|[\uDDB0-\uDDB3]))|\uD83C(?:\uDFFB(?:\u200D(?:[\u2695\u2696\u2708]\uFE0F?|\u2764\uFE0F?\u200D\uD83D(?:\uDC8B\u200D\uD83D)?\uDC68\uD83C[\uDFFB-\uDFFF]|\uD83C[\uDF3E\uDF73\uDF7C\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D(?:[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uDC30\u200D\uD83D\uDC68\uD83C[\uDFFC-\uDFFF])|\uD83E(?:[\uDD1D\uDEEF]\u200D\uD83D\uDC68\uD83C[\uDFFC-\uDFFF]|[\uDDAF\uDDBC\uDDBD](?:\u200D\u27A1\uFE0F?)?|[\uDDB0-\uDDB3])))?|\uDFFC(?:\u200D(?:[\u2695\u2696\u2708]\uFE0F?|\u2764\uFE0F?\u200D\uD83D(?:\uDC8B\u200D\uD83D)?\uDC68\uD83C[\uDFFB-\uDFFF]|\uD83C[\uDF3E\uDF73\uDF7C\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D(?:[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uDC30\u200D\uD83D\uDC68\uD83C[\uDFFB\uDFFD-\uDFFF])|\uD83E(?:[\uDD1D\uDEEF]\u200D\uD83D\uDC68\uD83C[\uDFFB\uDFFD-\uDFFF]|[\uDDAF\uDDBC\uDDBD](?:\u200D\u27A1\uFE0F?)?|[\uDDB0-\uDDB3])))?|\uDFFD(?:\u200D(?:[\u2695\u2696\u2708]\uFE0F?|\u2764\uFE0F?\u200D\uD83D(?:\uDC8B\u200D\uD83D)?\uDC68\uD83C[\uDFFB-\uDFFF]|\uD83C[\uDF3E\uDF73\uDF7C\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D(?:[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uDC30\u200D\uD83D\uDC68\uD83C[\uDFFB\uDFFC\uDFFE\uDFFF])|\uD83E(?:[\uDD1D\uDEEF]\u200D\uD83D\uDC68\uD83C[\uDFFB\uDFFC\uDFFE\uDFFF]|[\uDDAF\uDDBC\uDDBD](?:\u200D\u27A1\uFE0F?)?|[\uDDB0-\uDDB3])))?|\uDFFE(?:\u200D(?:[\u2695\u2696\u2708]\uFE0F?|\u2764\uFE0F?\u200D\uD83D(?:\uDC8B\u200D\uD83D)?\uDC68\uD83C[\uDFFB-\uDFFF]|\uD83C[\uDF3E\uDF73\uDF7C\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D(?:[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uDC30\u200D\uD83D\uDC68\uD83C[\uDFFB-\uDFFD\uDFFF])|\uD83E(?:[\uDD1D\uDEEF]\u200D\uD83D\uDC68\uD83C[\uDFFB-\uDFFD\uDFFF]|[\uDDAF\uDDBC\uDDBD](?:\u200D\u27A1\uFE0F?)?|[\uDDB0-\uDDB3])))?|\uDFFF(?:\u200D(?:[\u2695\u2696\u2708]\uFE0F?|\u2764\uFE0F?\u200D\uD83D(?:\uDC8B\u200D\uD83D)?\uDC68\uD83C[\uDFFB-\uDFFF]|\uD83C[\uDF3E\uDF73\uDF7C\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D(?:[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uDC30\u200D\uD83D\uDC68\uD83C[\uDFFB-\uDFFE])|\uD83E(?:[\uDD1D\uDEEF]\u200D\uD83D\uDC68\uD83C[\uDFFB-\uDFFE]|[\uDDAF\uDDBC\uDDBD](?:\u200D\u27A1\uFE0F?)?|[\uDDB0-\uDDB3])))?))?|\uDC69(?:\u200D(?:[\u2695\u2696\u2708]\uFE0F?|\u2764\uFE0F?\u200D\uD83D(?:\uDC8B\u200D\uD83D)?[\uDC68\uDC69]|\uD83C[\uDF3E\uDF73\uDF7C\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D(?:[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uDC66(?:\u200D\uD83D\uDC66)?|\uDC67(?:\u200D\uD83D[\uDC66\uDC67])?|\uDC69\u200D\uD83D(?:\uDC66(?:\u200D\uD83D\uDC66)?|\uDC67(?:\u200D\uD83D[\uDC66\uDC67])?))|\uD83E(?:[\uDDAF\uDDBC\uDDBD](?:\u200D\u27A1\uFE0F?)?|[\uDDB0-\uDDB3]))|\uD83C(?:\uDFFB(?:\u200D(?:[\u2695\u2696\u2708]\uFE0F?|\u2764\uFE0F?\u200D\uD83D(?:[\uDC68\uDC69]|\uDC8B\u200D\uD83D[\uDC68\uDC69])\uD83C[\uDFFB-\uDFFF]|\uD83C[\uDF3E\uDF73\uDF7C\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D(?:[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uDC30\u200D\uD83D\uDC69\uD83C[\uDFFC-\uDFFF])|\uD83E(?:[\uDDAF\uDDBC\uDDBD](?:\u200D\u27A1\uFE0F?)?|[\uDDB0-\uDDB3]|\uDD1D\u200D\uD83D[\uDC68\uDC69]\uD83C[\uDFFC-\uDFFF]|\uDEEF\u200D\uD83D\uDC69\uD83C[\uDFFC-\uDFFF])))?|\uDFFC(?:\u200D(?:[\u2695\u2696\u2708]\uFE0F?|\u2764\uFE0F?\u200D\uD83D(?:[\uDC68\uDC69]|\uDC8B\u200D\uD83D[\uDC68\uDC69])\uD83C[\uDFFB-\uDFFF]|\uD83C[\uDF3E\uDF73\uDF7C\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D(?:[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uDC30\u200D\uD83D\uDC69\uD83C[\uDFFB\uDFFD-\uDFFF])|\uD83E(?:[\uDDAF\uDDBC\uDDBD](?:\u200D\u27A1\uFE0F?)?|[\uDDB0-\uDDB3]|\uDD1D\u200D\uD83D[\uDC68\uDC69]\uD83C[\uDFFB\uDFFD-\uDFFF]|\uDEEF\u200D\uD83D\uDC69\uD83C[\uDFFB\uDFFD-\uDFFF])))?|\uDFFD(?:\u200D(?:[\u2695\u2696\u2708]\uFE0F?|\u2764\uFE0F?\u200D\uD83D(?:[\uDC68\uDC69]|\uDC8B\u200D\uD83D[\uDC68\uDC69])\uD83C[\uDFFB-\uDFFF]|\uD83C[\uDF3E\uDF73\uDF7C\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D(?:[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uDC30\u200D\uD83D\uDC69\uD83C[\uDFFB\uDFFC\uDFFE\uDFFF])|\uD83E(?:[\uDDAF\uDDBC\uDDBD](?:\u200D\u27A1\uFE0F?)?|[\uDDB0-\uDDB3]|\uDD1D\u200D\uD83D[\uDC68\uDC69]\uD83C[\uDFFB\uDFFC\uDFFE\uDFFF]|\uDEEF\u200D\uD83D\uDC69\uD83C[\uDFFB\uDFFC\uDFFE\uDFFF])))?|\uDFFE(?:\u200D(?:[\u2695\u2696\u2708]\uFE0F?|\u2764\uFE0F?\u200D\uD83D(?:[\uDC68\uDC69]|\uDC8B\u200D\uD83D[\uDC68\uDC69])\uD83C[\uDFFB-\uDFFF]|\uD83C[\uDF3E\uDF73\uDF7C\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D(?:[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uDC30\u200D\uD83D\uDC69\uD83C[\uDFFB-\uDFFD\uDFFF])|\uD83E(?:[\uDDAF\uDDBC\uDDBD](?:\u200D\u27A1\uFE0F?)?|[\uDDB0-\uDDB3]|\uDD1D\u200D\uD83D[\uDC68\uDC69]\uD83C[\uDFFB-\uDFFD\uDFFF]|\uDEEF\u200D\uD83D\uDC69\uD83C[\uDFFB-\uDFFD\uDFFF])))?|\uDFFF(?:\u200D(?:[\u2695\u2696\u2708]\uFE0F?|\u2764\uFE0F?\u200D\uD83D(?:[\uDC68\uDC69]|\uDC8B\u200D\uD83D[\uDC68\uDC69])\uD83C[\uDFFB-\uDFFF]|\uD83C[\uDF3E\uDF73\uDF7C\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D(?:[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uDC30\u200D\uD83D\uDC69\uD83C[\uDFFB-\uDFFE])|\uD83E(?:[\uDDAF\uDDBC\uDDBD](?:\u200D\u27A1\uFE0F?)?|[\uDDB0-\uDDB3]|\uDD1D\u200D\uD83D[\uDC68\uDC69]\uD83C[\uDFFB-\uDFFE]|\uDEEF\u200D\uD83D\uDC69\uD83C[\uDFFB-\uDFFE])))?))?|\uDD75(?:\uD83C[\uDFFB-\uDFFF]|\uFE0F)?(?:\u200D[\u2640\u2642]\uFE0F?)?|\uDE2E(?:\u200D\uD83D\uDCA8)?|\uDE35(?:\u200D\uD83D\uDCAB)?|\uDE36(?:\u200D\uD83C\uDF2B\uFE0F?)?|\uDE42(?:\u200D[\u2194\u2195]\uFE0F?)?|\uDEB6(?:\uD83C[\uDFFB-\uDFFF])?(?:\u200D(?:[\u2640\u2642]\uFE0F?(?:\u200D\u27A1\uFE0F?)?|\u27A1\uFE0F?))?)|\uD83E(?:[\uDD0C\uDD0F\uDD18-\uDD1F\uDD30-\uDD34\uDD36\uDD77\uDDB5\uDDB6\uDDBB\uDDD2\uDDD3\uDDD5\uDEC3-\uDEC5\uDEF0\uDEF2-\uDEF8](?:\uD83C[\uDFFB-\uDFFF])?|[\uDD26\uDD35\uDD37-\uDD39\uDD3C-\uDD3E\uDDB8\uDDB9\uDDCD\uDDCF\uDDD4\uDDD6-\uDDDD](?:\uD83C[\uDFFB-\uDFFF])?(?:\u200D[\u2640\u2642]\uFE0F?)?|[\uDDDE\uDDDF](?:\u200D[\u2640\u2642]\uFE0F?)?|[\uDD0D\uDD0E\uDD10-\uDD17\uDD20-\uDD25\uDD27-\uDD2F\uDD3A\uDD3F-\uDD45\uDD47-\uDD76\uDD78-\uDDB4\uDDB7\uDDBA\uDDBC-\uDDCC\uDDD0\uDDE0-\uDDFF\uDE70-\uDE7C\uDE80-\uDE8A\uDE8E-\uDEC2\uDEC6\uDEC8\uDECD-\uDEDC\uDEDF-\uDEEA\uDEEF]|\uDDCE(?:\uD83C[\uDFFB-\uDFFF])?(?:\u200D(?:[\u2640\u2642]\uFE0F?(?:\u200D\u27A1\uFE0F?)?|\u27A1\uFE0F?))?|\uDDD1(?:\u200D(?:[\u2695\u2696\u2708]\uFE0F?|\uD83C[\uDF3E\uDF73\uDF7C\uDF84\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E(?:[\uDDAF\uDDBC\uDDBD](?:\u200D\u27A1\uFE0F?)?|[\uDDB0-\uDDB3\uDE70]|\uDD1D\u200D\uD83E\uDDD1|\uDDD1\u200D\uD83E\uDDD2(?:\u200D\uD83E\uDDD2)?|\uDDD2(?:\u200D\uD83E\uDDD2)?))|\uD83C(?:\uDFFB(?:\u200D(?:[\u2695\u2696\u2708]\uFE0F?|\u2764\uFE0F?\u200D(?:\uD83D\uDC8B\u200D)?\uD83E\uDDD1\uD83C[\uDFFC-\uDFFF]|\uD83C[\uDF3E\uDF73\uDF7C\uDF84\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D(?:[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uDC30\u200D\uD83E\uDDD1\uD83C[\uDFFC-\uDFFF])|\uD83E(?:[\uDDAF\uDDBC\uDDBD](?:\u200D\u27A1\uFE0F?)?|[\uDDB0-\uDDB3\uDE70]|\uDD1D\u200D\uD83E\uDDD1\uD83C[\uDFFB-\uDFFF]|\uDEEF\u200D\uD83E\uDDD1\uD83C[\uDFFC-\uDFFF])))?|\uDFFC(?:\u200D(?:[\u2695\u2696\u2708]\uFE0F?|\u2764\uFE0F?\u200D(?:\uD83D\uDC8B\u200D)?\uD83E\uDDD1\uD83C[\uDFFB\uDFFD-\uDFFF]|\uD83C[\uDF3E\uDF73\uDF7C\uDF84\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D(?:[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uDC30\u200D\uD83E\uDDD1\uD83C[\uDFFB\uDFFD-\uDFFF])|\uD83E(?:[\uDDAF\uDDBC\uDDBD](?:\u200D\u27A1\uFE0F?)?|[\uDDB0-\uDDB3\uDE70]|\uDD1D\u200D\uD83E\uDDD1\uD83C[\uDFFB-\uDFFF]|\uDEEF\u200D\uD83E\uDDD1\uD83C[\uDFFB\uDFFD-\uDFFF])))?|\uDFFD(?:\u200D(?:[\u2695\u2696\u2708]\uFE0F?|\u2764\uFE0F?\u200D(?:\uD83D\uDC8B\u200D)?\uD83E\uDDD1\uD83C[\uDFFB\uDFFC\uDFFE\uDFFF]|\uD83C[\uDF3E\uDF73\uDF7C\uDF84\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D(?:[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uDC30\u200D\uD83E\uDDD1\uD83C[\uDFFB\uDFFC\uDFFE\uDFFF])|\uD83E(?:[\uDDAF\uDDBC\uDDBD](?:\u200D\u27A1\uFE0F?)?|[\uDDB0-\uDDB3\uDE70]|\uDD1D\u200D\uD83E\uDDD1\uD83C[\uDFFB-\uDFFF]|\uDEEF\u200D\uD83E\uDDD1\uD83C[\uDFFB\uDFFC\uDFFE\uDFFF])))?|\uDFFE(?:\u200D(?:[\u2695\u2696\u2708]\uFE0F?|\u2764\uFE0F?\u200D(?:\uD83D\uDC8B\u200D)?\uD83E\uDDD1\uD83C[\uDFFB-\uDFFD\uDFFF]|\uD83C[\uDF3E\uDF73\uDF7C\uDF84\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D(?:[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uDC30\u200D\uD83E\uDDD1\uD83C[\uDFFB-\uDFFD\uDFFF])|\uD83E(?:[\uDDAF\uDDBC\uDDBD](?:\u200D\u27A1\uFE0F?)?|[\uDDB0-\uDDB3\uDE70]|\uDD1D\u200D\uD83E\uDDD1\uD83C[\uDFFB-\uDFFF]|\uDEEF\u200D\uD83E\uDDD1\uD83C[\uDFFB-\uDFFD\uDFFF])))?|\uDFFF(?:\u200D(?:[\u2695\u2696\u2708]\uFE0F?|\u2764\uFE0F?\u200D(?:\uD83D\uDC8B\u200D)?\uD83E\uDDD1\uD83C[\uDFFB-\uDFFE]|\uD83C[\uDF3E\uDF73\uDF7C\uDF84\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D(?:[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uDC30\u200D\uD83E\uDDD1\uD83C[\uDFFB-\uDFFE])|\uD83E(?:[\uDDAF\uDDBC\uDDBD](?:\u200D\u27A1\uFE0F?)?|[\uDDB0-\uDDB3\uDE70]|\uDD1D\u200D\uD83E\uDDD1\uD83C[\uDFFB-\uDFFF]|\uDEEF\u200D\uD83E\uDDD1\uD83C[\uDFFB-\uDFFE])))?))?|\uDEF1(?:\uD83C(?:\uDFFB(?:\u200D\uD83E\uDEF2\uD83C[\uDFFC-\uDFFF])?|\uDFFC(?:\u200D\uD83E\uDEF2\uD83C[\uDFFB\uDFFD-\uDFFF])?|\uDFFD(?:\u200D\uD83E\uDEF2\uD83C[\uDFFB\uDFFC\uDFFE\uDFFF])?|\uDFFE(?:\u200D\uD83E\uDEF2\uD83C[\uDFFB-\uDFFD\uDFFF])?|\uDFFF(?:\u200D\uD83E\uDEF2\uD83C[\uDFFB-\uDFFE])?))?)/g;
-    };
+// node_modules/string-width/index.js
+function isDoubleWidthNonRgiEmojiSequence(segment) {
+  if (segment.length > 50) {
+    return false;
   }
-});
-
-// node_modules/wrap-ansi/node_modules/string-width/index.js
-function stringWidth(string, options = {}) {
-  if (typeof string !== "string" || string.length === 0) {
+  if (unqualifiedKeycapRegex.test(segment)) {
+    return true;
+  }
+  if (segment.includes("\u200D")) {
+    const pictographics = segment.match(extendedPictographicRegex);
+    return pictographics !== null && pictographics.length >= 2;
+  }
+  return false;
+}
+function baseVisible(segment) {
+  return segment.replace(leadingNonPrintingRegex, "");
+}
+function isZeroWidthCluster(segment) {
+  return zeroWidthClusterRegex.test(segment);
+}
+function trailingHalfwidthWidth(segment, eastAsianWidthOptions) {
+  let extra = 0;
+  if (segment.length > 1) {
+    for (const char of segment.slice(1)) {
+      if (char >= "\uFF00" && char <= "\uFFEF") {
+        extra += eastAsianWidth(char.codePointAt(0), eastAsianWidthOptions);
+      }
+    }
+  }
+  return extra;
+}
+function stringWidth(input, options = {}) {
+  if (typeof input !== "string" || input.length === 0) {
     return 0;
   }
   const {
     ambiguousIsNarrow = true,
     countAnsiEscapeCodes = false
   } = options;
-  if (!countAnsiEscapeCodes) {
+  let string = input;
+  if (!countAnsiEscapeCodes && (string.includes("\x1B") || string.includes("\x9B"))) {
     string = stripAnsi(string);
   }
   if (string.length === 0) {
     return 0;
   }
+  if (/^[\u0020-\u007E]*$/.test(string)) {
+    return string.length;
+  }
   let width = 0;
   const eastAsianWidthOptions = { ambiguousAsWide: !ambiguousIsNarrow };
-  for (const { segment: character } of segmenter.segment(string)) {
-    const codePoint = character.codePointAt(0);
-    if (codePoint <= 31 || codePoint >= 127 && codePoint <= 159) {
+  for (const { segment } of segmenter.segment(string)) {
+    if (isZeroWidthCluster(segment)) {
       continue;
     }
-    if (codePoint >= 8203 && codePoint <= 8207 || codePoint === 65279) {
-      continue;
-    }
-    if (codePoint >= 768 && codePoint <= 879 || codePoint >= 6832 && codePoint <= 6911 || codePoint >= 7616 && codePoint <= 7679 || codePoint >= 8400 && codePoint <= 8447 || codePoint >= 65056 && codePoint <= 65071) {
-      continue;
-    }
-    if (codePoint >= 55296 && codePoint <= 57343) {
-      continue;
-    }
-    if (codePoint >= 65024 && codePoint <= 65039) {
-      continue;
-    }
-    if (defaultIgnorableCodePointRegex.test(character)) {
-      continue;
-    }
-    if ((0, import_emoji_regex.default)().test(character)) {
+    if (rgiEmojiRegex.test(segment) || isDoubleWidthNonRgiEmojiSequence(segment)) {
       width += 2;
       continue;
     }
+    const codePoint = baseVisible(segment).codePointAt(0);
     width += eastAsianWidth(codePoint, eastAsianWidthOptions);
+    width += trailingHalfwidthWidth(segment, eastAsianWidthOptions);
   }
   return width;
 }
-var import_emoji_regex, segmenter, defaultIgnorableCodePointRegex;
+var segmenter, zeroWidthClusterRegex, leadingNonPrintingRegex, rgiEmojiRegex, unqualifiedKeycapRegex, extendedPictographicRegex;
 var init_string_width = __esm({
-  "node_modules/wrap-ansi/node_modules/string-width/index.js"() {
+  "node_modules/string-width/index.js"() {
     init_strip_ansi();
     init_get_east_asian_width();
-    import_emoji_regex = __toESM(require_emoji_regex(), 1);
     segmenter = new Intl.Segmenter();
-    defaultIgnorableCodePointRegex = new RegExp("^\\p{Default_Ignorable_Code_Point}$", "u");
+    zeroWidthClusterRegex = new RegExp("^(?:\\p{Default_Ignorable_Code_Point}|\\p{Control}|\\p{Format}|\\p{Mark}|\\p{Surrogate})+$", "v");
+    leadingNonPrintingRegex = new RegExp("^[\\p{Default_Ignorable_Code_Point}\\p{Control}\\p{Format}\\p{Mark}\\p{Surrogate}]+", "v");
+    rgiEmojiRegex = new RegExp("^\\p{RGI_Emoji}$", "v");
+    unqualifiedKeycapRegex = /^[\d#*]\u20E3$/;
+    extendedPictographicRegex = new RegExp("\\p{Extended_Pictographic}", "gu");
   }
 });
 
@@ -6628,31 +6655,202 @@ var init_ansi_styles = __esm({
   }
 });
 
-// node_modules/wrap-ansi/index.js
+// node_modules/ink/node_modules/wrap-ansi/index.js
 function wrapAnsi(string, columns, options) {
-  return String(string).normalize().replaceAll("\r\n", "\n").split("\n").map((line) => exec(line, columns, options)).join("\n");
+  return String(string).normalize().replaceAll("\r\n", "\n").split("\n").map((line) => exec(expandTabs(line), columns, options)).join("\n");
 }
-var ESCAPES, END_CODE, ANSI_ESCAPE_BELL, ANSI_CSI, ANSI_OSC, ANSI_SGR_TERMINATOR, ANSI_ESCAPE_LINK, wrapAnsiCode, wrapAnsiHyperlink, wordLengths, wrapWord, stringVisibleTrimSpacesRight, exec;
+var ANSI_ESCAPE, ANSI_ESCAPE_CSI, ESCAPES, ANSI_ESCAPE_BELL, ANSI_CSI, ANSI_OSC, ANSI_SGR_TERMINATOR, ANSI_SGR_RESET, ANSI_SGR_RESET_FOREGROUND, ANSI_SGR_RESET_BACKGROUND, ANSI_SGR_RESET_UNDERLINE_COLOR, ANSI_SGR_FOREGROUND_EXTENDED, ANSI_SGR_BACKGROUND_EXTENDED, ANSI_SGR_UNDERLINE_COLOR_EXTENDED, ANSI_SGR_COLOR_MODE_256, ANSI_SGR_COLOR_MODE_RGB, ANSI_ESCAPE_LINK, ANSI_ESCAPE_REGEX, ANSI_ESCAPE_CSI_REGEX, ANSI_SGR_MODIFIER_CLOSE_CODES, segmenter2, getGraphemes, TAB_SIZE, wrapAnsiCode, wrapAnsiHyperlink, getSgrTokens, removeActiveStyle, upsertActiveStyle, removeModifierStylesByClose, getColorStyle, applySgrResetCode, applySgrToken, applySgrParameters, applySgrResets, applyLeadingSgrResets, getClosingSgrSequence, getOpeningSgrSequence, wordLengths, wrapWord, stringVisibleTrimSpacesRight, expandTabs, exec;
 var init_wrap_ansi = __esm({
-  "node_modules/wrap-ansi/index.js"() {
+  "node_modules/ink/node_modules/wrap-ansi/index.js"() {
     init_string_width();
     init_strip_ansi();
     init_ansi_styles();
+    ANSI_ESCAPE = "\x1B";
+    ANSI_ESCAPE_CSI = "\x9B";
     ESCAPES = /* @__PURE__ */ new Set([
-      "\x1B",
-      "\x9B"
+      ANSI_ESCAPE,
+      ANSI_ESCAPE_CSI
     ]);
-    END_CODE = 39;
     ANSI_ESCAPE_BELL = "\x07";
     ANSI_CSI = "[";
     ANSI_OSC = "]";
     ANSI_SGR_TERMINATOR = "m";
+    ANSI_SGR_RESET = 0;
+    ANSI_SGR_RESET_FOREGROUND = 39;
+    ANSI_SGR_RESET_BACKGROUND = 49;
+    ANSI_SGR_RESET_UNDERLINE_COLOR = 59;
+    ANSI_SGR_FOREGROUND_EXTENDED = 38;
+    ANSI_SGR_BACKGROUND_EXTENDED = 48;
+    ANSI_SGR_UNDERLINE_COLOR_EXTENDED = 58;
+    ANSI_SGR_COLOR_MODE_256 = 5;
+    ANSI_SGR_COLOR_MODE_RGB = 2;
     ANSI_ESCAPE_LINK = `${ANSI_OSC}8;;`;
-    wrapAnsiCode = (code) => `${ESCAPES.values().next().value}${ANSI_CSI}${code}${ANSI_SGR_TERMINATOR}`;
-    wrapAnsiHyperlink = (url) => `${ESCAPES.values().next().value}${ANSI_ESCAPE_LINK}${url}${ANSI_ESCAPE_BELL}`;
-    wordLengths = (string) => string.split(" ").map((character) => stringWidth(character));
+    ANSI_ESCAPE_REGEX = new RegExp(`^\\u001B(?:\\${ANSI_CSI}(?<sgr>[0-9;]*)${ANSI_SGR_TERMINATOR}|${ANSI_ESCAPE_LINK}(?<uri>[^\\u0007\\u001B]*)(?:\\u0007|\\u001B\\\\))`);
+    ANSI_ESCAPE_CSI_REGEX = new RegExp(`^\\u009B(?<sgr>[0-9;]*)${ANSI_SGR_TERMINATOR}`);
+    ANSI_SGR_MODIFIER_CLOSE_CODES = new Set(ansi_styles_default.codes.values());
+    ANSI_SGR_MODIFIER_CLOSE_CODES.delete(ANSI_SGR_RESET);
+    segmenter2 = new Intl.Segmenter();
+    getGraphemes = (string) => Array.from(segmenter2.segment(string), ({ segment }) => segment);
+    TAB_SIZE = 8;
+    wrapAnsiCode = (code) => `${ANSI_ESCAPE}${ANSI_CSI}${code}${ANSI_SGR_TERMINATOR}`;
+    wrapAnsiHyperlink = (url) => `${ANSI_ESCAPE}${ANSI_ESCAPE_LINK}${url}${ANSI_ESCAPE_BELL}`;
+    getSgrTokens = (sgrParameters) => {
+      const codes = sgrParameters.split(";").map((sgrParameter) => sgrParameter === "" ? ANSI_SGR_RESET : Number.parseInt(sgrParameter, 10));
+      const sgrTokens = [];
+      for (let index = 0; index < codes.length; index++) {
+        const code = codes[index];
+        if (!Number.isFinite(code)) {
+          continue;
+        }
+        if (code === ANSI_SGR_FOREGROUND_EXTENDED || code === ANSI_SGR_BACKGROUND_EXTENDED || code === ANSI_SGR_UNDERLINE_COLOR_EXTENDED) {
+          if (index + 1 >= codes.length) {
+            break;
+          }
+          const mode = codes[index + 1];
+          if (mode === ANSI_SGR_COLOR_MODE_256 && Number.isFinite(codes[index + 2])) {
+            sgrTokens.push([code, mode, codes[index + 2]]);
+            index += 2;
+            continue;
+          }
+          const red2 = codes[index + 2];
+          const green2 = codes[index + 3];
+          const blue = codes[index + 4];
+          if (mode === ANSI_SGR_COLOR_MODE_RGB && Number.isFinite(red2) && Number.isFinite(green2) && Number.isFinite(blue)) {
+            sgrTokens.push([code, mode, red2, green2, blue]);
+            index += 4;
+            continue;
+          }
+          break;
+        }
+        sgrTokens.push([code]);
+      }
+      return sgrTokens;
+    };
+    removeActiveStyle = (activeStyles, family) => {
+      const activeStyleIndex = activeStyles.findIndex((activeStyle) => activeStyle.family === family);
+      if (activeStyleIndex !== -1) {
+        activeStyles.splice(activeStyleIndex, 1);
+      }
+    };
+    upsertActiveStyle = (activeStyles, nextActiveStyle) => {
+      removeActiveStyle(activeStyles, nextActiveStyle.family);
+      activeStyles.push(nextActiveStyle);
+    };
+    removeModifierStylesByClose = (activeStyles, closeCode) => {
+      for (let index = activeStyles.length - 1; index >= 0; index--) {
+        const activeStyle = activeStyles[index];
+        if (activeStyle.family.startsWith("modifier-") && activeStyle.close === closeCode) {
+          activeStyles.splice(index, 1);
+        }
+      }
+    };
+    getColorStyle = (code, sgrToken) => {
+      if (code >= 30 && code <= 37 || code >= 90 && code <= 97 || code === ANSI_SGR_FOREGROUND_EXTENDED && sgrToken.length > 1) {
+        return {
+          family: "foreground",
+          open: sgrToken.join(";"),
+          close: ANSI_SGR_RESET_FOREGROUND
+        };
+      }
+      if (code >= 40 && code <= 47 || code >= 100 && code <= 107 || code === ANSI_SGR_BACKGROUND_EXTENDED && sgrToken.length > 1) {
+        return {
+          family: "background",
+          open: sgrToken.join(";"),
+          close: ANSI_SGR_RESET_BACKGROUND
+        };
+      }
+      if (code === ANSI_SGR_UNDERLINE_COLOR_EXTENDED && sgrToken.length > 1) {
+        return {
+          family: "underlineColor",
+          open: sgrToken.join(";"),
+          close: ANSI_SGR_RESET_UNDERLINE_COLOR
+        };
+      }
+    };
+    applySgrResetCode = (code, activeStyles) => {
+      if (code === ANSI_SGR_RESET) {
+        activeStyles.length = 0;
+        return true;
+      }
+      if (code === ANSI_SGR_RESET_FOREGROUND) {
+        removeActiveStyle(activeStyles, "foreground");
+        return true;
+      }
+      if (code === ANSI_SGR_RESET_BACKGROUND) {
+        removeActiveStyle(activeStyles, "background");
+        return true;
+      }
+      if (code === ANSI_SGR_RESET_UNDERLINE_COLOR) {
+        removeActiveStyle(activeStyles, "underlineColor");
+        return true;
+      }
+      if (ANSI_SGR_MODIFIER_CLOSE_CODES.has(code)) {
+        removeModifierStylesByClose(activeStyles, code);
+        return true;
+      }
+      return false;
+    };
+    applySgrToken = (sgrToken, activeStyles) => {
+      const [code] = sgrToken;
+      if (applySgrResetCode(code, activeStyles)) {
+        return;
+      }
+      const colorStyle = getColorStyle(code, sgrToken);
+      if (colorStyle) {
+        upsertActiveStyle(activeStyles, colorStyle);
+        return;
+      }
+      const close = ansi_styles_default.codes.get(code);
+      if (close !== void 0 && close !== ANSI_SGR_RESET) {
+        upsertActiveStyle(activeStyles, {
+          family: `modifier-${code}`,
+          open: sgrToken.join(";"),
+          close
+        });
+      }
+    };
+    applySgrParameters = (sgrParameters, activeStyles) => {
+      for (const sgrToken of getSgrTokens(sgrParameters)) {
+        applySgrToken(sgrToken, activeStyles);
+      }
+    };
+    applySgrResets = (sgrParameters, activeStyles) => {
+      for (const sgrToken of getSgrTokens(sgrParameters)) {
+        const [code] = sgrToken;
+        applySgrResetCode(code, activeStyles);
+      }
+    };
+    applyLeadingSgrResets = (string, activeStyles) => {
+      let remainder = string;
+      while (remainder.length > 0) {
+        if (remainder.startsWith(ANSI_ESCAPE) && remainder[1] !== "\\") {
+          const match = ANSI_ESCAPE_REGEX.exec(remainder);
+          if (!match) {
+            break;
+          }
+          if (match.groups.sgr !== void 0) {
+            applySgrResets(match.groups.sgr, activeStyles);
+          }
+          remainder = remainder.slice(match[0].length);
+          continue;
+        }
+        if (remainder.startsWith(ANSI_ESCAPE_CSI)) {
+          const match = ANSI_ESCAPE_CSI_REGEX.exec(remainder);
+          if (!match || match.groups.sgr === void 0) {
+            break;
+          }
+          applySgrResets(match.groups.sgr, activeStyles);
+          remainder = remainder.slice(match[0].length);
+          continue;
+        }
+        break;
+      }
+    };
+    getClosingSgrSequence = (activeStyles) => [...activeStyles].reverse().map((activeStyle) => wrapAnsiCode(activeStyle.close)).join("");
+    getOpeningSgrSequence = (activeStyles) => activeStyles.map((activeStyle) => wrapAnsiCode(activeStyle.open)).join("");
+    wordLengths = (string) => string.split(" ").map((word) => stringWidth(word));
     wrapWord = (rows, word, columns) => {
-      const characters = [...word];
+      const characters = getGraphemes(word);
       let isInsideEscape = false;
       let isInsideLinkEscape = false;
       let visible = stringWidth(stripAnsi(rows.at(-1)));
@@ -6664,14 +6862,14 @@ var init_wrap_ansi = __esm({
           rows.push(character);
           visible = 0;
         }
-        if (ESCAPES.has(character)) {
+        if (ESCAPES.has(character) && !(isInsideLinkEscape && character === ANSI_ESCAPE && characters[index + 1] === "\\")) {
           isInsideEscape = true;
           const ansiEscapeLinkCandidate = characters.slice(index + 1, index + 1 + ANSI_ESCAPE_LINK.length).join("");
           isInsideLinkEscape = ansiEscapeLinkCandidate === ANSI_ESCAPE_LINK;
         }
         if (isInsideEscape) {
           if (isInsideLinkEscape) {
-            if (character === ANSI_ESCAPE_BELL) {
+            if (character === ANSI_ESCAPE_BELL || character === "\\" && index > 0 && characters[index - 1] === ANSI_ESCAPE) {
               isInsideEscape = false;
               isInsideLinkEscape = false;
             }
@@ -6704,13 +6902,31 @@ var init_wrap_ansi = __esm({
       }
       return words.slice(0, last).join(" ") + words.slice(last).join("");
     };
+    expandTabs = (line) => {
+      if (!line.includes("	")) {
+        return line;
+      }
+      const segments = line.split("	");
+      let visible = 0;
+      let expandedLine = "";
+      for (const [index, segment] of segments.entries()) {
+        expandedLine += segment;
+        visible += stringWidth(segment);
+        if (index < segments.length - 1) {
+          const spaces = TAB_SIZE - visible % TAB_SIZE;
+          expandedLine += " ".repeat(spaces);
+          visible += spaces;
+        }
+      }
+      return expandedLine;
+    };
     exec = (string, columns, options = {}) => {
       if (options.trim !== false && string.trim() === "") {
         return "";
       }
       let returnValue = "";
-      let escapeCode;
       let escapeUrl;
+      const activeStyles = [];
       const lengths = wordLengths(string);
       let rows = [""];
       for (const [index, word] of string.split(" ").entries()) {
@@ -6728,7 +6944,7 @@ var init_wrap_ansi = __esm({
             rowLength++;
           }
         }
-        if (options.hard && lengths[index] > columns) {
+        if (options.hard && options.wordWrap !== false && lengths[index] > columns) {
           const remainingColumns = columns - rowLength;
           const breaksStartingThisLine = 1 + Math.floor((lengths[index] - remainingColumns - 1) / columns);
           const breaksStartingNextLine = Math.floor((lengths[index] - 1) / columns);
@@ -6755,31 +6971,32 @@ var init_wrap_ansi = __esm({
         rows = rows.map((row) => stringVisibleTrimSpacesRight(row));
       }
       const preString = rows.join("\n");
-      const pre = [...preString];
+      const pre = getGraphemes(preString);
       let preStringIndex = 0;
       for (const [index, character] of pre.entries()) {
         returnValue += character;
-        if (ESCAPES.has(character)) {
-          const { groups } = new RegExp(`(?:\\${ANSI_CSI}(?<code>\\d+)m|\\${ANSI_ESCAPE_LINK}(?<uri>.*)${ANSI_ESCAPE_BELL})`).exec(preString.slice(preStringIndex)) || { groups: {} };
-          if (groups.code !== void 0) {
-            const code2 = Number.parseFloat(groups.code);
-            escapeCode = code2 === END_CODE ? void 0 : code2;
+        if (character === ANSI_ESCAPE && pre[index + 1] !== "\\") {
+          const { groups } = ANSI_ESCAPE_REGEX.exec(preString.slice(preStringIndex)) || { groups: {} };
+          if (groups.sgr !== void 0) {
+            applySgrParameters(groups.sgr, activeStyles);
           } else if (groups.uri !== void 0) {
             escapeUrl = groups.uri.length === 0 ? void 0 : groups.uri;
           }
+        } else if (character === ANSI_ESCAPE_CSI) {
+          const { groups } = ANSI_ESCAPE_CSI_REGEX.exec(preString.slice(preStringIndex)) || { groups: {} };
+          if (groups.sgr !== void 0) {
+            applySgrParameters(groups.sgr, activeStyles);
+          }
         }
-        const code = ansi_styles_default.codes.get(Number(escapeCode));
         if (pre[index + 1] === "\n") {
           if (escapeUrl) {
             returnValue += wrapAnsiHyperlink("");
           }
-          if (escapeCode && code) {
-            returnValue += wrapAnsiCode(code);
-          }
+          returnValue += getClosingSgrSequence(activeStyles);
         } else if (character === "\n") {
-          if (escapeCode && code) {
-            returnValue += wrapAnsiCode(escapeCode);
-          }
+          const openingStyles = [...activeStyles];
+          applyLeadingSgrResets(preString.slice(preStringIndex + 1), openingStyles);
+          returnValue += getOpeningSgrSequence(openingStyles);
           if (escapeUrl) {
             returnValue += wrapAnsiHyperlink(escapeUrl);
           }
@@ -6903,11 +7120,21 @@ var init_terminal_size = __esm({
 });
 
 // node_modules/ink/build/utils.js
-import process4 from "node:process";
-var isDev;
+var getWindowSize;
 var init_utils = __esm({
   "node_modules/ink/build/utils.js"() {
-    isDev = () => process4.env["DEV"] === "true";
+    init_terminal_size();
+    getWindowSize = (stdout) => {
+      const { columns, rows } = stdout;
+      if (columns && rows) {
+        return { columns, rows };
+      }
+      const fallbackSize = terminalSize();
+      return {
+        columns: columns || fallbackSize.columns || 80,
+        rows: rows || fallbackSize.rows || 24
+      };
+    };
   }
 });
 
@@ -7627,8 +7854,8 @@ var require_react_reconciler_production = __commonJS({
           }
         return null;
       }
-      function createCursor(defaultValue) {
-        return { current: defaultValue };
+      function createCursor(defaultValue2) {
+        return { current: defaultValue2 };
       }
       function pop(cursor) {
         0 > index$jscomp$0 || (cursor.current = valueStack[index$jscomp$0], valueStack[index$jscomp$0] = null, index$jscomp$0--);
@@ -14847,14 +15074,14 @@ var require_react_reconciler_production = __commonJS({
       }
       var exports2 = {};
       "use strict";
-      var React19 = require_react(), Scheduler2 = require_scheduler(), assign = Object.assign, REACT_LEGACY_ELEMENT_TYPE = Symbol.for("react.element"), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy");
-      Symbol.for("react.scope");
-      var REACT_ACTIVITY_TYPE = Symbol.for("react.activity");
-      Symbol.for("react.legacy_hidden");
-      Symbol.for("react.tracing_marker");
-      var REACT_MEMO_CACHE_SENTINEL = Symbol.for("react.memo_cache_sentinel");
-      Symbol.for("react.view_transition");
-      var MAYBE_ITERATOR_SYMBOL = Symbol.iterator, REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), isArrayImpl = Array.isArray, ReactSharedInternals = React19.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, rendererVersion = $$$config.rendererVersion, rendererPackageName = $$$config.rendererPackageName, extraDevToolsConfig = $$$config.extraDevToolsConfig, getPublicInstance = $$$config.getPublicInstance, getRootHostContext = $$$config.getRootHostContext, getChildHostContext = $$$config.getChildHostContext, prepareForCommit = $$$config.prepareForCommit, resetAfterCommit = $$$config.resetAfterCommit, createInstance = $$$config.createInstance;
+      var React19 = require_react(), Scheduler2 = require_scheduler(), assign = Object.assign, REACT_LEGACY_ELEMENT_TYPE = /* @__PURE__ */ Symbol.for("react.element"), REACT_ELEMENT_TYPE = /* @__PURE__ */ Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = /* @__PURE__ */ Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = /* @__PURE__ */ Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = /* @__PURE__ */ Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = /* @__PURE__ */ Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = /* @__PURE__ */ Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = /* @__PURE__ */ Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = /* @__PURE__ */ Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = /* @__PURE__ */ Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = /* @__PURE__ */ Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = /* @__PURE__ */ Symbol.for("react.memo"), REACT_LAZY_TYPE = /* @__PURE__ */ Symbol.for("react.lazy");
+      /* @__PURE__ */ Symbol.for("react.scope");
+      var REACT_ACTIVITY_TYPE = /* @__PURE__ */ Symbol.for("react.activity");
+      /* @__PURE__ */ Symbol.for("react.legacy_hidden");
+      /* @__PURE__ */ Symbol.for("react.tracing_marker");
+      var REACT_MEMO_CACHE_SENTINEL = /* @__PURE__ */ Symbol.for("react.memo_cache_sentinel");
+      /* @__PURE__ */ Symbol.for("react.view_transition");
+      var MAYBE_ITERATOR_SYMBOL = Symbol.iterator, REACT_CLIENT_REFERENCE = /* @__PURE__ */ Symbol.for("react.client.reference"), isArrayImpl = Array.isArray, ReactSharedInternals = React19.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, rendererVersion = $$$config.rendererVersion, rendererPackageName = $$$config.rendererPackageName, extraDevToolsConfig = $$$config.extraDevToolsConfig, getPublicInstance = $$$config.getPublicInstance, getRootHostContext = $$$config.getRootHostContext, getChildHostContext = $$$config.getChildHostContext, prepareForCommit = $$$config.prepareForCommit, resetAfterCommit = $$$config.resetAfterCommit, createInstance = $$$config.createInstance;
       $$$config.cloneMutableInstance;
       var appendInitialChild = $$$config.appendInitialChild, finalizeInitialChildren = $$$config.finalizeInitialChildren, shouldSetTextContent = $$$config.shouldSetTextContent, createTextInstance = $$$config.createTextInstance;
       $$$config.cloneMutableTextInstance;
@@ -15959,8 +16186,8 @@ var require_react_reconciler_development = __commonJS({
         }
         return null;
       }
-      function createCursor(defaultValue) {
-        return { current: defaultValue };
+      function createCursor(defaultValue2) {
+        return { current: defaultValue2 };
       }
       function pop(cursor, fiber) {
         0 > index$jscomp$0 ? console.error("Unexpected pop.") : (fiber !== fiberStack[index$jscomp$0] && console.error("Unexpected Fiber popped."), cursor.current = valueStack[index$jscomp$0], valueStack[index$jscomp$0] = null, fiberStack[index$jscomp$0] = null, index$jscomp$0--);
@@ -27447,14 +27674,14 @@ var require_react_reconciler_development = __commonJS({
       }
       var exports2 = {};
       "use strict";
-      var React19 = require_react(), Scheduler2 = require_scheduler(), assign = Object.assign, REACT_LEGACY_ELEMENT_TYPE = Symbol.for("react.element"), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy");
-      Symbol.for("react.scope");
-      var REACT_ACTIVITY_TYPE = Symbol.for("react.activity");
-      Symbol.for("react.legacy_hidden");
-      Symbol.for("react.tracing_marker");
-      var REACT_MEMO_CACHE_SENTINEL = Symbol.for("react.memo_cache_sentinel");
-      Symbol.for("react.view_transition");
-      var MAYBE_ITERATOR_SYMBOL = Symbol.iterator, REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), isArrayImpl = Array.isArray, ReactSharedInternals = React19.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, rendererVersion = $$$config.rendererVersion, rendererPackageName = $$$config.rendererPackageName, extraDevToolsConfig = $$$config.extraDevToolsConfig, getPublicInstance = $$$config.getPublicInstance, getRootHostContext = $$$config.getRootHostContext, getChildHostContext = $$$config.getChildHostContext, prepareForCommit = $$$config.prepareForCommit, resetAfterCommit = $$$config.resetAfterCommit, createInstance = $$$config.createInstance;
+      var React19 = require_react(), Scheduler2 = require_scheduler(), assign = Object.assign, REACT_LEGACY_ELEMENT_TYPE = /* @__PURE__ */ Symbol.for("react.element"), REACT_ELEMENT_TYPE = /* @__PURE__ */ Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = /* @__PURE__ */ Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = /* @__PURE__ */ Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = /* @__PURE__ */ Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = /* @__PURE__ */ Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = /* @__PURE__ */ Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = /* @__PURE__ */ Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = /* @__PURE__ */ Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = /* @__PURE__ */ Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = /* @__PURE__ */ Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = /* @__PURE__ */ Symbol.for("react.memo"), REACT_LAZY_TYPE = /* @__PURE__ */ Symbol.for("react.lazy");
+      /* @__PURE__ */ Symbol.for("react.scope");
+      var REACT_ACTIVITY_TYPE = /* @__PURE__ */ Symbol.for("react.activity");
+      /* @__PURE__ */ Symbol.for("react.legacy_hidden");
+      /* @__PURE__ */ Symbol.for("react.tracing_marker");
+      var REACT_MEMO_CACHE_SENTINEL = /* @__PURE__ */ Symbol.for("react.memo_cache_sentinel");
+      /* @__PURE__ */ Symbol.for("react.view_transition");
+      var MAYBE_ITERATOR_SYMBOL = Symbol.iterator, REACT_CLIENT_REFERENCE = /* @__PURE__ */ Symbol.for("react.client.reference"), isArrayImpl = Array.isArray, ReactSharedInternals = React19.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, rendererVersion = $$$config.rendererVersion, rendererPackageName = $$$config.rendererPackageName, extraDevToolsConfig = $$$config.extraDevToolsConfig, getPublicInstance = $$$config.getPublicInstance, getRootHostContext = $$$config.getRootHostContext, getChildHostContext = $$$config.getChildHostContext, prepareForCommit = $$$config.prepareForCommit, resetAfterCommit = $$$config.resetAfterCommit, createInstance = $$$config.createInstance;
       $$$config.cloneMutableInstance;
       var appendInitialChild = $$$config.appendInitialChild, finalizeInitialChildren = $$$config.finalizeInitialChildren, shouldSetTextContent = $$$config.shouldSetTextContent, createTextInstance = $$$config.createTextInstance;
       $$$config.cloneMutableTextInstance;
@@ -29419,96 +29646,17 @@ var require_react_reconciler = __commonJS({
   }
 });
 
-// node_modules/string-width/index.js
-function isDoubleWidthNonRgiEmojiSequence(segment) {
-  if (segment.length > 50) {
-    return false;
-  }
-  if (unqualifiedKeycapRegex.test(segment)) {
-    return true;
-  }
-  if (segment.includes("\u200D")) {
-    const pictographics = segment.match(extendedPictographicRegex);
-    return pictographics !== null && pictographics.length >= 2;
-  }
-  return false;
-}
-function baseVisible(segment) {
-  return segment.replace(leadingNonPrintingRegex, "");
-}
-function isZeroWidthCluster(segment) {
-  return zeroWidthClusterRegex.test(segment);
-}
-function trailingHalfwidthWidth(segment, eastAsianWidthOptions) {
-  let extra = 0;
-  if (segment.length > 1) {
-    for (const char of segment.slice(1)) {
-      if (char >= "\uFF00" && char <= "\uFFEF") {
-        extra += eastAsianWidth(char.codePointAt(0), eastAsianWidthOptions);
-      }
-    }
-  }
-  return extra;
-}
-function stringWidth2(input, options = {}) {
-  if (typeof input !== "string" || input.length === 0) {
-    return 0;
-  }
-  const {
-    ambiguousIsNarrow = true,
-    countAnsiEscapeCodes = false
-  } = options;
-  let string = input;
-  if (!countAnsiEscapeCodes && (string.includes("\x1B") || string.includes("\x9B"))) {
-    string = stripAnsi(string);
-  }
-  if (string.length === 0) {
-    return 0;
-  }
-  if (/^[\u0020-\u007E]*$/.test(string)) {
-    return string.length;
-  }
-  let width = 0;
-  const eastAsianWidthOptions = { ambiguousAsWide: !ambiguousIsNarrow };
-  for (const { segment } of segmenter2.segment(string)) {
-    if (isZeroWidthCluster(segment)) {
-      continue;
-    }
-    if (rgiEmojiRegex.test(segment) || isDoubleWidthNonRgiEmojiSequence(segment)) {
-      width += 2;
-      continue;
-    }
-    const codePoint = baseVisible(segment).codePointAt(0);
-    width += eastAsianWidth(codePoint, eastAsianWidthOptions);
-    width += trailingHalfwidthWidth(segment, eastAsianWidthOptions);
-  }
-  return width;
-}
-var segmenter2, zeroWidthClusterRegex, leadingNonPrintingRegex, rgiEmojiRegex, unqualifiedKeycapRegex, extendedPictographicRegex;
-var init_string_width2 = __esm({
-  "node_modules/string-width/index.js"() {
-    init_strip_ansi();
-    init_get_east_asian_width();
-    segmenter2 = new Intl.Segmenter();
-    zeroWidthClusterRegex = new RegExp("^(?:\\p{Default_Ignorable_Code_Point}|\\p{Control}|\\p{Format}|\\p{Mark}|\\p{Surrogate})+$", "v");
-    leadingNonPrintingRegex = new RegExp("^[\\p{Default_Ignorable_Code_Point}\\p{Control}\\p{Format}\\p{Mark}\\p{Surrogate}]+", "v");
-    rgiEmojiRegex = new RegExp("^\\p{RGI_Emoji}$", "v");
-    unqualifiedKeycapRegex = /^[\d#*]\u20E3$/;
-    extendedPictographicRegex = new RegExp("\\p{Extended_Pictographic}", "gu");
-  }
-});
-
 // node_modules/widest-line/index.js
 function widestLine(string) {
   let lineWidth = 0;
   for (const line of string.split("\n")) {
-    lineWidth = Math.max(lineWidth, stringWidth2(line));
+    lineWidth = Math.max(lineWidth, stringWidth(line));
   }
   return lineWidth;
 }
 var init_widest_line = __esm({
   "node_modules/widest-line/index.js"() {
-    init_string_width2();
+    init_string_width();
   }
 });
 
@@ -30156,7 +30304,7 @@ var init_tokenize_ansi = __esm({
     SGR_TRUECOLOR_LAST_PARAMETER_OFFSET = 4;
     VARIATION_SELECTOR_16_CODE_POINT = 65039;
     COMBINING_ENCLOSING_KEYCAP_CODE_POINT = 8419;
-    EMOJI_PRESENTATION_GRAPHEME_REGEX = new RegExp("\\p{Emoji_Presentation}", "u");
+    EMOJI_PRESENTATION_GRAPHEME_REGEX = new RegExp("\\p{Emoji_Presentation}", "v");
     GRAPHEME_SEGMENTER = new Intl.Segmenter(void 0, { granularity: "grapheme" });
     endCodeNumbers = /* @__PURE__ */ new Set();
     for (const [, end] of ansi_styles_default.codes) {
@@ -30190,7 +30338,7 @@ function applySgrFragments(activeStyles, fragments) {
   return activeStyles;
 }
 function undoAnsiCodes(activeStyles) {
-  return [...activeStyles.keys()].reverse().join("");
+  return [...activeStyles.keys()].toReversed().join("");
 }
 function closeHyperlink(hyperlinkToken) {
   return `${hyperlinkToken.closePrefix}${hyperlinkToken.terminator}`;
@@ -30213,103 +30361,90 @@ function shouldIncludeSgrAfterEnd(token, activeStyles) {
   }
   return hasClosingEffect && !hasStartFragment;
 }
-function applySgrToken({ token, isPastEnd, activeStyles, returnValue, include, activeHyperlink, position }) {
-  if (isPastEnd && !shouldIncludeSgrAfterEnd(token, activeStyles)) {
-    return {
-      activeStyles,
-      activeHyperlink,
-      position,
-      returnValue,
-      include
-    };
-  }
-  activeStyles = applySgrFragments(activeStyles, token.fragments);
-  if (include) {
-    returnValue += token.code;
-  }
-  return {
-    activeStyles,
-    activeHyperlink,
-    position,
-    returnValue,
-    include
-  };
+function hasSgrStartFragment(token) {
+  return token.fragments.some((fragment) => fragment.type === "start");
 }
-function applyHyperlinkToken({ token, isPastEnd, activeStyles, activeHyperlink, position, returnValue, include }) {
-  if (isPastEnd && (token.action !== "close" || !activeHyperlink)) {
-    return {
-      activeStyles,
-      activeHyperlink,
-      position,
-      returnValue,
-      include
-    };
-  }
-  if (token.action === "open") {
-    activeHyperlink = token;
-  } else if (token.action === "close") {
-    activeHyperlink = void 0;
-  }
-  if (include) {
-    returnValue += token.code;
-  }
-  return {
-    activeStyles,
-    activeHyperlink,
-    position,
-    returnValue,
-    include
-  };
-}
-function applyControlToken({ token, isPastEnd, activeStyles, activeHyperlink, position, returnValue, include }) {
-  if (!isPastEnd && include) {
-    returnValue += token.code;
-  }
-  return {
-    activeStyles,
-    activeHyperlink,
-    position,
-    returnValue,
-    include
-  };
-}
-function applyCharacterToken({ token, start, activeStyles, activeHyperlink, position, returnValue, include }) {
-  if (!include && position >= start && !token.isGraphemeContinuation) {
-    include = true;
-    returnValue = [...activeStyles.values()].join("");
-    if (activeHyperlink) {
-      returnValue += activeHyperlink.code;
+function discardPendingHyperlink(parameters) {
+  if (parameters.activeHyperlink && !parameters.activeHyperlinkHasVisibleText && parameters.activeHyperlinkOutputIndex !== void 0) {
+    const openCodeLength = parameters.activeHyperlink.code.length;
+    parameters.returnValue = parameters.returnValue.slice(0, parameters.activeHyperlinkOutputIndex) + parameters.returnValue.slice(parameters.activeHyperlinkOutputIndex + openCodeLength);
+    if (parameters.pendingSgrOutputIndex !== void 0 && parameters.pendingSgrOutputIndex > parameters.activeHyperlinkOutputIndex) {
+      parameters.pendingSgrOutputIndex -= openCodeLength;
     }
   }
-  if (include) {
-    returnValue += token.value;
+  parameters.activeHyperlink = void 0;
+  parameters.activeHyperlinkHasVisibleText = false;
+  parameters.activeHyperlinkOutputIndex = void 0;
+}
+function applySgrToken2(parameters) {
+  if (parameters.isPastEnd && !shouldIncludeSgrAfterEnd(parameters.token, parameters.activeStyles)) {
+    return parameters;
   }
-  position += token.visibleWidth;
-  return {
-    activeStyles,
-    activeHyperlink,
-    position,
-    returnValue,
-    include
-  };
+  if (parameters.include && hasSgrStartFragment(parameters.token) && parameters.pendingSgrOutputIndex === void 0) {
+    parameters.pendingSgrOutputIndex = parameters.returnValue.length;
+    parameters.pendingSgrActiveStyles = new Map(parameters.activeStyles);
+  }
+  parameters.activeStyles = applySgrFragments(parameters.activeStyles, parameters.token.fragments);
+  if (parameters.include) {
+    parameters.returnValue += parameters.token.code;
+  }
+  return parameters;
+}
+function applyHyperlinkToken(parameters) {
+  if (parameters.isPastEnd && (parameters.token.action !== "close" || !parameters.activeHyperlink)) {
+    return parameters;
+  }
+  if (parameters.token.action === "open") {
+    parameters.activeHyperlink = parameters.token;
+    parameters.activeHyperlinkHasVisibleText = false;
+    parameters.activeHyperlinkOutputIndex = void 0;
+    if (parameters.include) {
+      parameters.activeHyperlinkOutputIndex = parameters.returnValue.length;
+    }
+  } else if (parameters.token.action === "close") {
+    if (parameters.include && parameters.activeHyperlink && !parameters.activeHyperlinkHasVisibleText) {
+      discardPendingHyperlink(parameters);
+      return parameters;
+    }
+    parameters.activeHyperlink = void 0;
+    parameters.activeHyperlinkHasVisibleText = false;
+    parameters.activeHyperlinkOutputIndex = void 0;
+  }
+  if (parameters.include) {
+    parameters.returnValue += parameters.token.code;
+  }
+  return parameters;
+}
+function applyControlToken(parameters) {
+  if (!parameters.isPastEnd && parameters.include) {
+    parameters.returnValue += parameters.token.code;
+  }
+  return parameters;
+}
+function applyCharacterToken(parameters) {
+  if (!parameters.include && parameters.position >= parameters.start && !parameters.token.isGraphemeContinuation) {
+    parameters.include = true;
+    parameters.returnValue = [...parameters.activeStyles.values()].join("");
+    if (parameters.activeHyperlink) {
+      parameters.activeHyperlinkOutputIndex = parameters.returnValue.length;
+      parameters.returnValue += parameters.activeHyperlink.code;
+    }
+  }
+  if (parameters.include) {
+    parameters.returnValue += parameters.token.value;
+    parameters.pendingSgrOutputIndex = void 0;
+    parameters.pendingSgrActiveStyles = void 0;
+    if (parameters.activeHyperlink) {
+      parameters.activeHyperlinkHasVisibleText = true;
+    }
+  }
+  parameters.position += parameters.token.visibleWidth;
+  return parameters;
 }
 function applyToken(parameters) {
   const tokenHandler = tokenHandlers[parameters.token.type];
   if (!tokenHandler) {
-    const {
-      activeStyles,
-      activeHyperlink,
-      position,
-      returnValue,
-      include
-    } = parameters;
-    return {
-      activeStyles,
-      activeHyperlink,
-      position,
-      returnValue,
-      include
-    };
+    return parameters;
   }
   return tokenHandler(parameters);
 }
@@ -30325,28 +30460,68 @@ function createHasContinuationAheadMap(tokens) {
   }
   return hasContinuationAhead;
 }
+function isPastEndBoundary(token, position, end) {
+  if (end === void 0) {
+    return false;
+  }
+  if (position >= end) {
+    return true;
+  }
+  return token.type === "character" && !token.isGraphemeContinuation && position + token.visibleWidth > end;
+}
 function sliceAnsi(string, start, end) {
   const tokens = tokenizeAnsi(string, { endCharacter: end });
   const hasContinuationAhead = createHasContinuationAheadMap(tokens);
   let activeStyles = /* @__PURE__ */ new Map();
   let activeHyperlink;
+  let activeHyperlinkHasVisibleText = false;
+  let activeHyperlinkOutputIndex;
+  let pendingSgrOutputIndex;
+  let pendingSgrActiveStyles;
   let position = 0;
   let returnValue = "";
   let include = false;
   for (const [tokenIndex, token] of tokens.entries()) {
-    let isPastEnd = end !== void 0 && position >= end;
+    let isPastEnd = isPastEndBoundary(token, position, end);
     if (isPastEnd && token.type !== "character" && hasContinuationAhead[tokenIndex]) {
       isPastEnd = false;
     }
     if (isPastEnd && token.type === "character" && !token.isGraphemeContinuation) {
+      if (activeHyperlink && !activeHyperlinkHasVisibleText) {
+        const hyperlinkState = {
+          activeHyperlink,
+          activeHyperlinkHasVisibleText,
+          activeHyperlinkOutputIndex,
+          pendingSgrOutputIndex,
+          returnValue
+        };
+        discardPendingHyperlink(hyperlinkState);
+        ({
+          activeHyperlink,
+          activeHyperlinkHasVisibleText,
+          activeHyperlinkOutputIndex,
+          pendingSgrOutputIndex,
+          returnValue
+        } = hyperlinkState);
+      }
+      if (pendingSgrOutputIndex !== void 0) {
+        returnValue = returnValue.slice(0, pendingSgrOutputIndex);
+        activeStyles = pendingSgrActiveStyles;
+        pendingSgrOutputIndex = void 0;
+        pendingSgrActiveStyles = void 0;
+      }
       break;
     }
-    ({ activeStyles, activeHyperlink, position, returnValue, include } = applyToken({
+    ({ activeStyles, activeHyperlink, activeHyperlinkHasVisibleText, activeHyperlinkOutputIndex, pendingSgrOutputIndex, pendingSgrActiveStyles, position, returnValue, include } = applyToken({
       token,
       isPastEnd,
       start,
       activeStyles,
       activeHyperlink,
+      activeHyperlinkHasVisibleText,
+      activeHyperlinkOutputIndex,
+      pendingSgrOutputIndex,
+      pendingSgrActiveStyles,
       position,
       returnValue,
       include
@@ -30366,7 +30541,7 @@ var init_slice_ansi = __esm({
   "node_modules/slice-ansi/index.js"() {
     init_tokenize_ansi();
     tokenHandlers = {
-      sgr: applySgrToken,
+      sgr: applySgrToken2,
       hyperlink: applyHyperlinkToken,
       control: applyControlToken,
       character: applyCharacterToken
@@ -30404,7 +30579,7 @@ function cliTruncate(text, columns, options = {}) {
   if (columns < 1) {
     return "";
   }
-  const length = stringWidth2(text);
+  const length = stringWidth(text);
   if (length <= columns) {
     return text;
   }
@@ -30470,7 +30645,7 @@ function cliTruncate(text, columns, options = {}) {
     if (space) {
       truncationCharacter += " ";
     }
-    const right = sliceAnsi(text, length - columns + stringWidth2(truncationCharacter), length);
+    const right = sliceAnsi(text, length - columns + stringWidth(truncationCharacter), length);
     return prependWithInheritedStyleFromStart(truncationCharacter, right);
   }
   if (position === "middle") {
@@ -30483,7 +30658,7 @@ function cliTruncate(text, columns, options = {}) {
       const spaceNearSecondBreakPoint = getIndexOfNearestSpace(text, length - (columns - half) + 1, true);
       return sliceAnsi(text, 0, spaceNearFirstBreakPoint) + truncationCharacter + sliceAnsi(text, spaceNearSecondBreakPoint, length).trim();
     }
-    return sliceAnsi(text, 0, half) + truncationCharacter + sliceAnsi(text, length - (columns - half) + stringWidth2(truncationCharacter), length);
+    return sliceAnsi(text, 0, half) + truncationCharacter + sliceAnsi(text, length - (columns - half) + stringWidth(truncationCharacter), length);
   }
   if (position === "end") {
     if (preferTruncationOnSpace) {
@@ -30494,7 +30669,7 @@ function cliTruncate(text, columns, options = {}) {
     if (space) {
       truncationCharacter = ` ${truncationCharacter}`;
     }
-    const left = sliceAnsi(text, 0, columns - stringWidth2(truncationCharacter));
+    const left = sliceAnsi(text, 0, columns - stringWidth(truncationCharacter));
     return appendWithInheritedStyleFromEnd(left, truncationCharacter);
   }
   throw new Error(`Expected \`options.position\` to be either \`start\`, \`middle\` or \`end\`, got ${position}`);
@@ -30502,7 +30677,7 @@ function cliTruncate(text, columns, options = {}) {
 var init_cli_truncate = __esm({
   "node_modules/cli-truncate/index.js"() {
     init_slice_ansi();
-    init_string_width2();
+    init_string_width();
   }
 });
 
@@ -30524,6 +30699,13 @@ var init_wrap_text = __esm({
         wrappedText = wrapAnsi(text, maxWidth, {
           trim: false,
           hard: true
+        });
+      }
+      if (wrapType === "hard") {
+        wrappedText = wrapAnsi(text, maxWidth, {
+          trim: false,
+          hard: true,
+          wordWrap: false
         });
       }
       if (wrapType.startsWith("truncate")) {
@@ -30913,7 +31095,7 @@ var init_squash_text_nodes = __esm({
 });
 
 // node_modules/ink/build/dom.js
-var createNode, appendChildNode, insertBeforeNode, removeChildNode, setAttribute, setStyle, createTextNode, measureTextNode, findClosestYogaNode, markNodeAsDirty, setTextNodeValue;
+var createNode, appendChildNode, insertBeforeNode, removeChildNode, setAttribute, setStyle, createTextNode, measureTextNode, findClosestYogaNode, markNodeAsDirty, setTextNodeValue, emitLayoutListeners;
 var init_dom = __esm({
   async "node_modules/ink/build/dom.js"() {
     await init_src();
@@ -30991,7 +31173,7 @@ var init_dom = __esm({
       node.attributes[key] = value;
     };
     setStyle = (node, style) => {
-      node.style = style;
+      node.style = style ?? {};
     };
     createTextNode = (text) => {
       const node = {
@@ -31034,17 +31216,48 @@ var init_dom = __esm({
       node.nodeValue = text;
       markNodeAsDirty(node);
     };
+    emitLayoutListeners = (rootNode) => {
+      if (rootNode.nodeName !== "ink-root" || !rootNode.internal_layoutListeners) {
+        return;
+      }
+      for (const listener of rootNode.internal_layoutListeners) {
+        listener();
+      }
+    };
   }
 });
 
 // node_modules/ink/build/styles.js
-var applyPositionStyles, applyMarginStyles, applyPaddingStyles, applyFlexStyles, applyDimensionStyles, applyDisplayStyles, applyBorderStyles, applyGapStyles, styles2, styles_default;
+var positionEdges, applyPositionStyles, applyMarginStyles, applyPaddingStyles, applyFlexStyles, applyDimensionStyles, applyDisplayStyles, applyBorderStyles, applyGapStyles, styles2, styles_default;
 var init_styles = __esm({
   async "node_modules/ink/build/styles.js"() {
     await init_src();
+    positionEdges = [
+      ["top", src_default.EDGE_TOP],
+      ["right", src_default.EDGE_RIGHT],
+      ["bottom", src_default.EDGE_BOTTOM],
+      ["left", src_default.EDGE_LEFT]
+    ];
     applyPositionStyles = (node, style) => {
       if ("position" in style) {
-        node.setPositionType(style.position === "absolute" ? src_default.POSITION_TYPE_ABSOLUTE : src_default.POSITION_TYPE_RELATIVE);
+        let positionType = src_default.POSITION_TYPE_RELATIVE;
+        if (style.position === "absolute") {
+          positionType = src_default.POSITION_TYPE_ABSOLUTE;
+        } else if (style.position === "static") {
+          positionType = src_default.POSITION_TYPE_STATIC;
+        }
+        node.setPositionType(positionType);
+      }
+      for (const [property, edge] of positionEdges) {
+        if (!(property in style)) {
+          continue;
+        }
+        const value = style[property];
+        if (typeof value === "string") {
+          node.setPositionPercent(edge, Number.parseFloat(value));
+          continue;
+        }
+        node.setPosition(edge, value);
       }
     };
     applyMarginStyles = (node, style) => {
@@ -31058,16 +31271,16 @@ var init_styles = __esm({
         node.setMargin(src_default.EDGE_VERTICAL, style.marginY ?? 0);
       }
       if ("marginLeft" in style) {
-        node.setMargin(src_default.EDGE_START, style.marginLeft || 0);
+        node.setMargin(src_default.EDGE_START, style.marginLeft ?? 0);
       }
       if ("marginRight" in style) {
-        node.setMargin(src_default.EDGE_END, style.marginRight || 0);
+        node.setMargin(src_default.EDGE_END, style.marginRight ?? 0);
       }
       if ("marginTop" in style) {
-        node.setMargin(src_default.EDGE_TOP, style.marginTop || 0);
+        node.setMargin(src_default.EDGE_TOP, style.marginTop ?? 0);
       }
       if ("marginBottom" in style) {
-        node.setMargin(src_default.EDGE_BOTTOM, style.marginBottom || 0);
+        node.setMargin(src_default.EDGE_BOTTOM, style.marginBottom ?? 0);
       }
     };
     applyPaddingStyles = (node, style) => {
@@ -31081,16 +31294,16 @@ var init_styles = __esm({
         node.setPadding(src_default.EDGE_VERTICAL, style.paddingY ?? 0);
       }
       if ("paddingLeft" in style) {
-        node.setPadding(src_default.EDGE_LEFT, style.paddingLeft || 0);
+        node.setPadding(src_default.EDGE_LEFT, style.paddingLeft ?? 0);
       }
       if ("paddingRight" in style) {
-        node.setPadding(src_default.EDGE_RIGHT, style.paddingRight || 0);
+        node.setPadding(src_default.EDGE_RIGHT, style.paddingRight ?? 0);
       }
       if ("paddingTop" in style) {
-        node.setPadding(src_default.EDGE_TOP, style.paddingTop || 0);
+        node.setPadding(src_default.EDGE_TOP, style.paddingTop ?? 0);
       }
       if ("paddingBottom" in style) {
-        node.setPadding(src_default.EDGE_BOTTOM, style.paddingBottom || 0);
+        node.setPadding(src_default.EDGE_BOTTOM, style.paddingBottom ?? 0);
       }
     };
     applyFlexStyles = (node, style) => {
@@ -31131,7 +31344,7 @@ var init_styles = __esm({
         } else if (typeof style.flexBasis === "string") {
           node.setFlexBasisPercent(Number.parseInt(style.flexBasis, 10));
         } else {
-          node.setFlexBasis(Number.NaN);
+          node.setFlexBasisAuto();
         }
       }
       if ("alignItems" in style) {
@@ -31147,6 +31360,9 @@ var init_styles = __esm({
         if (style.alignItems === "flex-end") {
           node.setAlignItems(src_default.ALIGN_FLEX_END);
         }
+        if (style.alignItems === "baseline") {
+          node.setAlignItems(src_default.ALIGN_BASELINE);
+        }
       }
       if ("alignSelf" in style) {
         if (style.alignSelf === "auto" || !style.alignSelf) {
@@ -31160,6 +31376,35 @@ var init_styles = __esm({
         }
         if (style.alignSelf === "flex-end") {
           node.setAlignSelf(src_default.ALIGN_FLEX_END);
+        }
+        if (style.alignSelf === "stretch") {
+          node.setAlignSelf(src_default.ALIGN_STRETCH);
+        }
+        if (style.alignSelf === "baseline") {
+          node.setAlignSelf(src_default.ALIGN_BASELINE);
+        }
+      }
+      if ("alignContent" in style) {
+        if (style.alignContent === "flex-start" || !style.alignContent) {
+          node.setAlignContent(src_default.ALIGN_FLEX_START);
+        }
+        if (style.alignContent === "center") {
+          node.setAlignContent(src_default.ALIGN_CENTER);
+        }
+        if (style.alignContent === "flex-end") {
+          node.setAlignContent(src_default.ALIGN_FLEX_END);
+        }
+        if (style.alignContent === "space-between") {
+          node.setAlignContent(src_default.ALIGN_SPACE_BETWEEN);
+        }
+        if (style.alignContent === "space-around") {
+          node.setAlignContent(src_default.ALIGN_SPACE_AROUND);
+        }
+        if (style.alignContent === "space-evenly") {
+          node.setAlignContent(src_default.ALIGN_SPACE_EVENLY);
+        }
+        if (style.alignContent === "stretch") {
+          node.setAlignContent(src_default.ALIGN_STRETCH);
         }
       }
       if ("justifyContent" in style) {
@@ -31216,28 +31461,39 @@ var init_styles = __esm({
           node.setMinHeight(style.minHeight ?? 0);
         }
       }
+      if ("maxWidth" in style) {
+        if (typeof style.maxWidth === "string") {
+          node.setMaxWidthPercent(Number.parseInt(style.maxWidth, 10));
+        } else {
+          node.setMaxWidth(style.maxWidth);
+        }
+      }
+      if ("maxHeight" in style) {
+        if (typeof style.maxHeight === "string") {
+          node.setMaxHeightPercent(Number.parseInt(style.maxHeight, 10));
+        } else {
+          node.setMaxHeight(style.maxHeight);
+        }
+      }
+      if ("aspectRatio" in style) {
+        node.setAspectRatio(style.aspectRatio);
+      }
     };
     applyDisplayStyles = (node, style) => {
       if ("display" in style) {
         node.setDisplay(style.display === "flex" ? src_default.DISPLAY_FLEX : src_default.DISPLAY_NONE);
       }
     };
-    applyBorderStyles = (node, style) => {
-      if ("borderStyle" in style) {
-        const borderWidth = style.borderStyle ? 1 : 0;
-        if (style.borderTop !== false) {
-          node.setBorder(src_default.EDGE_TOP, borderWidth);
-        }
-        if (style.borderBottom !== false) {
-          node.setBorder(src_default.EDGE_BOTTOM, borderWidth);
-        }
-        if (style.borderLeft !== false) {
-          node.setBorder(src_default.EDGE_LEFT, borderWidth);
-        }
-        if (style.borderRight !== false) {
-          node.setBorder(src_default.EDGE_RIGHT, borderWidth);
-        }
+    applyBorderStyles = (node, style, currentStyle) => {
+      const hasBorderChanges = "borderStyle" in style || "borderTop" in style || "borderBottom" in style || "borderLeft" in style || "borderRight" in style;
+      if (!hasBorderChanges) {
+        return;
       }
+      const borderWidth = currentStyle.borderStyle ? 1 : 0;
+      node.setBorder(src_default.EDGE_TOP, currentStyle.borderTop === false ? 0 : borderWidth);
+      node.setBorder(src_default.EDGE_BOTTOM, currentStyle.borderBottom === false ? 0 : borderWidth);
+      node.setBorder(src_default.EDGE_LEFT, currentStyle.borderLeft === false ? 0 : borderWidth);
+      node.setBorder(src_default.EDGE_RIGHT, currentStyle.borderRight === false ? 0 : borderWidth);
     };
     applyGapStyles = (node, style) => {
       if ("gap" in style) {
@@ -31250,14 +31506,14 @@ var init_styles = __esm({
         node.setGap(src_default.GUTTER_ROW, style.rowGap ?? 0);
       }
     };
-    styles2 = (node, style = {}) => {
+    styles2 = (node, style = {}, currentStyle = style) => {
       applyPositionStyles(node, style);
       applyMarginStyles(node, style);
       applyPaddingStyles(node, style);
       applyFlexStyles(node, style);
       applyDimensionStyles(node, style);
       applyDisplayStyles(node, style);
-      applyBorderStyles(node, style);
+      applyBorderStyles(node, style, currentStyle);
       applyGapStyles(node, style);
     };
     styles_default = styles2;
@@ -31277,10 +31533,10 @@ var require_constants2 = __commonJS({
       EMPTY_BUFFER: Buffer.alloc(0),
       GUID: "258EAFA5-E914-47DA-95CA-C5AB0DC85B11",
       hasBlob,
-      kForOnEventAttribute: Symbol("kIsForOnEventAttribute"),
-      kListener: Symbol("kListener"),
-      kStatusCode: Symbol("status-code"),
-      kWebSocket: Symbol("websocket"),
+      kForOnEventAttribute: /* @__PURE__ */ Symbol("kIsForOnEventAttribute"),
+      kListener: /* @__PURE__ */ Symbol("kListener"),
+      kStatusCode: /* @__PURE__ */ Symbol("status-code"),
+      kWebSocket: /* @__PURE__ */ Symbol("websocket"),
       NOOP: () => {
       }
     };
@@ -31366,8 +31622,8 @@ var require_buffer_util = __commonJS({
 var require_limiter = __commonJS({
   "node_modules/ws/lib/limiter.js"(exports, module) {
     "use strict";
-    var kDone = Symbol("kDone");
-    var kRun = Symbol("kRun");
+    var kDone = /* @__PURE__ */ Symbol("kDone");
+    var kRun = /* @__PURE__ */ Symbol("kRun");
     var Limiter = class {
       /**
        * Creates a new `Limiter`.
@@ -31422,11 +31678,11 @@ var require_permessage_deflate = __commonJS({
     var { kStatusCode } = require_constants2();
     var FastBuffer = Buffer[Symbol.species];
     var TRAILER = Buffer.from([0, 0, 255, 255]);
-    var kPerMessageDeflate = Symbol("permessage-deflate");
-    var kTotalLength = Symbol("total-length");
-    var kCallback = Symbol("callback");
-    var kBuffers = Symbol("buffers");
-    var kError = Symbol("error");
+    var kPerMessageDeflate = /* @__PURE__ */ Symbol("permessage-deflate");
+    var kTotalLength = /* @__PURE__ */ Symbol("total-length");
+    var kCallback = /* @__PURE__ */ Symbol("callback");
+    var kBuffers = /* @__PURE__ */ Symbol("buffers");
+    var kError = /* @__PURE__ */ Symbol("error");
     var zlibLimiter;
     var PerMessageDeflate2 = class {
       /**
@@ -32598,7 +32854,7 @@ var require_sender = __commonJS({
     var { EMPTY_BUFFER, kWebSocket, NOOP } = require_constants2();
     var { isBlob, isValidStatusCode } = require_validation();
     var { mask: applyMask, toBuffer } = require_buffer_util();
-    var kByteLength = Symbol("kByteLength");
+    var kByteLength = /* @__PURE__ */ Symbol("kByteLength");
     var maskBuffer = Buffer.alloc(4);
     var RANDOM_POOL_SIZE = 8 * 1024;
     var randomPool;
@@ -33081,14 +33337,14 @@ var require_event_target = __commonJS({
   "node_modules/ws/lib/event-target.js"(exports, module) {
     "use strict";
     var { kForOnEventAttribute, kListener } = require_constants2();
-    var kCode = Symbol("kCode");
-    var kData = Symbol("kData");
-    var kError = Symbol("kError");
-    var kMessage = Symbol("kMessage");
-    var kReason = Symbol("kReason");
-    var kTarget = Symbol("kTarget");
-    var kType = Symbol("kType");
-    var kWasClean = Symbol("kWasClean");
+    var kCode = /* @__PURE__ */ Symbol("kCode");
+    var kData = /* @__PURE__ */ Symbol("kData");
+    var kError = /* @__PURE__ */ Symbol("kError");
+    var kMessage = /* @__PURE__ */ Symbol("kMessage");
+    var kReason = /* @__PURE__ */ Symbol("kReason");
+    var kTarget = /* @__PURE__ */ Symbol("kTarget");
+    var kType = /* @__PURE__ */ Symbol("kType");
+    var kWasClean = /* @__PURE__ */ Symbol("kWasClean");
     var Event = class {
       /**
        * Create a new `Event`.
@@ -33490,7 +33746,7 @@ var require_websocket = __commonJS({
     } = require_event_target();
     var { format, parse } = require_extension();
     var { toBuffer } = require_buffer_util();
-    var kAborted = Symbol("kAborted");
+    var kAborted = /* @__PURE__ */ Symbol("kAborted");
     var protocolVersions = [8, 13];
     var readyStates = ["CONNECTING", "OPEN", "CLOSING", "CLOSED"];
     var subprotocolRegex = /^[!#$%&'*+\-.0-9A-Z^_`|a-z~]+$/;
@@ -34901,10 +35157,10 @@ var customGlobal;
 var init_devtools_window_polyfill = __esm({
   "node_modules/ink/build/devtools-window-polyfill.js"() {
     init_wrapper();
-    customGlobal = global;
+    customGlobal = globalThis;
     customGlobal.WebSocket ||= wrapper_default;
-    customGlobal.window ||= global;
-    customGlobal.self ||= global;
+    customGlobal.window ||= globalThis;
+    customGlobal.self ||= globalThis;
     customGlobal.window.__REACT_DEVTOOLS_COMPONENT_FILTERS__ = [
       {
         // ComponentFilterElementType
@@ -34990,7 +35246,7 @@ var require_backend = __commonJS({
                     return o2 && "function" == typeof Symbol && o2.constructor === Symbol && o2 !== Symbol.prototype ? "symbol" : typeof o2;
                   }, _typeof(o);
                 }
-                var ErrorStackParser = __webpack_require__2(206), React19 = __webpack_require__2(189), assign = Object.assign, ReactSharedInternals = React19.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_MEMO_CACHE_SENTINEL = Symbol.for("react.memo_cache_sentinel"), hasOwnProperty = Object.prototype.hasOwnProperty, hookLog = [], primitiveStackCache = null;
+                var ErrorStackParser = __webpack_require__2(206), React19 = __webpack_require__2(189), assign = Object.assign, ReactSharedInternals = React19.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, REACT_CONTEXT_TYPE = /* @__PURE__ */ Symbol.for("react.context"), REACT_MEMO_CACHE_SENTINEL = /* @__PURE__ */ Symbol.for("react.memo_cache_sentinel"), hasOwnProperty = Object.prototype.hasOwnProperty, hookLog = [], primitiveStackCache = null;
                 function getPrimitiveStackCache() {
                   if (null === primitiveStackCache) {
                     var cache3 = /* @__PURE__ */ new Map();
@@ -35128,7 +35384,7 @@ var require_backend = __commonJS({
                     }
                     throw Error("An unsupported type was passed to use(): " + String(usable));
                   },
-                  useCallback: function useCallback4(callback) {
+                  useCallback: function useCallback6(callback) {
                     var hook = nextHook();
                     hookLog.push({
                       displayName: null,
@@ -35140,7 +35396,7 @@ var require_backend = __commonJS({
                     });
                     return callback;
                   },
-                  useContext: function useContext12(context) {
+                  useContext: function useContext13(context) {
                     var value = readContext(context);
                     hookLog.push({
                       displayName: context.displayName || null,
@@ -35152,7 +35408,7 @@ var require_backend = __commonJS({
                     });
                     return value;
                   },
-                  useEffect: function useEffect6(create3) {
+                  useEffect: function useEffect9(create3) {
                     nextHook();
                     hookLog.push({
                       displayName: null,
@@ -35176,7 +35432,7 @@ var require_backend = __commonJS({
                       dispatcherHookName: "ImperativeHandle"
                     });
                   },
-                  useLayoutEffect: function useLayoutEffect2(create3) {
+                  useLayoutEffect: function useLayoutEffect3(create3) {
                     nextHook();
                     hookLog.push({
                       displayName: null,
@@ -35198,7 +35454,7 @@ var require_backend = __commonJS({
                       dispatcherHookName: "InsertionEffect"
                     });
                   },
-                  useMemo: function useMemo6(nextCreate) {
+                  useMemo: function useMemo7(nextCreate) {
                     var hook = nextHook();
                     nextCreate = null !== hook ? hook.memoizedState[0] : nextCreate();
                     hookLog.push({
@@ -35225,7 +35481,7 @@ var require_backend = __commonJS({
                     return [initialArg, function() {
                     }];
                   },
-                  useRef: function useRef4(initialValue) {
+                  useRef: function useRef5(initialValue) {
                     var hook = nextHook();
                     initialValue = null !== hook ? hook.memoizedState : {
                       current: initialValue
@@ -35240,7 +35496,7 @@ var require_backend = __commonJS({
                     });
                     return initialValue;
                   },
-                  useState: function useState7(initialState) {
+                  useState: function useState10(initialState) {
                     var hook = nextHook();
                     initialState = null !== hook ? hook.memoizedState : "function" === typeof initialState ? initialState() : initialState;
                     hookLog.push({
@@ -35438,7 +35694,7 @@ var require_backend = __commonJS({
                     return function() {
                     };
                   },
-                  useEffectEvent: function useEffectEvent(callback) {
+                  useEffectEvent: function useEffectEvent3(callback) {
                     nextHook();
                     hookLog.push({
                       displayName: null,
@@ -35690,7 +35946,7 @@ var require_backend = __commonJS({
                     return o2 && "function" == typeof Symbol && o2.constructor === Symbol && o2 !== Symbol.prototype ? "symbol" : typeof o2;
                   }, _typeof(o);
                 }
-                var REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = Symbol.for("react.activity"), REACT_POSTPONE_TYPE = Symbol.for("react.postpone"), REACT_VIEW_TRANSITION_TYPE = Symbol.for("react.view_transition"), MAYBE_ITERATOR_SYMBOL = Symbol.iterator;
+                var REACT_ELEMENT_TYPE = /* @__PURE__ */ Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = /* @__PURE__ */ Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = /* @__PURE__ */ Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = /* @__PURE__ */ Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = /* @__PURE__ */ Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = /* @__PURE__ */ Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = /* @__PURE__ */ Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = /* @__PURE__ */ Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = /* @__PURE__ */ Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = /* @__PURE__ */ Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = /* @__PURE__ */ Symbol.for("react.memo"), REACT_LAZY_TYPE = /* @__PURE__ */ Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = /* @__PURE__ */ Symbol.for("react.activity"), REACT_POSTPONE_TYPE = /* @__PURE__ */ Symbol.for("react.postpone"), REACT_VIEW_TRANSITION_TYPE = /* @__PURE__ */ Symbol.for("react.view_transition"), MAYBE_ITERATOR_SYMBOL = Symbol.iterator;
                 function getIteratorFn(maybeIterable) {
                   if (null === maybeIterable || "object" !== _typeof(maybeIterable)) return null;
                   maybeIterable = MAYBE_ITERATOR_SYMBOL && maybeIterable[MAYBE_ITERATOR_SYMBOL] || maybeIterable["@@iterator"];
@@ -35951,21 +36207,21 @@ var require_backend = __commonJS({
                   }
                   return ReactElement(element.type, key, props);
                 };
-                exports2.createContext = function(defaultValue) {
-                  defaultValue = {
+                exports2.createContext = function(defaultValue2) {
+                  defaultValue2 = {
                     $$typeof: REACT_CONTEXT_TYPE,
-                    _currentValue: defaultValue,
-                    _currentValue2: defaultValue,
+                    _currentValue: defaultValue2,
+                    _currentValue2: defaultValue2,
                     _threadCount: 0,
                     Provider: null,
                     Consumer: null
                   };
-                  defaultValue.Provider = defaultValue;
-                  defaultValue.Consumer = {
+                  defaultValue2.Provider = defaultValue2;
+                  defaultValue2.Consumer = {
                     $$typeof: REACT_CONSUMER_TYPE,
-                    _context: defaultValue
+                    _context: defaultValue2
                   };
-                  return defaultValue;
+                  return defaultValue2;
                 };
                 exports2.createElement = function(type, config, children) {
                   var propName, props = {}, key = null;
@@ -36325,16 +36581,16 @@ var require_backend = __commonJS({
                   return ("string" === r ? String : Number)(t);
                 }
                 var Yallist = __webpack_require__2(695);
-                var MAX = Symbol("max");
-                var LENGTH = Symbol("length");
-                var LENGTH_CALCULATOR = Symbol("lengthCalculator");
-                var ALLOW_STALE = Symbol("allowStale");
-                var MAX_AGE = Symbol("maxAge");
-                var DISPOSE = Symbol("dispose");
-                var NO_DISPOSE_ON_SET = Symbol("noDisposeOnSet");
-                var LRU_LIST = Symbol("lruList");
-                var CACHE = Symbol("cache");
-                var UPDATE_AGE_ON_GET = Symbol("updateAgeOnGet");
+                var MAX = /* @__PURE__ */ Symbol("max");
+                var LENGTH = /* @__PURE__ */ Symbol("length");
+                var LENGTH_CALCULATOR = /* @__PURE__ */ Symbol("lengthCalculator");
+                var ALLOW_STALE = /* @__PURE__ */ Symbol("allowStale");
+                var MAX_AGE = /* @__PURE__ */ Symbol("maxAge");
+                var DISPOSE = /* @__PURE__ */ Symbol("dispose");
+                var NO_DISPOSE_ON_SET = /* @__PURE__ */ Symbol("noDisposeOnSet");
+                var LRU_LIST = /* @__PURE__ */ Symbol("lruList");
+                var CACHE = /* @__PURE__ */ Symbol("cache");
+                var UPDATE_AGE_ON_GET = /* @__PURE__ */ Symbol("updateAgeOnGet");
                 var naiveLength = function naiveLength2() {
                   return 1;
                 };
@@ -38074,26 +38330,26 @@ var require_backend = __commonJS({
                 return o2 && "function" == typeof Symbol && o2.constructor === Symbol && o2 !== Symbol.prototype ? "symbol" : typeof o2;
               }, ReactSymbols_typeof(o);
             }
-            var REACT_LEGACY_ELEMENT_TYPE = Symbol.for("react.element");
-            var REACT_ELEMENT_TYPE = renameElementSymbol ? Symbol.for("react.transitional.element") : REACT_LEGACY_ELEMENT_TYPE;
-            var REACT_PORTAL_TYPE = Symbol.for("react.portal");
-            var REACT_FRAGMENT_TYPE = Symbol.for("react.fragment");
-            var REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode");
-            var REACT_PROFILER_TYPE = Symbol.for("react.profiler");
-            var REACT_CONSUMER_TYPE = Symbol.for("react.consumer");
-            var REACT_CONTEXT_TYPE = Symbol.for("react.context");
-            var REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref");
-            var REACT_SUSPENSE_TYPE = Symbol.for("react.suspense");
-            var REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list");
-            var REACT_MEMO_TYPE = Symbol.for("react.memo");
-            var REACT_LAZY_TYPE = Symbol.for("react.lazy");
-            var REACT_SCOPE_TYPE = Symbol.for("react.scope");
-            var REACT_ACTIVITY_TYPE = Symbol.for("react.activity");
-            var REACT_LEGACY_HIDDEN_TYPE = Symbol.for("react.legacy_hidden");
-            var REACT_TRACING_MARKER_TYPE = Symbol.for("react.tracing_marker");
-            var REACT_MEMO_CACHE_SENTINEL = Symbol.for("react.memo_cache_sentinel");
-            var REACT_POSTPONE_TYPE = Symbol.for("react.postpone");
-            var REACT_VIEW_TRANSITION_TYPE = Symbol.for("react.view_transition");
+            var REACT_LEGACY_ELEMENT_TYPE = /* @__PURE__ */ Symbol.for("react.element");
+            var REACT_ELEMENT_TYPE = renameElementSymbol ? /* @__PURE__ */ Symbol.for("react.transitional.element") : REACT_LEGACY_ELEMENT_TYPE;
+            var REACT_PORTAL_TYPE = /* @__PURE__ */ Symbol.for("react.portal");
+            var REACT_FRAGMENT_TYPE = /* @__PURE__ */ Symbol.for("react.fragment");
+            var REACT_STRICT_MODE_TYPE = /* @__PURE__ */ Symbol.for("react.strict_mode");
+            var REACT_PROFILER_TYPE = /* @__PURE__ */ Symbol.for("react.profiler");
+            var REACT_CONSUMER_TYPE = /* @__PURE__ */ Symbol.for("react.consumer");
+            var REACT_CONTEXT_TYPE = /* @__PURE__ */ Symbol.for("react.context");
+            var REACT_FORWARD_REF_TYPE = /* @__PURE__ */ Symbol.for("react.forward_ref");
+            var REACT_SUSPENSE_TYPE = /* @__PURE__ */ Symbol.for("react.suspense");
+            var REACT_SUSPENSE_LIST_TYPE = /* @__PURE__ */ Symbol.for("react.suspense_list");
+            var REACT_MEMO_TYPE = /* @__PURE__ */ Symbol.for("react.memo");
+            var REACT_LAZY_TYPE = /* @__PURE__ */ Symbol.for("react.lazy");
+            var REACT_SCOPE_TYPE = /* @__PURE__ */ Symbol.for("react.scope");
+            var REACT_ACTIVITY_TYPE = /* @__PURE__ */ Symbol.for("react.activity");
+            var REACT_LEGACY_HIDDEN_TYPE = /* @__PURE__ */ Symbol.for("react.legacy_hidden");
+            var REACT_TRACING_MARKER_TYPE = /* @__PURE__ */ Symbol.for("react.tracing_marker");
+            var REACT_MEMO_CACHE_SENTINEL = /* @__PURE__ */ Symbol.for("react.memo_cache_sentinel");
+            var REACT_POSTPONE_TYPE = /* @__PURE__ */ Symbol.for("react.postpone");
+            var REACT_VIEW_TRANSITION_TYPE = /* @__PURE__ */ Symbol.for("react.view_transition");
             var MAYBE_ITERATOR_SYMBOL = Symbol.iterator;
             var FAUX_ITERATOR_SYMBOL = "@@iterator";
             function getIteratorFn(maybeIterable) {
@@ -38216,7 +38472,7 @@ var require_backend = __commonJS({
             var encodedStringCache = new (lru_cache_default())({
               max: 1e3
             });
-            var LEGACY_REACT_PROVIDER_TYPE = Symbol.for("react.provider");
+            var LEGACY_REACT_PROVIDER_TYPE = /* @__PURE__ */ Symbol.for("react.provider");
             function alphaSortKeys(a, b) {
               if (a.toString() > b.toString()) {
                 return 1;
@@ -39152,15 +39408,15 @@ var require_backend = __commonJS({
               }, hydration_typeof(o);
             }
             var meta = {
-              inspectable: Symbol("inspectable"),
-              inspected: Symbol("inspected"),
-              name: Symbol("name"),
-              preview_long: Symbol("preview_long"),
-              preview_short: Symbol("preview_short"),
-              readonly: Symbol("readonly"),
-              size: Symbol("size"),
-              type: Symbol("type"),
-              unserializable: Symbol("unserializable")
+              inspectable: /* @__PURE__ */ Symbol("inspectable"),
+              inspected: /* @__PURE__ */ Symbol("inspected"),
+              name: /* @__PURE__ */ Symbol("name"),
+              preview_long: /* @__PURE__ */ Symbol("preview_long"),
+              preview_short: /* @__PURE__ */ Symbol("preview_short"),
+              readonly: /* @__PURE__ */ Symbol("readonly"),
+              size: /* @__PURE__ */ Symbol("size"),
+              type: /* @__PURE__ */ Symbol("type"),
+              unserializable: /* @__PURE__ */ Symbol("unserializable")
             };
             var LEVEL_THRESHOLD = 2;
             function createDehydrated(type, inspectable, data, cleaned, path) {
@@ -42824,7 +43080,7 @@ var require_backend = __commonJS({
             var SUSPENSE_LIST_NUMBER = 60120;
             var SUSPENSE_LIST_SYMBOL_STRING = "Symbol(react.suspense_list)";
             var SERVER_CONTEXT_DEFAULT_VALUE_NOT_LOADED_SYMBOL_STRING = "Symbol(react.server_context.defaultValue)";
-            var ReactSymbols_REACT_MEMO_CACHE_SENTINEL = Symbol.for("react.memo_cache_sentinel");
+            var ReactSymbols_REACT_MEMO_CACHE_SENTINEL = /* @__PURE__ */ Symbol.for("react.memo_cache_sentinel");
             ;
             var enableLogger = false;
             var enableStyleXFeatures = false;
@@ -43536,7 +43792,7 @@ var require_backend = __commonJS({
               supportsUserTimingV3 = performanceMock !== null;
             }
             function createProfilingHooks(_ref) {
-              var getDisplayNameForFiber = _ref.getDisplayNameForFiber, getIsProfiling = _ref.getIsProfiling, getLaneLabelMap = _ref.getLaneLabelMap, workTagMap = _ref.workTagMap, currentDispatcherRef = _ref.currentDispatcherRef, reactVersion = _ref.reactVersion;
+              var getDisplayNameForFiber = _ref.getDisplayNameForFiber, getIsProfiling = _ref.getIsProfiling, getLaneLabelMap = _ref.getLaneLabelMap, workTagMap = _ref.workTagMap, currentDispatcherRef = _ref.currentDispatcherRef, reactVersion2 = _ref.reactVersion;
               var currentBatchUID = 0;
               var currentReactComponentMeasure = null;
               var currentReactMeasuresStack = [];
@@ -43579,7 +43835,7 @@ var require_backend = __commonJS({
               }
               var laneToLabelMap = typeof getLaneLabelMap === "function" ? getLaneLabelMap() : null;
               function markMetadata() {
-                markAndClear("--react-version-".concat(reactVersion));
+                markAndClear("--react-version-".concat(reactVersion2));
                 markAndClear("--profiler-version-".concat(SCHEDULING_PROFILER_VERSION));
                 var ranges = getInternalModuleRanges();
                 if (ranges) {
@@ -44070,7 +44326,7 @@ var require_backend = __commonJS({
                       currentTimelineData = {
                         internalModuleSourceToRanges,
                         laneToLabelMap: laneToLabelMap || /* @__PURE__ */ new Map(),
-                        reactVersion,
+                        reactVersion: reactVersion2,
                         componentMeasures: [],
                         schedulingEvents: [],
                         suspenseEvents: [],
@@ -51663,23 +51919,51 @@ var require_backend = __commonJS({
 
 // node_modules/ink/build/devtools.js
 var devtools_exports = {};
-var import_react_devtools_core;
+var import_react_devtools_core, isDevToolsReachable;
 var init_devtools = __esm({
-  "node_modules/ink/build/devtools.js"() {
+  async "node_modules/ink/build/devtools.js"() {
     init_devtools_window_polyfill();
+    init_wrapper();
     import_react_devtools_core = __toESM(require_backend(), 1);
-    import_react_devtools_core.default.initialize();
-    import_react_devtools_core.default.connectToDevTools();
+    isDevToolsReachable = async () => new Promise((resolve) => {
+      const socket = new wrapper_default("ws://localhost:8097");
+      const timeout = setTimeout(() => {
+        socket.terminate();
+        resolve(false);
+      }, 2e3);
+      timeout.unref();
+      socket.on("open", () => {
+        clearTimeout(timeout);
+        socket.terminate();
+        resolve(true);
+      });
+      socket.on("error", () => {
+        clearTimeout(timeout);
+        socket.terminate();
+        resolve(false);
+      });
+    });
+    if (await isDevToolsReachable()) {
+      import_react_devtools_core.default.initialize();
+      import_react_devtools_core.default.connectToDevTools();
+    } else {
+      console.warn("DEV is set to true, but the React DevTools server is not running. Start it with:\n\n$ npx react-devtools\n");
+    }
   }
 });
 
 // node_modules/ink/build/reconciler.js
+import process4 from "node:process";
 async function loadPackageJson() {
   const fs3 = await import("node:fs");
   const content = fs3.readFileSync(new URL("../package.json", import.meta.url), "utf8");
-  return JSON.parse(content);
+  const parsedContent = JSON.parse(content);
+  return {
+    name: parsedContent?.name,
+    version: parsedContent?.version
+  };
 }
-var import_react_reconciler, import_constants, Scheduler, import_react, diff, cleanupYogaNode, currentUpdatePriority, currentRootNode, packageJson, reconciler_default;
+var import_react_reconciler, import_constants, Scheduler, import_react, diff, cleanupYogaNode, currentUpdatePriority, currentRootNode, packageInfo, reconciler_default;
 var init_reconciler = __esm({
   async "node_modules/ink/build/reconciler.js"() {
     import_react_reconciler = __toESM(require_react_reconciler(), 1);
@@ -51689,23 +51973,15 @@ var init_reconciler = __esm({
     import_react = __toESM(require_react(), 1);
     await init_dom();
     await init_styles();
-    init_utils();
-    if (isDev()) {
+    if (process4.env["DEV"] === "true") {
+      let isDevtoolsInstalled = false;
       try {
-        await Promise.resolve().then(() => (init_devtools(), devtools_exports));
-      } catch (error) {
-        if (error.code === "ERR_MODULE_NOT_FOUND") {
-          console.warn(`
-The environment variable DEV is set to true, so Ink tried to import \`react-devtools-core\`,
-but this failed as it was not installed. Debugging with React Devtools requires it.
-
-To install use this command:
-
-$ npm install --save-dev react-devtools-core
-				`.trim() + "\n");
-        } else {
-          throw error;
-        }
+        import.meta.resolve("react-devtools-core");
+        isDevtoolsInstalled = true;
+      } catch {
+      }
+      if (isDevtoolsInstalled) {
+        await init_devtools().then(() => devtools_exports);
       }
     }
     diff = (before, after) => {
@@ -51739,7 +52015,23 @@ $ npm install --save-dev react-devtools-core
       node?.freeRecursive();
     };
     currentUpdatePriority = import_constants.NoEventPriority;
-    packageJson = isDev() ? await loadPackageJson() : { name: void 0, version: void 0 };
+    packageInfo = {
+      name: "ink",
+      version: import_react.version
+    };
+    if (process4.env["DEV"] === "true") {
+      try {
+        const loaded = await loadPackageJson();
+        packageInfo = {
+          // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+          name: loaded.name || packageInfo.name,
+          // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+          version: loaded.version || packageInfo.version
+        };
+      } catch (error) {
+        console.warn("Failed to load package.json in development mode. Falling back to default renderer metadata.", error);
+      }
+    }
     reconciler_default = (0, import_react_reconciler.default)({
       getRootHostContext: () => ({
         isInsideText: false
@@ -51750,6 +52042,13 @@ $ npm install --save-dev react-devtools-core
       resetAfterCommit(rootNode) {
         if (typeof rootNode.onComputeLayout === "function") {
           rootNode.onComputeLayout();
+        }
+        emitLayoutListeners(rootNode);
+        if (rootNode.staticNode !== rootNode.previousStaticNode) {
+          rootNode.previousStaticNode = rootNode.staticNode;
+          if (typeof rootNode.onStaticChange === "function") {
+            rootNode.onStaticChange();
+          }
         }
         if (rootNode.isStaticDirty) {
           rootNode.isStaticDirty = false;
@@ -51860,6 +52159,9 @@ $ npm install --save-dev react-devtools-core
       removeChildFromContainer(node, removeNode) {
         removeChildNode(node, removeNode);
         cleanupYogaNode(removeNode.yogaNode);
+        if (removeNode.internal_static && currentRootNode?.staticNode === removeNode) {
+          currentRootNode.staticNode = void 0;
+        }
       },
       commitUpdate(node, _type, oldProps, newProps) {
         if (currentRootNode && node.internal_static) {
@@ -51888,7 +52190,7 @@ $ npm install --save-dev react-devtools-core
           }
         }
         if (style && node.yogaNode) {
-          styles_default(node.yogaNode, style);
+          styles_default(node.yogaNode, style, newProps["style"] ?? {});
         }
       },
       commitTextUpdate(node, _oldText, newText) {
@@ -51897,6 +52199,9 @@ $ npm install --save-dev react-devtools-core
       removeChild(node, removeNode) {
         removeChildNode(node, removeNode);
         cleanupYogaNode(removeNode.yogaNode);
+        if (removeNode.internal_static && currentRootNode?.staticNode === removeNode) {
+          currentRootNode.staticNode = void 0;
+        }
       },
       setCurrentUpdatePriority(newPriority) {
         currentUpdatePriority = newPriority;
@@ -51940,8 +52245,8 @@ $ npm install --save-dev react-devtools-core
       waitForCommitToBeReady() {
         return null;
       },
-      rendererPackageName: packageJson.name,
-      rendererVersion: packageJson.version
+      rendererPackageName: packageInfo.name,
+      rendererVersion: packageInfo.version
     });
   }
 });
@@ -51996,9 +52301,10 @@ var init_get_max_width = __esm({
 });
 
 // node_modules/cli-boxes/boxes.json
-var require_boxes = __commonJS({
-  "node_modules/cli-boxes/boxes.json"(exports, module) {
-    module.exports = {
+var boxes_default;
+var init_boxes = __esm({
+  "node_modules/cli-boxes/boxes.json"() {
+    boxes_default = {
       single: {
         topLeft: "\u250C",
         top: "\u2500",
@@ -52084,12 +52390,11 @@ var require_boxes = __commonJS({
 });
 
 // node_modules/cli-boxes/index.js
-var require_cli_boxes = __commonJS({
-  "node_modules/cli-boxes/index.js"(exports, module) {
-    "use strict";
-    var cliBoxes2 = require_boxes();
-    module.exports = cliBoxes2;
-    module.exports.default = cliBoxes2;
+var cli_boxes_default;
+var init_cli_boxes = __esm({
+  "node_modules/cli-boxes/index.js"() {
+    init_boxes();
+    cli_boxes_default = boxes_default;
   }
 });
 
@@ -52465,9 +52770,9 @@ var init_source = __esm({
     init_supports_color();
     init_utilities2();
     ({ stdout: stdoutColor, stderr: stderrColor } = supports_color_default);
-    GENERATOR = Symbol("GENERATOR");
-    STYLER = Symbol("STYLER");
-    IS_EMPTY = Symbol("IS_EMPTY");
+    GENERATOR = /* @__PURE__ */ Symbol("GENERATOR");
+    STYLER = /* @__PURE__ */ Symbol("STYLER");
+    IS_EMPTY = /* @__PURE__ */ Symbol("IS_EMPTY");
     levelMapping = [
       "ansi",
       "ansi",
@@ -52658,21 +52963,33 @@ var init_colorize = __esm({
 });
 
 // node_modules/ink/build/render-border.js
-var import_cli_boxes, renderBorder, render_border_default;
+var stylePiece, renderBorder, render_border_default;
 var init_render_border = __esm({
   "node_modules/ink/build/render-border.js"() {
-    import_cli_boxes = __toESM(require_cli_boxes(), 1);
+    init_cli_boxes();
     init_source();
     init_colorize();
+    stylePiece = (segment, fg, bg, dim2) => {
+      let styled = colorize_default(segment, fg, "foreground");
+      styled = colorize_default(styled, bg, "background");
+      if (dim2) {
+        styled = source_default.dim(styled);
+      }
+      return styled;
+    };
     renderBorder = (x, y, node, output) => {
       if (node.style.borderStyle) {
         const width = node.yogaNode.getComputedWidth();
         const height = node.yogaNode.getComputedHeight();
-        const box = typeof node.style.borderStyle === "string" ? import_cli_boxes.default[node.style.borderStyle] : node.style.borderStyle;
+        const box = typeof node.style.borderStyle === "string" ? cli_boxes_default[node.style.borderStyle] : node.style.borderStyle;
         const topBorderColor = node.style.borderTopColor ?? node.style.borderColor;
         const bottomBorderColor = node.style.borderBottomColor ?? node.style.borderColor;
         const leftBorderColor = node.style.borderLeftColor ?? node.style.borderColor;
         const rightBorderColor = node.style.borderRightColor ?? node.style.borderColor;
+        const topBorderBackgroundColor = node.style.borderTopBackgroundColor ?? node.style.borderBackgroundColor;
+        const bottomBorderBackgroundColor = node.style.borderBottomBackgroundColor ?? node.style.borderBackgroundColor;
+        const leftBorderBackgroundColor = node.style.borderLeftBackgroundColor ?? node.style.borderBackgroundColor;
+        const rightBorderBackgroundColor = node.style.borderRightBackgroundColor ?? node.style.borderBackgroundColor;
         const dimTopBorderColor = node.style.borderTopDimColor ?? node.style.borderDimColor;
         const dimBottomBorderColor = node.style.borderBottomDimColor ?? node.style.borderDimColor;
         const dimLeftBorderColor = node.style.borderLeftDimColor ?? node.style.borderDimColor;
@@ -52682,10 +52999,8 @@ var init_render_border = __esm({
         const showLeftBorder = node.style.borderLeft !== false;
         const showRightBorder = node.style.borderRight !== false;
         const contentWidth = width - (showLeftBorder ? 1 : 0) - (showRightBorder ? 1 : 0);
-        let topBorder = showTopBorder ? colorize_default((showLeftBorder ? box.topLeft : "") + box.top.repeat(contentWidth) + (showRightBorder ? box.topRight : ""), topBorderColor, "foreground") : void 0;
-        if (showTopBorder && dimTopBorderColor) {
-          topBorder = source_default.dim(topBorder);
-        }
+        let topBorder = showTopBorder ? (showLeftBorder ? box.topLeft : "") + box.top.repeat(contentWidth) + (showRightBorder ? box.topRight : "") : void 0;
+        topBorder &&= stylePiece(topBorder, topBorderColor, topBorderBackgroundColor, dimTopBorderColor);
         let verticalBorderHeight = height;
         if (showTopBorder) {
           verticalBorderHeight -= 1;
@@ -52693,26 +53008,26 @@ var init_render_border = __esm({
         if (showBottomBorder) {
           verticalBorderHeight -= 1;
         }
-        let leftBorder = (colorize_default(box.left, leftBorderColor, "foreground") + "\n").repeat(verticalBorderHeight);
-        if (dimLeftBorderColor) {
-          leftBorder = source_default.dim(leftBorder);
+        let leftBorder = "";
+        if (showLeftBorder) {
+          const one = stylePiece(box.left, leftBorderColor, leftBorderBackgroundColor, dimLeftBorderColor);
+          leftBorder = (one + "\n").repeat(verticalBorderHeight);
         }
-        let rightBorder = (colorize_default(box.right, rightBorderColor, "foreground") + "\n").repeat(verticalBorderHeight);
-        if (dimRightBorderColor) {
-          rightBorder = source_default.dim(rightBorder);
+        let rightBorder = "";
+        if (showRightBorder) {
+          const one = stylePiece(box.right, rightBorderColor, rightBorderBackgroundColor, dimRightBorderColor);
+          rightBorder = (one + "\n").repeat(verticalBorderHeight);
         }
-        let bottomBorder = showBottomBorder ? colorize_default((showLeftBorder ? box.bottomLeft : "") + box.bottom.repeat(contentWidth) + (showRightBorder ? box.bottomRight : ""), bottomBorderColor, "foreground") : void 0;
-        if (showBottomBorder && dimBottomBorderColor) {
-          bottomBorder = source_default.dim(bottomBorder);
-        }
+        let bottomBorder = showBottomBorder ? (showLeftBorder ? box.bottomLeft : "") + box.bottom.repeat(contentWidth) + (showRightBorder ? box.bottomRight : "") : void 0;
+        bottomBorder &&= stylePiece(bottomBorder, bottomBorderColor, bottomBorderBackgroundColor, dimBottomBorderColor);
         const offsetY = showTopBorder ? 1 : 0;
         if (topBorder) {
           output.write(x, y, topBorder, { transformers: [] });
         }
-        if (showLeftBorder) {
+        if (leftBorder) {
           output.write(x, y + offsetY, leftBorder, { transformers: [] });
         }
-        if (showRightBorder) {
+        if (rightBorder) {
           output.write(x + width - 1, y + offsetY, rightBorder, {
             transformers: []
           });
@@ -52876,14 +53191,48 @@ var init_render_node_to_output = __esm({
   }
 });
 
+// node_modules/@alcalzone/ansi-tokenize/build/consts.js
+var BEL2, ESC3, BACKSLASH, CSI, OSC2, C1_ST, CC_BEL, CC_ESC, CC_BACKSLASH, CC_CSI, CC_OSC, CC_C1_ST, CC_0, CC_9, CC_SEMI, CC_M, ESCAPES3, linkCodePrefix, linkCodePrefixCharCodes, linkEndCode, linkEndCodeST, linkEndCodeC1ST;
+var init_consts = __esm({
+  "node_modules/@alcalzone/ansi-tokenize/build/consts.js"() {
+    BEL2 = "\x07";
+    ESC3 = "\x1B";
+    BACKSLASH = "\\";
+    CSI = "[";
+    OSC2 = "]";
+    C1_ST = "\x9C";
+    CC_BEL = BEL2.charCodeAt(0);
+    CC_ESC = ESC3.charCodeAt(0);
+    CC_BACKSLASH = BACKSLASH.charCodeAt(0);
+    CC_CSI = CSI.charCodeAt(0);
+    CC_OSC = OSC2.charCodeAt(0);
+    CC_C1_ST = C1_ST.charCodeAt(0);
+    CC_0 = "0".charCodeAt(0);
+    CC_9 = "9".charCodeAt(0);
+    CC_SEMI = ";".charCodeAt(0);
+    CC_M = "m".charCodeAt(0);
+    ESCAPES3 = /* @__PURE__ */ new Set([CC_ESC, 155]);
+    linkCodePrefix = `${ESC3}${OSC2}8;`;
+    linkCodePrefixCharCodes = linkCodePrefix.split("").map((char) => char.charCodeAt(0));
+    linkEndCode = `${ESC3}${OSC2}8;;${BEL2}`;
+    linkEndCodeST = `${ESC3}${OSC2}8;;${ESC3}${BACKSLASH}`;
+    linkEndCodeC1ST = `${ESC3}${OSC2}8;;${C1_ST}`;
+  }
+});
+
 // node_modules/@alcalzone/ansi-tokenize/build/ansiCodes.js
 function getEndCode(code) {
   if (endCodesSet.has(code))
     return code;
   if (endCodesMap.has(code))
     return endCodesMap.get(code);
-  if (code.startsWith(linkCodePrefix))
+  if (code.startsWith(linkCodePrefix)) {
+    if (code.endsWith("\x1B\\"))
+      return linkEndCodeST;
+    if (code.endsWith("\x9C"))
+      return linkEndCodeC1ST;
     return linkEndCode;
+  }
   code = code.slice(2);
   if (code.startsWith("38")) {
     return ansi_styles_default.color.close;
@@ -52904,24 +53253,17 @@ function ansiCodesToString(codes) {
 function isIntensityCode(code) {
   return code.code === ansi_styles_default.bold.open || code.code === ansi_styles_default.dim.open;
 }
-var ESCAPES3, CSI, OSC2, endCodesSet, endCodesMap, linkCodePrefix, linkCodePrefixCharCodes, linkCodeSuffix, linkCodeSuffixCharCode, linkEndCode;
+var endCodesSet, endCodesMap;
 var init_ansiCodes = __esm({
   "node_modules/@alcalzone/ansi-tokenize/build/ansiCodes.js"() {
     init_ansi_styles();
-    ESCAPES3 = /* @__PURE__ */ new Set([27, 155]);
-    CSI = "[".codePointAt(0);
-    OSC2 = "]".codePointAt(0);
+    init_consts();
     endCodesSet = /* @__PURE__ */ new Set();
     endCodesMap = /* @__PURE__ */ new Map();
     for (const [start, end] of ansi_styles_default.codes) {
       endCodesSet.add(ansi_styles_default.color.ansi(end));
       endCodesMap.set(ansi_styles_default.color.ansi(start), ansi_styles_default.color.ansi(end));
     }
-    linkCodePrefix = "\x1B]8;";
-    linkCodePrefixCharCodes = linkCodePrefix.split("").map((char) => char.charCodeAt(0));
-    linkCodeSuffix = "\x07";
-    linkCodeSuffixCharCode = linkCodeSuffix.charCodeAt(0);
-    linkEndCode = `\x1B]8;;${linkCodeSuffix}`;
   }
 });
 
@@ -53054,10 +53396,30 @@ function parseLinkCode(string, offset) {
   const paramsEndIndex = string.indexOf(";", linkCodePrefix.length);
   if (paramsEndIndex === -1)
     return void 0;
-  const endIndex = string.indexOf("\x07", paramsEndIndex + 1);
+  const endIndex = findOSCTerminatorIndex(string, paramsEndIndex + 1);
   if (endIndex === -1)
     return void 0;
   return string.slice(0, endIndex + 1);
+}
+function parseOSCSequence(string, offset) {
+  string = string.slice(offset);
+  const endIndex = findOSCTerminatorIndex(string, 2);
+  if (endIndex === -1)
+    return void 0;
+  return string.slice(0, endIndex + 1);
+}
+function findOSCTerminatorIndex(string, startIndex) {
+  for (let i = startIndex; i < string.length; i++) {
+    const ch = string.charCodeAt(i);
+    if (ch === CC_BEL)
+      return i;
+    if (ch === CC_C1_ST)
+      return i;
+    if (ch === CC_ESC && i + 1 < string.length && string.charCodeAt(i + 1) === CC_BACKSLASH) {
+      return i + 1;
+    }
+  }
+  return -1;
 }
 function findSGRSequenceEndIndex(str) {
   for (let index = 2; index < str.length; index++) {
@@ -53113,7 +53475,7 @@ function tokenize(str, endChar = Number.POSITIVE_INFINITY) {
     if (ESCAPES3.has(codePoint)) {
       let code;
       const nextCodePoint = str.codePointAt(index + 1);
-      if (nextCodePoint === OSC2) {
+      if (nextCodePoint === CC_OSC) {
         code = parseLinkCode(str, index);
         if (code) {
           ret.push({
@@ -53121,8 +53483,16 @@ function tokenize(str, endChar = Number.POSITIVE_INFINITY) {
             code,
             endCode: getEndCode(code)
           });
+        } else {
+          code = parseOSCSequence(str, index);
+          if (code) {
+            ret.push({
+              type: "control",
+              code
+            });
+          }
         }
-      } else if (nextCodePoint === CSI) {
+      } else if (nextCodePoint === CC_CSI) {
         code = parseSGRSequence(str, index);
         if (code) {
           const codes = splitCompoundSGRSequences(code);
@@ -53153,16 +53523,13 @@ function tokenize(str, endChar = Number.POSITIVE_INFINITY) {
   }
   return ret;
 }
-var segmenter3, CC_0, CC_9, CC_SEMI, CC_M;
+var segmenter3;
 var init_tokenize = __esm({
   "node_modules/@alcalzone/ansi-tokenize/build/tokenize.js"() {
     init_is_fullwidth_code_point();
     init_ansiCodes();
+    init_consts();
     segmenter3 = new Intl.Segmenter(void 0, { granularity: "grapheme" });
-    CC_0 = "0".charCodeAt(0);
-    CC_9 = "9".charCodeAt(0);
-    CC_SEMI = ";".charCodeAt(0);
-    CC_M = "m".charCodeAt(0);
   }
 });
 
@@ -53183,7 +53550,7 @@ var OutputCaches, Output;
 var init_output = __esm({
   "node_modules/ink/build/output.js"() {
     init_slice_ansi();
-    init_string_width2();
+    init_string_width();
     init_build();
     OutputCaches = class {
       widths = /* @__PURE__ */ new Map();
@@ -53200,7 +53567,7 @@ var init_output = __esm({
       getStringWidth(text) {
         let cached = this.widths.get(text);
         if (cached === void 0) {
-          cached = stringWidth2(text);
+          cached = stringWidth(text);
           this.widths.set(text, cached);
         }
         return cached;
@@ -53326,6 +53693,19 @@ var init_output = __esm({
               }
               const characters = this.caches.getStyledChars(line);
               let offsetX = x;
+              if (characters.length === 0) {
+                offsetY++;
+                continue;
+              }
+              const spaceCell = {
+                type: "char",
+                value: " ",
+                fullWidth: false,
+                styles: []
+              };
+              if (currentLine[offsetX]?.value === "" && offsetX > 0 && this.caches.getStringWidth(currentLine[offsetX - 1]?.value ?? "") > 1) {
+                currentLine[offsetX - 1] = spaceCell;
+              }
               for (const character of characters) {
                 currentLine[offsetX] = character;
                 const characterWidth = Math.max(1, this.caches.getStringWidth(character.value));
@@ -53340,6 +53720,9 @@ var init_output = __esm({
                   }
                 }
                 offsetX += characterWidth;
+              }
+              if (currentLine[offsetX]?.value === "") {
+                currentLine[offsetX] = spaceCell;
               }
               offsetY++;
             }
@@ -53418,6 +53801,43 @@ var init_renderer2 = __esm({
       };
     };
     renderer_default = renderer;
+  }
+});
+
+// node_modules/ink/build/cursor-helpers.js
+var showCursorEscape, hideCursorEscape, cursorPositionChanged, buildCursorSuffix, buildReturnToBottom, buildCursorOnlySequence, buildReturnToBottomPrefix;
+var init_cursor_helpers = __esm({
+  "node_modules/ink/build/cursor-helpers.js"() {
+    init_ansi_escapes();
+    showCursorEscape = "\x1B[?25h";
+    hideCursorEscape = "\x1B[?25l";
+    cursorPositionChanged = (a, b) => a?.x !== b?.x || a?.y !== b?.y;
+    buildCursorSuffix = (visibleLineCount2, cursorPosition) => {
+      if (!cursorPosition) {
+        return "";
+      }
+      const moveUp = visibleLineCount2 - cursorPosition.y;
+      return (moveUp > 0 ? base_exports.cursorUp(moveUp) : "") + base_exports.cursorTo(cursorPosition.x) + showCursorEscape;
+    };
+    buildReturnToBottom = (previousLineCount, previousCursorPosition) => {
+      if (!previousCursorPosition) {
+        return "";
+      }
+      const down = previousLineCount - 1 - previousCursorPosition.y;
+      return (down > 0 ? base_exports.cursorDown(down) : "") + base_exports.cursorTo(0);
+    };
+    buildCursorOnlySequence = (input) => {
+      const hidePrefix = input.cursorWasShown ? hideCursorEscape : "";
+      const returnToBottom = buildReturnToBottom(input.previousLineCount, input.previousCursorPosition);
+      const cursorSuffix = buildCursorSuffix(input.visibleLineCount, input.cursorPosition);
+      return hidePrefix + returnToBottom + cursorSuffix;
+    };
+    buildReturnToBottomPrefix = (cursorWasShown, previousLineCount, previousCursorPosition) => {
+      if (!cursorWasShown) {
+        return "";
+      }
+      return hideCursorEscape + buildReturnToBottom(previousLineCount, previousCursorPosition);
+    };
   }
 });
 
@@ -53527,43 +53947,6 @@ var init_cli_cursor = __esm({
   }
 });
 
-// node_modules/ink/build/cursor-helpers.js
-var showCursorEscape, hideCursorEscape, cursorPositionChanged, buildCursorSuffix, buildReturnToBottom, buildCursorOnlySequence, buildReturnToBottomPrefix;
-var init_cursor_helpers = __esm({
-  "node_modules/ink/build/cursor-helpers.js"() {
-    init_ansi_escapes();
-    showCursorEscape = "\x1B[?25h";
-    hideCursorEscape = "\x1B[?25l";
-    cursorPositionChanged = (a, b) => a?.x !== b?.x || a?.y !== b?.y;
-    buildCursorSuffix = (visibleLineCount2, cursorPosition) => {
-      if (!cursorPosition) {
-        return "";
-      }
-      const moveUp = visibleLineCount2 - cursorPosition.y;
-      return (moveUp > 0 ? base_exports.cursorUp(moveUp) : "") + base_exports.cursorTo(cursorPosition.x) + showCursorEscape;
-    };
-    buildReturnToBottom = (previousLineCount, previousCursorPosition) => {
-      if (!previousCursorPosition) {
-        return "";
-      }
-      const down = previousLineCount - 1 - previousCursorPosition.y;
-      return (down > 0 ? base_exports.cursorDown(down) : "") + base_exports.cursorTo(0);
-    };
-    buildCursorOnlySequence = (input) => {
-      const hidePrefix = input.cursorWasShown ? hideCursorEscape : "";
-      const returnToBottom = buildReturnToBottom(input.previousLineCount, input.previousCursorPosition);
-      const cursorSuffix = buildCursorSuffix(input.visibleLineCount, input.cursorPosition);
-      return hidePrefix + returnToBottom + cursorSuffix;
-    };
-    buildReturnToBottomPrefix = (cursorWasShown, previousLineCount, previousCursorPosition) => {
-      if (!cursorWasShown) {
-        return "";
-      }
-      return hideCursorEscape + buildReturnToBottom(previousLineCount, previousCursorPosition);
-    };
-  }
-});
-
 // node_modules/ink/build/log-update.js
 var visibleLineCount, createStandard, createIncremental, create2, logUpdate, log_update_default;
 var init_log_update = __esm({
@@ -53634,6 +54017,12 @@ var init_log_update = __esm({
           cli_cursor_default.show(stream);
           hasHiddenCursor = false;
         }
+      };
+      render2.reset = () => {
+        previousOutput = "";
+        previousLineCount = 0;
+        previousCursorPosition = void 0;
+        cursorWasShown = false;
       };
       render2.sync = (str) => {
         const activeCursor = cursorDirty ? cursorPosition : void 0;
@@ -53715,7 +54104,7 @@ var init_log_update = __esm({
           const extraSlot = previousHadTrailingNewline ? 1 : 0;
           buffer.push(base_exports.eraseLines(previousVisible - visibleCount + extraSlot), base_exports.cursorUp(visibleCount));
         } else {
-          buffer.push(base_exports.cursorUp(previousVisible - 1));
+          buffer.push(base_exports.cursorUp(previousLines.length - 1));
         }
         for (let i = 0; i < visibleCount; i++) {
           const isLastLine = i === visibleCount - 1;
@@ -53756,6 +54145,12 @@ var init_log_update = __esm({
           hasHiddenCursor = false;
         }
       };
+      render2.reset = () => {
+        previousOutput = "";
+        previousLines = [];
+        previousCursorPosition = void 0;
+        cursorWasShown = false;
+      };
       render2.sync = (str) => {
         const activeCursor = cursorDirty ? cursorPosition : void 0;
         cursorDirty = false;
@@ -53791,8 +54186,8 @@ var init_log_update = __esm({
 });
 
 // node_modules/ink/build/write-synchronized.js
-function shouldSynchronize(stream) {
-  return "isTTY" in stream && stream.isTTY === true && !is_in_ci_default;
+function shouldSynchronize(stream, interactive) {
+  return "isTTY" in stream && stream.isTTY && (interactive ?? !is_in_ci_default);
 }
 var bsu, esu;
 var init_write_synchronized = __esm({
@@ -53813,10 +54208,12 @@ var init_instances = __esm({
 });
 
 // node_modules/ink/build/input-parser.js
-var escape, isCsiParameterByte, isCsiIntermediateByte, isCsiFinalByte, parseCsiSequence, parseSs3Sequence, parseControlSequence, parseEscapedCodePoint, parseKeypresses, createInputParser;
+var escape, pasteStart, pasteEnd, isCsiParameterByte, isCsiIntermediateByte, isCsiFinalByte, parseCsiSequence, parseSs3Sequence, parseControlSequence, parseEscapedCodePoint, parseEscapeSequence, splitBackspaceBytes, parseKeypresses, createInputParser;
 var init_input_parser = __esm({
   "node_modules/ink/build/input-parser.js"() {
     escape = "\x1B";
+    pasteStart = "\x1B[200~";
+    pasteEnd = "\x1B[201~";
     isCsiParameterByte = (byte) => {
       return byte >= 48 && byte <= 63;
     };
@@ -53886,6 +54283,52 @@ var init_input_parser = __esm({
         nextIndex
       };
     };
+    parseEscapeSequence = (input, escapeIndex) => {
+      if (escapeIndex === input.length - 1) {
+        return "pending";
+      }
+      const next = input[escapeIndex + 1];
+      if (next === escape) {
+        if (escapeIndex + 2 >= input.length) {
+          return "pending";
+        }
+        const doubleEscapeSequence = parseControlSequence(input, escapeIndex, 2);
+        if (doubleEscapeSequence === "pending") {
+          return "pending";
+        }
+        if (doubleEscapeSequence) {
+          return doubleEscapeSequence;
+        }
+        return {
+          sequence: input.slice(escapeIndex, escapeIndex + 2),
+          nextIndex: escapeIndex + 2
+        };
+      }
+      const controlSequence = parseControlSequence(input, escapeIndex, 1);
+      if (controlSequence === "pending") {
+        return "pending";
+      }
+      if (controlSequence) {
+        return controlSequence;
+      }
+      return parseEscapedCodePoint(input, escapeIndex);
+    };
+    splitBackspaceBytes = (text, events) => {
+      let textSegmentStart = 0;
+      for (let index = 0; index < text.length; index++) {
+        const character = text[index];
+        if (character === "\x7F" || character === "\b") {
+          if (index > textSegmentStart) {
+            events.push(text.slice(textSegmentStart, index));
+          }
+          events.push(character);
+          textSegmentStart = index + 1;
+        }
+      }
+      if (textSegmentStart < text.length) {
+        events.push(text.slice(textSegmentStart));
+      }
+    };
     parseKeypresses = (input) => {
       const events = [];
       let index = 0;
@@ -53896,48 +54339,31 @@ var init_input_parser = __esm({
       while (index < input.length) {
         const escapeIndex = input.indexOf(escape, index);
         if (escapeIndex === -1) {
-          events.push(input.slice(index));
+          splitBackspaceBytes(input.slice(index), events);
           return {
             events,
             pending: ""
           };
         }
         if (escapeIndex > index) {
-          events.push(input.slice(index, escapeIndex));
+          splitBackspaceBytes(input.slice(index, escapeIndex), events);
         }
-        if (escapeIndex === input.length - 1) {
+        const parsedEscapeSequence = parseEscapeSequence(input, escapeIndex);
+        if (parsedEscapeSequence === "pending") {
           return pendingFrom(escapeIndex);
         }
-        const parsedSequence = parseControlSequence(input, escapeIndex, 1);
-        if (parsedSequence === "pending") {
-          return pendingFrom(escapeIndex);
-        }
-        if (parsedSequence) {
-          events.push(parsedSequence.sequence);
-          index = parsedSequence.nextIndex;
-          continue;
-        }
-        const next = input[escapeIndex + 1];
-        if (next === escape) {
-          if (escapeIndex + 2 >= input.length) {
+        if (parsedEscapeSequence.sequence === pasteStart) {
+          const afterStart = parsedEscapeSequence.nextIndex;
+          const endIndex = input.indexOf(pasteEnd, afterStart);
+          if (endIndex === -1) {
             return pendingFrom(escapeIndex);
           }
-          const doubleEscapeSequence = parseControlSequence(input, escapeIndex, 2);
-          if (doubleEscapeSequence === "pending") {
-            return pendingFrom(escapeIndex);
-          }
-          if (doubleEscapeSequence) {
-            events.push(doubleEscapeSequence.sequence);
-            index = doubleEscapeSequence.nextIndex;
-            continue;
-          }
-          events.push(input.slice(escapeIndex, escapeIndex + 2));
-          index = escapeIndex + 2;
+          events.push({ paste: input.slice(afterStart, endIndex) });
+          index = endIndex + pasteEnd.length;
           continue;
         }
-        const escapedCodePoint = parseEscapedCodePoint(input, escapeIndex);
-        events.push(escapedCodePoint.sequence);
-        index = escapedCodePoint.nextIndex;
+        events.push(parsedEscapeSequence.sequence);
+        index = parsedEscapeSequence.nextIndex;
       }
       return {
         events,
@@ -53953,7 +54379,7 @@ var init_input_parser = __esm({
           return parsedInput.events;
         },
         hasPendingEscape() {
-          return pending.startsWith(escape);
+          return pending.startsWith(escape) && !pending.startsWith(pasteStart) && pending !== "\x1B[200";
         },
         flushPendingEscape() {
           if (!pending.startsWith(escape)) {
@@ -53972,14 +54398,17 @@ var init_input_parser = __esm({
 });
 
 // node_modules/ink/build/components/AppContext.js
-var import_react2, AppContext, AppContext_default;
+var import_react2, defaultValue, AppContext, AppContext_default;
 var init_AppContext = __esm({
   "node_modules/ink/build/components/AppContext.js"() {
     import_react2 = __toESM(require_react(), 1);
-    AppContext = (0, import_react2.createContext)({
-      exit() {
+    defaultValue = {
+      exit(_errorOrResult) {
+      },
+      async waitUntilRenderFlush() {
       }
-    });
+    };
+    AppContext = (0, import_react2.createContext)(defaultValue);
     AppContext.displayName = "InternalAppContext";
     AppContext_default = AppContext;
   }
@@ -53997,6 +54426,8 @@ var init_StdinContext = __esm({
       // eslint-disable-next-line @typescript-eslint/naming-convention
       internal_eventEmitter: new EventEmitter(),
       setRawMode() {
+      },
+      setBracketedPasteMode() {
       },
       isRawModeSupported: false,
       // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -54070,12 +54501,32 @@ var init_FocusContext = __esm({
   }
 });
 
+// node_modules/ink/build/components/AnimationContext.js
+var import_react7, animationContext, AnimationContext_default;
+var init_AnimationContext = __esm({
+  "node_modules/ink/build/components/AnimationContext.js"() {
+    import_react7 = __toESM(require_react(), 1);
+    animationContext = (0, import_react7.createContext)({
+      renderThrottleMs: 0,
+      subscribe() {
+        return {
+          startTime: 0,
+          unsubscribe() {
+          }
+        };
+      }
+    });
+    animationContext.displayName = "InternalAnimationContext";
+    AnimationContext_default = animationContext;
+  }
+});
+
 // node_modules/ink/build/components/CursorContext.js
-var import_react7, CursorContext, CursorContext_default;
+var import_react8, CursorContext, CursorContext_default;
 var init_CursorContext = __esm({
   "node_modules/ink/build/components/CursorContext.js"() {
-    import_react7 = __toESM(require_react(), 1);
-    CursorContext = (0, import_react7.createContext)({
+    import_react8 = __toESM(require_react(), 1);
+    CursorContext = (0, import_react8.createContext)({
       setCursorPosition() {
       }
     });
@@ -54395,39 +54846,39 @@ var init_dist3 = __esm({
 });
 
 // node_modules/ink/build/components/AccessibilityContext.js
-var import_react8, accessibilityContext;
+var import_react9, accessibilityContext;
 var init_AccessibilityContext = __esm({
   "node_modules/ink/build/components/AccessibilityContext.js"() {
-    import_react8 = __toESM(require_react(), 1);
-    accessibilityContext = (0, import_react8.createContext)({
+    import_react9 = __toESM(require_react(), 1);
+    accessibilityContext = (0, import_react9.createContext)({
       isScreenReaderEnabled: false
     });
   }
 });
 
 // node_modules/ink/build/components/BackgroundContext.js
-var import_react9, backgroundContext;
+var import_react10, backgroundContext;
 var init_BackgroundContext = __esm({
   "node_modules/ink/build/components/BackgroundContext.js"() {
-    import_react9 = __toESM(require_react(), 1);
-    backgroundContext = (0, import_react9.createContext)(void 0);
+    import_react10 = __toESM(require_react(), 1);
+    backgroundContext = (0, import_react10.createContext)(void 0);
   }
 });
 
 // node_modules/ink/build/components/Box.js
-var import_react10, Box, Box_default;
+var import_react11, Box, Box_default;
 var init_Box = __esm({
   "node_modules/ink/build/components/Box.js"() {
-    import_react10 = __toESM(require_react(), 1);
+    import_react11 = __toESM(require_react(), 1);
     init_AccessibilityContext();
     init_BackgroundContext();
-    Box = (0, import_react10.forwardRef)(({ children, backgroundColor, "aria-label": ariaLabel, "aria-hidden": ariaHidden, "aria-role": role, "aria-state": ariaState, ...style }, ref) => {
-      const { isScreenReaderEnabled } = (0, import_react10.useContext)(accessibilityContext);
-      const label = ariaLabel ? import_react10.default.createElement("ink-text", null, ariaLabel) : void 0;
+    Box = (0, import_react11.forwardRef)(({ children, backgroundColor, "aria-label": ariaLabel, "aria-hidden": ariaHidden, "aria-role": role, "aria-state": ariaState, ...style }, ref) => {
+      const { isScreenReaderEnabled } = (0, import_react11.useContext)(accessibilityContext);
+      const label = ariaLabel ? import_react11.default.createElement("ink-text", null, ariaLabel) : void 0;
       if (isScreenReaderEnabled && ariaHidden) {
         return null;
       }
-      const boxElement = import_react10.default.createElement("ink-box", { ref, style: {
+      const boxElement = import_react11.default.createElement("ink-box", { ref, style: {
         flexWrap: "nowrap",
         flexDirection: "row",
         flexGrow: 0,
@@ -54441,7 +54892,7 @@ var init_Box = __esm({
         state: ariaState
       } }, isScreenReaderEnabled && label ? label : children);
       if (backgroundColor) {
-        return import_react10.default.createElement(backgroundContext.Provider, { value: backgroundColor }, boxElement);
+        return import_react11.default.createElement(backgroundContext.Provider, { value: backgroundColor }, boxElement);
       }
       return boxElement;
     });
@@ -54452,8 +54903,8 @@ var init_Box = __esm({
 
 // node_modules/ink/build/components/Text.js
 function Text({ color, backgroundColor, dimColor = false, bold = false, italic = false, underline = false, strikethrough = false, inverse = false, wrap = "wrap", children, "aria-label": ariaLabel, "aria-hidden": ariaHidden = false }) {
-  const { isScreenReaderEnabled } = (0, import_react11.useContext)(accessibilityContext);
-  const inheritedBackgroundColor = (0, import_react11.useContext)(backgroundContext);
+  const { isScreenReaderEnabled } = (0, import_react12.useContext)(accessibilityContext);
+  const inheritedBackgroundColor = (0, import_react12.useContext)(backgroundContext);
   const childrenOrAriaLabel = isScreenReaderEnabled && ariaLabel ? ariaLabel : children;
   if (childrenOrAriaLabel === void 0 || childrenOrAriaLabel === null) {
     return null;
@@ -54489,12 +54940,12 @@ function Text({ color, backgroundColor, dimColor = false, bold = false, italic =
   if (isScreenReaderEnabled && ariaHidden) {
     return null;
   }
-  return import_react11.default.createElement("ink-text", { style: { flexGrow: 0, flexShrink: 1, flexDirection: "row", textWrap: wrap }, internal_transform: transform }, isScreenReaderEnabled && ariaLabel ? ariaLabel : children);
+  return import_react12.default.createElement("ink-text", { style: { flexGrow: 0, flexShrink: 1, flexDirection: "row", textWrap: wrap }, internal_transform: transform }, childrenOrAriaLabel);
 }
-var import_react11;
+var import_react12;
 var init_Text = __esm({
   "node_modules/ink/build/components/Text.js"() {
-    import_react11 = __toESM(require_react(), 1);
+    import_react12 = __toESM(require_react(), 1);
     init_source();
     init_colorize();
     init_AccessibilityContext();
@@ -54511,6 +54962,7 @@ function ErrorOverview({ error }) {
   const filePath = cleanupPath(origin?.file);
   let excerpt;
   let lineWidth = 0;
+  const stackLineCounts = /* @__PURE__ */ new Map();
   if (filePath && origin?.line && fs2.existsSync(filePath)) {
     const sourceCode = fs2.readFileSync(filePath, "utf8");
     excerpt = dist_default3(sourceCode, origin.line);
@@ -54520,30 +54972,30 @@ function ErrorOverview({ error }) {
       }
     }
   }
-  return import_react12.default.createElement(
+  return import_react13.default.createElement(
     Box_default,
     { flexDirection: "column", padding: 1 },
-    import_react12.default.createElement(
+    import_react13.default.createElement(
       Box_default,
       null,
-      import_react12.default.createElement(
+      import_react13.default.createElement(
         Text,
         { backgroundColor: "red", color: "white" },
         " ",
         "ERROR",
         " "
       ),
-      import_react12.default.createElement(
+      import_react13.default.createElement(
         Text,
         null,
         " ",
         error.message
       )
     ),
-    origin && filePath && import_react12.default.createElement(
+    origin && filePath ? import_react13.default.createElement(
       Box_default,
       { marginTop: 1 },
-      import_react12.default.createElement(
+      import_react13.default.createElement(
         Text,
         { dimColor: true },
         filePath,
@@ -54552,30 +55004,33 @@ function ErrorOverview({ error }) {
         ":",
         origin.column
       )
-    ),
-    origin && excerpt && import_react12.default.createElement(Box_default, { marginTop: 1, flexDirection: "column" }, excerpt.map(({ line, value }) => import_react12.default.createElement(
+    ) : null,
+    origin && excerpt ? import_react13.default.createElement(Box_default, { marginTop: 1, flexDirection: "column" }, excerpt.map(({ line, value }) => import_react13.default.createElement(
       Box_default,
       { key: line },
-      import_react12.default.createElement(
+      import_react13.default.createElement(
         Box_default,
         { width: lineWidth + 1 },
-        import_react12.default.createElement(
+        import_react13.default.createElement(
           Text,
           { dimColor: line !== origin.line, backgroundColor: line === origin.line ? "red" : void 0, color: line === origin.line ? "white" : void 0, "aria-label": line === origin.line ? `Line ${line}, error` : `Line ${line}` },
           String(line).padStart(lineWidth, " "),
           ":"
         )
       ),
-      import_react12.default.createElement(Text, { key: line, backgroundColor: line === origin.line ? "red" : void 0, color: line === origin.line ? "white" : void 0 }, " " + value)
-    ))),
-    error.stack && import_react12.default.createElement(Box_default, { marginTop: 1, flexDirection: "column" }, error.stack.split("\n").slice(1).map((line) => {
+      import_react13.default.createElement(Text, { key: line, backgroundColor: line === origin.line ? "red" : void 0, color: line === origin.line ? "white" : void 0 }, " " + value)
+    ))) : null,
+    error.stack ? import_react13.default.createElement(Box_default, { marginTop: 1, flexDirection: "column" }, error.stack.split("\n").slice(1).map((line) => {
       const parsedLine = stackUtils.parseLine(line);
-      if (!parsedLine) {
-        return import_react12.default.createElement(
+      const lineCount = stackLineCounts.get(line) ?? 0;
+      stackLineCounts.set(line, lineCount + 1);
+      const key = `${line}-${lineCount}`;
+      if (!parsedLine?.file || !parsedLine.line || !parsedLine.column) {
+        return import_react13.default.createElement(
           Box_default,
-          { key: line },
-          import_react12.default.createElement(Text, { dimColor: true }, "- "),
-          import_react12.default.createElement(
+          { key },
+          import_react13.default.createElement(Text, { dimColor: true }, "- "),
+          import_react13.default.createElement(
             Text,
             { dimColor: true, bold: true },
             line,
@@ -54584,12 +55039,12 @@ function ErrorOverview({ error }) {
           )
         );
       }
-      return import_react12.default.createElement(
+      return import_react13.default.createElement(
         Box_default,
-        { key: line },
-        import_react12.default.createElement(Text, { dimColor: true }, "- "),
-        import_react12.default.createElement(Text, { dimColor: true, bold: true }, parsedLine.function),
-        import_react12.default.createElement(
+        { key },
+        import_react13.default.createElement(Text, { dimColor: true }, "- "),
+        import_react13.default.createElement(Text, { dimColor: true, bold: true }, parsedLine.function),
+        import_react13.default.createElement(
           Text,
           { dimColor: true, color: "gray", "aria-label": `at ${cleanupPath(parsedLine.file) ?? ""} line ${parsedLine.line} column ${parsedLine.column}` },
           " ",
@@ -54602,13 +55057,13 @@ function ErrorOverview({ error }) {
           ")"
         )
       );
-    }))
+    })) : null
   );
 }
-var import_react12, import_stack_utils, cleanupPath, stackUtils;
+var import_react13, import_stack_utils, cleanupPath, stackUtils;
 var init_ErrorOverview = __esm({
   "node_modules/ink/build/components/ErrorOverview.js"() {
-    import_react12 = __toESM(require_react(), 1);
+    import_react13 = __toESM(require_react(), 1);
     import_stack_utils = __toESM(require_stack_utils(), 1);
     init_dist3();
     init_Box();
@@ -54624,12 +55079,12 @@ var init_ErrorOverview = __esm({
 });
 
 // node_modules/ink/build/components/ErrorBoundary.js
-var import_react13, ErrorBoundary;
+var import_react14, ErrorBoundary;
 var init_ErrorBoundary = __esm({
   "node_modules/ink/build/components/ErrorBoundary.js"() {
-    import_react13 = __toESM(require_react(), 1);
+    import_react14 = __toESM(require_react(), 1);
     init_ErrorOverview();
-    ErrorBoundary = class extends import_react13.PureComponent {
+    ErrorBoundary = class extends import_react14.PureComponent {
       static displayName = "InternalErrorBoundary";
       static getDerivedStateFromError(error) {
         return { error };
@@ -54642,7 +55097,7 @@ var init_ErrorBoundary = __esm({
       }
       render() {
         if (this.state.error) {
-          return import_react13.default.createElement(ErrorOverview, { error: this.state.error });
+          return import_react14.default.createElement(ErrorOverview, { error: this.state.error });
         }
         return this.props.children;
       }
@@ -54653,89 +55108,166 @@ var init_ErrorBoundary = __esm({
 // node_modules/ink/build/components/App.js
 import { EventEmitter as EventEmitter2 } from "node:events";
 import process11 from "node:process";
-function App({ children, stdin, stdout, stderr, writeToStdout, writeToStderr, exitOnCtrlC, onExit, setCursorPosition }) {
-  const [isFocusEnabled, setIsFocusEnabled] = (0, import_react14.useState)(true);
-  const [activeFocusId, setActiveFocusId] = (0, import_react14.useState)(void 0);
-  const [, setFocusables] = (0, import_react14.useState)([]);
-  const focusablesCountRef = (0, import_react14.useRef)(0);
-  const rawModeEnabledCount = (0, import_react14.useRef)(0);
-  const internal_eventEmitter = (0, import_react14.useRef)(new EventEmitter2());
+function App({ children, stdin, stdout, stderr, writeToStdout, writeToStderr, exitOnCtrlC, onExit, onWaitUntilRenderFlush, setCursorPosition, interactive, renderThrottleMs }) {
+  const [isFocusEnabled, setIsFocusEnabled] = (0, import_react15.useState)(true);
+  const [activeFocusId, setActiveFocusId] = (0, import_react15.useState)(void 0);
+  const [, setFocusables] = (0, import_react15.useState)([]);
+  const focusablesCountRef = (0, import_react15.useRef)(0);
+  const animationSubscribersRef = (0, import_react15.useRef)(/* @__PURE__ */ new Map());
+  const animationTimerRef = (0, import_react15.useRef)(void 0);
+  const rawModeEnabledCount = (0, import_react15.useRef)(0);
+  const pendingDisableRawModeRef = (0, import_react15.useRef)(false);
+  const bracketedPasteModeEnabledCount = (0, import_react15.useRef)(0);
+  const internal_eventEmitter = (0, import_react15.useRef)(new EventEmitter2());
   internal_eventEmitter.current.setMaxListeners(Infinity);
-  const readableListenerRef = (0, import_react14.useRef)(void 0);
-  const inputParserRef = (0, import_react14.useRef)(createInputParser());
-  const pendingInputFlushRef = (0, import_react14.useRef)(void 0);
-  const clearPendingInputFlush = (0, import_react14.useCallback)(() => {
+  const readableListenerRef = (0, import_react15.useRef)(void 0);
+  const inputParserRef = (0, import_react15.useRef)(createInputParser());
+  const pendingInputFlushRef = (0, import_react15.useRef)(void 0);
+  const pendingInputFlushDelayMilliseconds = 20;
+  const clearPendingInputFlush = (0, import_react15.useCallback)(() => {
     if (!pendingInputFlushRef.current) {
       return;
     }
-    clearImmediate(pendingInputFlushRef.current);
+    clearTimeout(pendingInputFlushRef.current);
     pendingInputFlushRef.current = void 0;
   }, []);
+  const clearAnimationTimer = (0, import_react15.useCallback)(() => {
+    if (!animationTimerRef.current) {
+      return;
+    }
+    clearTimeout(animationTimerRef.current);
+    animationTimerRef.current = void 0;
+  }, []);
+  const scheduleAnimationTick = (0, import_react15.useCallback)(() => {
+    clearAnimationTimer();
+    if (animationSubscribersRef.current.size === 0) {
+      return;
+    }
+    let nextDueTime = Number.POSITIVE_INFINITY;
+    for (const subscriber of animationSubscribersRef.current.values()) {
+      nextDueTime = Math.min(nextDueTime, subscriber.nextDueTime);
+    }
+    const delay = Math.max(0, nextDueTime - performance.now());
+    animationTimerRef.current = setTimeout(() => {
+      animationTimerRef.current = void 0;
+      const currentTime = performance.now();
+      for (const subscriber of animationSubscribersRef.current.values()) {
+        if (currentTime < subscriber.nextDueTime) {
+          continue;
+        }
+        subscriber.callback(currentTime);
+        const elapsedTime = currentTime - subscriber.startTime;
+        const elapsedFrames = Math.floor(elapsedTime / subscriber.interval) + 1;
+        subscriber.nextDueTime = subscriber.startTime + elapsedFrames * subscriber.interval;
+      }
+      scheduleAnimationTick();
+    }, delay);
+  }, [clearAnimationTimer]);
+  const animationSubscribe = (0, import_react15.useCallback)((callback, interval) => {
+    const startTime = performance.now();
+    animationSubscribersRef.current.set(callback, {
+      callback,
+      interval,
+      startTime,
+      nextDueTime: startTime + interval
+    });
+    scheduleAnimationTick();
+    return {
+      startTime,
+      unsubscribe() {
+        animationSubscribersRef.current.delete(callback);
+        if (animationSubscribersRef.current.size === 0) {
+          clearAnimationTimer();
+          return;
+        }
+        scheduleAnimationTick();
+      }
+    };
+  }, [clearAnimationTimer, scheduleAnimationTick]);
+  (0, import_react15.useEffect)(() => {
+    return () => {
+      clearAnimationTimer();
+    };
+  }, [clearAnimationTimer]);
   const isRawModeSupported = stdin.isTTY;
-  const detachReadableListener = (0, import_react14.useCallback)(() => {
+  const detachReadableListener = (0, import_react15.useCallback)(() => {
     if (!readableListenerRef.current) {
       return;
     }
     stdin.removeListener("readable", readableListenerRef.current);
     readableListenerRef.current = void 0;
   }, [stdin]);
-  const disableRawMode = (0, import_react14.useCallback)(() => {
-    stdin.setRawMode(false);
-    detachReadableListener();
-    stdin.unref();
-    rawModeEnabledCount.current = 0;
+  const clearInputState = (0, import_react15.useCallback)(() => {
     inputParserRef.current.reset();
     clearPendingInputFlush();
-  }, [stdin, detachReadableListener, clearPendingInputFlush]);
-  const handleExit = (0, import_react14.useCallback)((errorOrResult) => {
-    if (isRawModeSupported && rawModeEnabledCount.current > 0) {
+    detachReadableListener();
+  }, [clearPendingInputFlush, detachReadableListener]);
+  const disableRawMode = (0, import_react15.useCallback)(() => {
+    pendingDisableRawModeRef.current = false;
+    stdin.setRawMode(false);
+    stdin.unref();
+    rawModeEnabledCount.current = 0;
+    clearInputState();
+  }, [stdin, clearInputState]);
+  const handleExit = (0, import_react15.useCallback)((errorOrResult) => {
+    if (isRawModeSupported && (rawModeEnabledCount.current > 0 || pendingDisableRawModeRef.current)) {
       disableRawMode();
     }
     onExit(errorOrResult);
   }, [isRawModeSupported, disableRawMode, onExit]);
-  const handleInput = (0, import_react14.useCallback)((input) => {
+  const handleInput = (0, import_react15.useCallback)((input) => {
     if (input === "" && exitOnCtrlC) {
       handleExit();
       return;
     }
-    if (input === escape2) {
-      setActiveFocusId((currentActiveFocusId) => {
-        if (currentActiveFocusId) {
-          return void 0;
-        }
-        return currentActiveFocusId;
-      });
+    if (input === escape2 && isFocusEnabled) {
+      setActiveFocusId(void 0);
     }
-  }, [exitOnCtrlC, handleExit]);
-  const emitInput = (0, import_react14.useCallback)((input) => {
+  }, [exitOnCtrlC, handleExit, isFocusEnabled]);
+  const emitInput = (0, import_react15.useCallback)((input) => {
     handleInput(input);
     internal_eventEmitter.current.emit("input", input);
   }, [handleInput]);
-  const schedulePendingInputFlush = (0, import_react14.useCallback)(() => {
+  const schedulePendingInputFlush = (0, import_react15.useCallback)(() => {
     clearPendingInputFlush();
-    pendingInputFlushRef.current = setImmediate(() => {
+    pendingInputFlushRef.current = setTimeout(() => {
       pendingInputFlushRef.current = void 0;
       const pendingEscape = inputParserRef.current.flushPendingEscape();
       if (!pendingEscape) {
         return;
       }
       emitInput(pendingEscape);
-    });
+    }, pendingInputFlushDelayMilliseconds);
   }, [clearPendingInputFlush, emitInput]);
-  const handleReadable = (0, import_react14.useCallback)(() => {
+  const handleReadable = (0, import_react15.useCallback)(() => {
     clearPendingInputFlush();
     let chunk;
     while ((chunk = stdin.read()) !== null) {
       const inputEvents = inputParserRef.current.push(chunk);
-      for (const input of inputEvents) {
-        emitInput(input);
+      for (const event of inputEvents) {
+        if (typeof event === "string") {
+          emitInput(event);
+        } else {
+          if (internal_eventEmitter.current.listenerCount("paste") === 0) {
+            emitInput(event.paste);
+            continue;
+          }
+          internal_eventEmitter.current.emit("paste", event.paste);
+        }
       }
     }
     if (inputParserRef.current.hasPendingEscape()) {
       schedulePendingInputFlush();
     }
   }, [stdin, emitInput, clearPendingInputFlush, schedulePendingInputFlush]);
-  const handleSetRawMode = (0, import_react14.useCallback)((isEnabled) => {
+  const attachReadableListener = (0, import_react15.useCallback)(() => {
+    if (readableListenerRef.current) {
+      return;
+    }
+    readableListenerRef.current = handleReadable;
+    stdin.addListener("readable", handleReadable);
+  }, [stdin, handleReadable]);
+  const handleSetRawMode = (0, import_react15.useCallback)((isEnabled) => {
     if (!isRawModeSupported) {
       if (stdin === process11.stdin) {
         throw new Error("Raw mode is not supported on the current process.stdin, which Ink uses as input stream by default.\nRead about how to prevent this error on https://github.com/vadimdemedes/ink/#israwmodesupported");
@@ -54746,10 +55278,13 @@ function App({ children, stdin, stdout, stderr, writeToStdout, writeToStderr, ex
     stdin.setEncoding("utf8");
     if (isEnabled) {
       if (rawModeEnabledCount.current === 0) {
-        stdin.ref();
-        stdin.setRawMode(true);
-        readableListenerRef.current = handleReadable;
-        stdin.addListener("readable", handleReadable);
+        const isRawModeAlreadyEnabled = pendingDisableRawModeRef.current;
+        pendingDisableRawModeRef.current = false;
+        if (!isRawModeAlreadyEnabled) {
+          stdin.ref();
+          stdin.setRawMode(true);
+        }
+        attachReadableListener();
       }
       rawModeEnabledCount.current++;
       return;
@@ -54758,10 +55293,41 @@ function App({ children, stdin, stdout, stderr, writeToStdout, writeToStderr, ex
       return;
     }
     if (--rawModeEnabledCount.current === 0) {
-      disableRawMode();
+      clearInputState();
+      pendingDisableRawModeRef.current = true;
+      queueMicrotask(() => {
+        if (!pendingDisableRawModeRef.current) {
+          return;
+        }
+        disableRawMode();
+      });
     }
-  }, [isRawModeSupported, stdin, handleReadable, disableRawMode]);
-  const findNextFocusable = (0, import_react14.useCallback)((currentFocusables, currentActiveFocusId) => {
+  }, [
+    isRawModeSupported,
+    stdin,
+    attachReadableListener,
+    clearInputState,
+    disableRawMode
+  ]);
+  const handleSetBracketedPasteMode = (0, import_react15.useCallback)((isEnabled) => {
+    if (!stdout.isTTY) {
+      return;
+    }
+    if (isEnabled) {
+      if (bracketedPasteModeEnabledCount.current === 0) {
+        stdout.write("\x1B[?2004h");
+      }
+      bracketedPasteModeEnabledCount.current++;
+      return;
+    }
+    if (bracketedPasteModeEnabledCount.current === 0) {
+      return;
+    }
+    if (--bracketedPasteModeEnabledCount.current === 0) {
+      stdout.write("\x1B[?2004l");
+    }
+  }, [stdout]);
+  const findNextFocusable = (0, import_react15.useCallback)((currentFocusables, currentActiveFocusId) => {
     const activeIndex = currentFocusables.findIndex((focusable) => {
       return focusable.id === currentActiveFocusId;
     });
@@ -54773,7 +55339,7 @@ function App({ children, stdin, stdout, stderr, writeToStdout, writeToStderr, ex
     }
     return void 0;
   }, []);
-  const findPreviousFocusable = (0, import_react14.useCallback)((currentFocusables, currentActiveFocusId) => {
+  const findPreviousFocusable = (0, import_react15.useCallback)((currentFocusables, currentActiveFocusId) => {
     const activeIndex = currentFocusables.findIndex((focusable) => {
       return focusable.id === currentActiveFocusId;
     });
@@ -54785,7 +55351,7 @@ function App({ children, stdin, stdout, stderr, writeToStdout, writeToStderr, ex
     }
     return void 0;
   }, []);
-  const focusNext = (0, import_react14.useCallback)(() => {
+  const focusNext = (0, import_react15.useCallback)(() => {
     setFocusables((currentFocusables) => {
       setActiveFocusId((currentActiveFocusId) => {
         const firstFocusableId = currentFocusables.find((focusable) => focusable.isActive)?.id;
@@ -54795,7 +55361,7 @@ function App({ children, stdin, stdout, stderr, writeToStdout, writeToStderr, ex
       return currentFocusables;
     });
   }, [findNextFocusable]);
-  const focusPrevious = (0, import_react14.useCallback)(() => {
+  const focusPrevious = (0, import_react15.useCallback)(() => {
     setFocusables((currentFocusables) => {
       setActiveFocusId((currentActiveFocusId) => {
         const lastFocusableId = currentFocusables.findLast((focusable) => focusable.isActive)?.id;
@@ -54805,7 +55371,7 @@ function App({ children, stdin, stdout, stderr, writeToStdout, writeToStderr, ex
       return currentFocusables;
     });
   }, [findPreviousFocusable]);
-  (0, import_react14.useEffect)(() => {
+  (0, import_react15.useEffect)(() => {
     const handleTabNavigation = (input) => {
       if (!isFocusEnabled || focusablesCountRef.current === 0)
         return;
@@ -54822,13 +55388,13 @@ function App({ children, stdin, stdout, stderr, writeToStdout, writeToStderr, ex
       emitter.off("input", handleTabNavigation);
     };
   }, [isFocusEnabled, focusNext, focusPrevious]);
-  const enableFocus = (0, import_react14.useCallback)(() => {
+  const enableFocus = (0, import_react15.useCallback)(() => {
     setIsFocusEnabled(true);
   }, []);
-  const disableFocus = (0, import_react14.useCallback)(() => {
+  const disableFocus = (0, import_react15.useCallback)(() => {
     setIsFocusEnabled(false);
   }, []);
-  const focus = (0, import_react14.useCallback)((id) => {
+  const focus = (0, import_react15.useCallback)((id) => {
     setFocusables((currentFocusables) => {
       const hasFocusableId = currentFocusables.some((focusable) => focusable?.id === id);
       if (hasFocusableId) {
@@ -54837,7 +55403,7 @@ function App({ children, stdin, stdout, stderr, writeToStdout, writeToStderr, ex
       return currentFocusables;
     });
   }, []);
-  const addFocusable = (0, import_react14.useCallback)((id, { autoFocus }) => {
+  const addFocusable = (0, import_react15.useCallback)((id, { autoFocus }) => {
     setFocusables((currentFocusables) => {
       focusablesCountRef.current = currentFocusables.length + 1;
       return [
@@ -54857,7 +55423,7 @@ function App({ children, stdin, stdout, stderr, writeToStdout, writeToStderr, ex
       });
     }
   }, []);
-  const removeFocusable = (0, import_react14.useCallback)((id) => {
+  const removeFocusable = (0, import_react15.useCallback)((id) => {
     setActiveFocusId((currentActiveFocusId) => {
       if (currentActiveFocusId === id) {
         return void 0;
@@ -54872,7 +55438,7 @@ function App({ children, stdin, stdout, stderr, writeToStdout, writeToStderr, ex
       return filtered;
     });
   }, []);
-  const activateFocusable = (0, import_react14.useCallback)((id) => {
+  const activateFocusable = (0, import_react15.useCallback)((id) => {
     setFocusables((currentFocusables) => currentFocusables.map((focusable) => {
       if (focusable.id !== id) {
         return focusable;
@@ -54883,7 +55449,7 @@ function App({ children, stdin, stdout, stderr, writeToStdout, writeToStderr, ex
       };
     }));
   }, []);
-  const deactivateFocusable = (0, import_react14.useCallback)((id) => {
+  const deactivateFocusable = (0, import_react15.useCallback)((id) => {
     setActiveFocusId((currentActiveFocusId) => {
       if (currentActiveFocusId === id) {
         return void 0;
@@ -54900,38 +55466,55 @@ function App({ children, stdin, stdout, stderr, writeToStdout, writeToStderr, ex
       };
     }));
   }, []);
-  (0, import_react14.useEffect)(() => {
+  (0, import_react15.useEffect)(() => {
     return () => {
-      cli_cursor_default.show(stdout);
-      if (isRawModeSupported && rawModeEnabledCount.current > 0) {
+      const canWriteToStdout = !stdout.destroyed && !stdout.writableEnded;
+      if (interactive && canWriteToStdout) {
+        cli_cursor_default.show(stdout);
+      }
+      if (isRawModeSupported && (rawModeEnabledCount.current > 0 || pendingDisableRawModeRef.current)) {
         disableRawMode();
       }
+      if (bracketedPasteModeEnabledCount.current > 0) {
+        if (stdout.isTTY && canWriteToStdout) {
+          stdout.write("\x1B[?2004l");
+        }
+        bracketedPasteModeEnabledCount.current = 0;
+      }
     };
-  }, [stdout, isRawModeSupported, disableRawMode]);
-  const appContextValue = (0, import_react14.useMemo)(() => ({
-    exit: handleExit
-  }), [handleExit]);
-  const stdinContextValue = (0, import_react14.useMemo)(() => ({
+  }, [stdout, isRawModeSupported, disableRawMode, interactive]);
+  const appContextValue = (0, import_react15.useMemo)(() => ({
+    exit: handleExit,
+    waitUntilRenderFlush: onWaitUntilRenderFlush
+  }), [handleExit, onWaitUntilRenderFlush]);
+  const stdinContextValue = (0, import_react15.useMemo)(() => ({
     stdin,
     setRawMode: handleSetRawMode,
+    setBracketedPasteMode: handleSetBracketedPasteMode,
     isRawModeSupported,
     // eslint-disable-next-line @typescript-eslint/naming-convention
     internal_exitOnCtrlC: exitOnCtrlC,
     // eslint-disable-next-line @typescript-eslint/naming-convention
     internal_eventEmitter: internal_eventEmitter.current
-  }), [stdin, handleSetRawMode, isRawModeSupported, exitOnCtrlC]);
-  const stdoutContextValue = (0, import_react14.useMemo)(() => ({
+  }), [
+    stdin,
+    handleSetRawMode,
+    handleSetBracketedPasteMode,
+    isRawModeSupported,
+    exitOnCtrlC
+  ]);
+  const stdoutContextValue = (0, import_react15.useMemo)(() => ({
     stdout,
     write: writeToStdout
   }), [stdout, writeToStdout]);
-  const stderrContextValue = (0, import_react14.useMemo)(() => ({
+  const stderrContextValue = (0, import_react15.useMemo)(() => ({
     stderr,
     write: writeToStderr
   }), [stderr, writeToStderr]);
-  const cursorContextValue = (0, import_react14.useMemo)(() => ({
+  const cursorContextValue = (0, import_react15.useMemo)(() => ({
     setCursorPosition
   }), [setCursorPosition]);
-  const focusContextValue = (0, import_react14.useMemo)(() => ({
+  const focusContextValue = (0, import_react15.useMemo)(() => ({
     activeId: activeFocusId,
     add: addFocusable,
     remove: removeFocusable,
@@ -54954,25 +55537,33 @@ function App({ children, stdin, stdout, stderr, writeToStdout, writeToStderr, ex
     focusPrevious,
     focus
   ]);
-  return import_react14.default.createElement(
+  const animationContextValue = (0, import_react15.useMemo)(() => ({
+    renderThrottleMs,
+    subscribe: animationSubscribe
+  }), [animationSubscribe, renderThrottleMs]);
+  return import_react15.default.createElement(
     AppContext_default.Provider,
     { value: appContextValue },
-    import_react14.default.createElement(
+    import_react15.default.createElement(
       StdinContext_default.Provider,
       { value: stdinContextValue },
-      import_react14.default.createElement(
+      import_react15.default.createElement(
         StdoutContext_default.Provider,
         { value: stdoutContextValue },
-        import_react14.default.createElement(
+        import_react15.default.createElement(
           StderrContext_default.Provider,
           { value: stderrContextValue },
-          import_react14.default.createElement(
+          import_react15.default.createElement(
             FocusContext_default.Provider,
             { value: focusContextValue },
-            import_react14.default.createElement(
-              CursorContext_default.Provider,
-              { value: cursorContextValue },
-              import_react14.default.createElement(ErrorBoundary, { onError: handleExit }, children)
+            import_react15.default.createElement(
+              AnimationContext_default.Provider,
+              { value: animationContextValue },
+              import_react15.default.createElement(
+                CursorContext_default.Provider,
+                { value: cursorContextValue },
+                import_react15.default.createElement(ErrorBoundary, { onError: handleExit }, children)
+              )
             )
           )
         )
@@ -54980,10 +55571,10 @@ function App({ children, stdin, stdout, stderr, writeToStdout, writeToStderr, ex
     )
   );
 }
-var import_react14, tab, shiftTab, escape2, App_default;
+var import_react15, tab, shiftTab, escape2, App_default;
 var init_App = __esm({
   "node_modules/ink/build/components/App.js"() {
-    import_react14 = __toESM(require_react(), 1);
+    import_react15 = __toESM(require_react(), 1);
     init_cli_cursor();
     init_input_parser();
     init_AppContext();
@@ -54991,6 +55582,7 @@ var init_App = __esm({
     init_StdoutContext();
     init_StderrContext();
     init_FocusContext();
+    init_AnimationContext();
     init_CursorContext();
     init_ErrorBoundary();
     tab = "	";
@@ -55034,10 +55626,10 @@ var init_kitty_keyboard = __esm({
 
 // node_modules/ink/build/ink.js
 import process12 from "node:process";
-var import_react15, import_signal_exit2, import_constants2, noop, kittyQueryEscapeByte, kittyQueryOpenBracketByte, kittyQueryQuestionMarkByte, kittyQueryLetterByte, zeroByte, nineByte, isDigitByte, matchKittyQueryResponse, hasCompleteKittyQueryResponse, stripKittyQueryResponsesAndTrailingPartial, isErrorInput, Ink;
+var import_react16, import_signal_exit2, import_constants2, noop, textEncoder, yieldImmediate, kittyQueryEscapeByte, kittyQueryOpenBracketByte, kittyQueryQuestionMarkByte, kittyQueryLetterByte, zeroByte, nineByte, isDigitByte, matchKittyQueryResponse, hasCompleteKittyQueryResponse, stripKittyQueryResponsesAndTrailingPartial, isWindowsConsole, shouldClearTerminalForFrame, isErrorInput, getWritableStreamState, settleThrottle, Ink;
 var init_ink = __esm({
   async "node_modules/ink/build/ink.js"() {
-    import_react15 = __toESM(require_react(), 1);
+    import_react16 = __toESM(require_react(), 1);
     init_compat();
     init_ansi_escapes();
     init_is_in_ci();
@@ -55047,11 +55639,11 @@ var init_ink = __esm({
     import_constants2 = __toESM(require_constants(), 1);
     await init_src();
     init_wrap_ansi();
-    init_terminal_size();
     init_utils();
     await init_reconciler();
     await init_renderer2();
     await init_dom();
+    init_cursor_helpers();
     init_log_update();
     init_write_synchronized();
     init_instances();
@@ -55060,6 +55652,10 @@ var init_ink = __esm({
     init_kitty_keyboard();
     noop = () => {
     };
+    textEncoder = new TextEncoder();
+    yieldImmediate = async () => new Promise((resolve) => {
+      setImmediate(resolve);
+    });
     kittyQueryEscapeByte = 27;
     kittyQueryOpenBracketByte = 91;
     kittyQueryQuestionMarkByte = 63;
@@ -55113,8 +55709,50 @@ var init_ink = __esm({
       }
       return keptBytes;
     };
+    isWindowsConsole = process12.platform === "win32";
+    shouldClearTerminalForFrame = ({ isTty, viewportRows, previousOutputHeight, nextOutputHeight, isUnmounting }) => {
+      if (!isTty) {
+        return false;
+      }
+      const hadPreviousFrame = previousOutputHeight > 0;
+      const wasFullscreen = previousOutputHeight >= viewportRows;
+      const wasOverflowing = previousOutputHeight > viewportRows;
+      const isOverflowing = nextOutputHeight > viewportRows;
+      const isFullscreen = nextOutputHeight >= viewportRows;
+      const isLeavingFullscreen = wasFullscreen && nextOutputHeight < viewportRows;
+      const shouldClearOnUnmount = isUnmounting && wasFullscreen;
+      if (isWindowsConsole && (wasFullscreen || isFullscreen)) {
+        return true;
+      }
+      return (
+        // Overflowing frames still need full clear fallback.
+        wasOverflowing || isOverflowing && hadPreviousFrame || // Clear when shrinking from fullscreen to non-fullscreen output.
+        isLeavingFullscreen || // Preserve legacy unmount behavior for fullscreen frames: final teardown
+        // render should clear once to avoid leaving a scrolled viewport state.
+        shouldClearOnUnmount
+      );
+    };
     isErrorInput = (value) => {
       return value instanceof Error || Object.prototype.toString.call(value) === "[object Error]";
+    };
+    getWritableStreamState = (stdout) => {
+      const canWriteToStdout = !stdout.destroyed && !stdout.writableEnded && (stdout.writable ?? true);
+      const hasWritableState = stdout._writableState !== void 0 || stdout.writableLength !== void 0;
+      return {
+        canWriteToStdout,
+        hasWritableState
+      };
+    };
+    settleThrottle = (throttled, canWriteToStdout) => {
+      if (!throttled || typeof throttled.flush !== "function") {
+        return;
+      }
+      const throttledValue = throttled;
+      if (canWriteToStdout) {
+        throttledValue.flush();
+      } else if (typeof throttledValue.cancel === "function") {
+        throttledValue.cancel();
+      }
     };
     Ink = class {
       /**
@@ -55126,6 +55764,9 @@ var init_ink = __esm({
       cursorPosition;
       throttledLog;
       isScreenReaderEnabled;
+      interactive;
+      renderThrottleMs;
+      alternateScreen;
       // Ignore last render after unmounting a tree to prevent empty output before exit
       isUnmounted;
       isUnmounting;
@@ -55147,15 +55788,19 @@ var init_ink = __esm({
       hasPendingThrottledRender = false;
       kittyProtocolEnabled = false;
       cancelKittyDetection;
+      nextRenderCommit;
       constructor(options) {
         autoBind(this);
         this.options = options;
         this.rootNode = createNode("ink-root");
         this.rootNode.onComputeLayout = this.calculateLayout;
         this.isScreenReaderEnabled = options.isScreenReaderEnabled ?? process12.env["INK_SCREEN_READER"] === "true";
+        this.interactive = this.resolveInteractiveOption(options.interactive);
+        this.alternateScreen = false;
         const unthrottled = options.debug || this.isScreenReaderEnabled;
         const maxFps = options.maxFps ?? 30;
         const renderThrottleMs = maxFps > 0 ? Math.max(1, Math.ceil(1e3 / maxFps)) : 0;
+        this.renderThrottleMs = unthrottled ? 0 : renderThrottleMs;
         if (unthrottled) {
           this.rootNode.onRender = this.onRender;
           this.throttledOnRender = void 0;
@@ -55171,13 +55816,14 @@ var init_ink = __esm({
           this.throttledOnRender = throttled;
         }
         this.rootNode.onImmediateRender = this.onRender;
+        this.rootNode.onStaticChange = this.handleStaticChange;
         this.log = log_update_default.create(options.stdout, {
           incremental: options.incrementalRendering
         });
         this.cursorPosition = void 0;
         this.throttledLog = unthrottled ? this.log : throttle((output) => {
           const shouldWrite = this.log.willRender(output);
-          const sync = shouldSynchronize(this.options.stdout);
+          const sync = this.shouldSync();
           if (sync && shouldWrite) {
             this.options.stdout.write(bsu);
           }
@@ -55195,7 +55841,7 @@ var init_ink = __esm({
         this.lastOutput = "";
         this.lastOutputToRender = "";
         this.lastOutputHeight = 0;
-        this.lastTerminalWidth = this.getTerminalWidth();
+        this.lastTerminalWidth = getWindowSize(this.options.stdout).columns;
         this.fullStaticOutput = "";
         const rootTag = options.concurrent ? import_constants2.ConcurrentRoot : import_constants2.LegacyRoot;
         this.container = reconciler_default.createContainer(this.rootNode, rootTag, null, false, null, "id", () => {
@@ -55204,35 +55850,35 @@ var init_ink = __esm({
         }, () => {
         });
         this.unsubscribeExit = (0, import_signal_exit2.default)(this.unmount, { alwaysLast: false });
-        if (isDev()) {
+        this.setAlternateScreen(Boolean(options.alternateScreen));
+        if (process12.env["DEV"] === "true") {
           reconciler_default.injectIntoDevTools();
         }
         if (options.patchConsole) {
           this.patchConsole();
         }
-        if (!is_in_ci_default) {
+        if (this.interactive) {
           options.stdout.on("resize", this.resized);
           this.unsubscribeResize = () => {
             options.stdout.off("resize", this.resized);
           };
         }
         this.initKittyKeyboard();
+        this.exitPromise = new Promise((resolve, reject) => {
+          this.resolveExitPromise = resolve;
+          this.rejectExitPromise = reject;
+        });
+        void this.exitPromise.catch(noop);
       }
-      getTerminalWidth = () => {
-        if (this.options.stdout.columns) {
-          return this.options.stdout.columns;
-        }
-        const size = terminalSize();
-        return size?.columns ?? 80;
-      };
       resized = () => {
-        const currentWidth = this.getTerminalWidth();
+        const currentWidth = getWindowSize(this.options.stdout).columns;
         if (currentWidth < this.lastTerminalWidth) {
           this.log.clear();
           this.lastOutput = "";
           this.lastOutputToRender = "";
         }
         this.calculateLayout();
+        emitLayoutListeners(this.rootNode);
         this.onRender();
         this.lastTerminalWidth = currentWidth;
       };
@@ -55258,18 +55904,29 @@ var init_ink = __esm({
         this.log.setCursorPosition(position);
       };
       restoreLastOutput = () => {
+        if (!this.interactive) {
+          return;
+        }
         this.log.setCursorPosition(this.cursorPosition);
         this.log(this.lastOutputToRender || this.lastOutput + "\n");
       };
       calculateLayout = () => {
-        const terminalWidth = this.getTerminalWidth();
+        const terminalWidth = getWindowSize(this.options.stdout).columns;
         this.rootNode.yogaNode.setWidth(terminalWidth);
         this.rootNode.yogaNode.calculateLayout(void 0, void 0, src_default.DIRECTION_LTR);
+      };
+      // Resets `fullStaticOutput` when the <Static> identity changes so stale items from a previous instance are not replayed on future rewrites.
+      handleStaticChange = () => {
+        this.fullStaticOutput = "";
       };
       onRender = () => {
         this.hasPendingThrottledRender = false;
         if (this.isUnmounted) {
           return;
+        }
+        if (this.nextRenderCommit) {
+          this.nextRenderCommit.resolve();
+          this.nextRenderCommit = void 0;
         }
         const startTime = performance.now();
         const { output, outputHeight, staticOutput } = renderer_default(this.rootNode, this.isScreenReaderEnabled);
@@ -55279,10 +55936,13 @@ var init_ink = __esm({
           if (hasStaticOutput) {
             this.fullStaticOutput += staticOutput;
           }
+          this.lastOutput = output;
+          this.lastOutputToRender = output;
+          this.lastOutputHeight = outputHeight;
           this.options.stdout.write(this.fullStaticOutput + output);
           return;
         }
-        if (is_in_ci_default) {
+        if (!this.interactive) {
           if (hasStaticOutput) {
             this.options.stdout.write(staticOutput);
           }
@@ -55292,7 +55952,7 @@ var init_ink = __esm({
           return;
         }
         if (this.isScreenReaderEnabled) {
-          const sync = shouldSynchronize(this.options.stdout);
+          const sync = this.shouldSync();
           if (sync) {
             this.options.stdout.write(bsu);
           }
@@ -55307,7 +55967,7 @@ var init_ink = __esm({
             }
             return;
           }
-          const terminalWidth = this.getTerminalWidth();
+          const terminalWidth = getWindowSize(this.options.stdout).columns;
           const wrappedOutput = wrapAnsi(output, terminalWidth, {
             trim: false,
             hard: true
@@ -55329,46 +55989,13 @@ var init_ink = __esm({
         if (hasStaticOutput) {
           this.fullStaticOutput += staticOutput;
         }
-        const isFullscreen = this.options.stdout.isTTY && outputHeight >= this.options.stdout.rows;
-        const outputToRender = isFullscreen ? output : output + "\n";
-        if (this.lastOutputHeight >= this.options.stdout.rows) {
-          const sync = shouldSynchronize(this.options.stdout);
-          if (sync) {
-            this.options.stdout.write(bsu);
-          }
-          this.options.stdout.write(base_exports.clearTerminal + this.fullStaticOutput + output);
-          this.lastOutput = output;
-          this.lastOutputToRender = outputToRender;
-          this.lastOutputHeight = outputHeight;
-          this.log.sync(outputToRender);
-          if (sync) {
-            this.options.stdout.write(esu);
-          }
-          return;
-        }
-        if (hasStaticOutput) {
-          const sync = shouldSynchronize(this.options.stdout);
-          if (sync) {
-            this.options.stdout.write(bsu);
-          }
-          this.log.clear();
-          this.options.stdout.write(staticOutput);
-          this.log(outputToRender);
-          if (sync) {
-            this.options.stdout.write(esu);
-          }
-        } else if (output !== this.lastOutput || this.log.isCursorDirty()) {
-          this.throttledLog(outputToRender);
-        }
-        this.lastOutput = output;
-        this.lastOutputToRender = outputToRender;
-        this.lastOutputHeight = outputHeight;
+        this.renderInteractiveFrame(output, outputHeight, hasStaticOutput ? staticOutput : "");
       };
       render(node) {
-        const tree = import_react15.default.createElement(
+        const tree = import_react16.default.createElement(
           accessibilityContext.Provider,
           { value: { isScreenReaderEnabled: this.isScreenReaderEnabled } },
-          import_react15.default.createElement(App_default, { stdin: this.options.stdin, stdout: this.options.stdout, stderr: this.options.stderr, exitOnCtrlC: this.options.exitOnCtrlC, writeToStdout: this.writeToStdout, writeToStderr: this.writeToStderr, setCursorPosition: this.setCursorPosition, onExit: this.handleAppExit }, node)
+          import_react16.default.createElement(App_default, { stdin: this.options.stdin, stdout: this.options.stdout, stderr: this.options.stderr, exitOnCtrlC: this.options.exitOnCtrlC, interactive: this.interactive, renderThrottleMs: this.renderThrottleMs, writeToStdout: this.writeToStdout, writeToStderr: this.writeToStderr, setCursorPosition: this.setCursorPosition, onExit: this.handleAppExit, onWaitUntilRenderFlush: this.waitUntilRenderFlush }, node)
         );
         if (this.options.concurrent) {
           reconciler_default.updateContainer(tree, this.container, null, noop);
@@ -55385,11 +56012,11 @@ var init_ink = __esm({
           this.options.stdout.write(data + this.fullStaticOutput + this.lastOutput);
           return;
         }
-        if (is_in_ci_default) {
+        if (!this.interactive) {
           this.options.stdout.write(data);
           return;
         }
-        const sync = shouldSynchronize(this.options.stdout);
+        const sync = this.shouldSync();
         if (sync) {
           this.options.stdout.write(bsu);
         }
@@ -55409,11 +56036,11 @@ var init_ink = __esm({
           this.options.stdout.write(this.fullStaticOutput + this.lastOutput);
           return;
         }
-        if (is_in_ci_default) {
+        if (!this.interactive) {
           this.options.stderr.write(data);
           return;
         }
-        const sync = shouldSynchronize(this.options.stdout);
+        const sync = this.shouldSync();
         if (sync) {
           this.options.stdout.write(bsu);
         }
@@ -55424,7 +56051,7 @@ var init_ink = __esm({
           this.options.stdout.write(esu);
         }
       }
-      // eslint-disable-next-line @typescript-eslint/ban-types
+      // eslint-disable-next-line @typescript-eslint/no-restricted-types
       unmount(error) {
         if (this.isUnmounted || this.isUnmounting) {
           return;
@@ -55435,18 +56062,8 @@ var init_ink = __esm({
           this.beforeExitHandler = void 0;
         }
         const stdout = this.options.stdout;
-        const canWriteToStdout = !stdout.destroyed && !stdout.writableEnded && (stdout.writable ?? true);
-        const settleThrottle = (throttled) => {
-          if (typeof throttled.flush !== "function") {
-            return;
-          }
-          if (canWriteToStdout) {
-            throttled.flush();
-          } else if (typeof throttled.cancel === "function") {
-            throttled.cancel();
-          }
-        };
-        settleThrottle(this.throttledOnRender ?? {});
+        const { canWriteToStdout, hasWritableState } = getWritableStreamState(stdout);
+        settleThrottle(this.throttledOnRender, canWriteToStdout);
         if (canWriteToStdout) {
           const shouldRenderFinalFrame = !this.throttledOnRender || !this.hasPendingThrottledRender && this.fullStaticOutput === "";
           if (shouldRenderFinalFrame) {
@@ -55456,61 +56073,64 @@ var init_ink = __esm({
         }
         this.isUnmounted = true;
         this.unsubscribeExit();
+        settleThrottle(this.throttledLog, canWriteToStdout);
         if (typeof this.restoreConsole === "function") {
           this.restoreConsole();
         }
-        if (typeof this.unsubscribeResize === "function") {
-          this.unsubscribeResize();
-        }
-        if (this.cancelKittyDetection) {
-          this.cancelKittyDetection();
-        }
-        const throttledLog = this.throttledLog;
-        settleThrottle(throttledLog);
-        if (canWriteToStdout) {
-          if (this.kittyProtocolEnabled) {
-            try {
-              this.options.stdout.write("\x1B[<u");
-            } catch {
+        const finishUnmount = () => {
+          if (typeof this.unsubscribeResize === "function") {
+            this.unsubscribeResize();
+          }
+          if (this.cancelKittyDetection) {
+            this.cancelKittyDetection();
+          }
+          if (canWriteToStdout) {
+            if (this.kittyProtocolEnabled) {
+              this.writeBestEffort(this.options.stdout, "\x1B[<u");
+            }
+            if (this.alternateScreen) {
+              this.writeBestEffort(this.options.stdout, base_exports.exitAlternativeScreen);
+              this.writeBestEffort(this.options.stdout, showCursorEscape);
+              this.alternateScreen = false;
+            }
+            if (!this.interactive) {
+              this.options.stdout.write(this.options.debug ? "\n" : this.lastOutput + "\n");
+            } else if (!this.options.debug) {
+              this.log.done();
             }
           }
-          if (is_in_ci_default) {
-            this.options.stdout.write(this.lastOutput + "\n");
-          } else if (!this.options.debug) {
-            this.log.done();
+          this.kittyProtocolEnabled = false;
+          instances_default.delete(this.options.stdout);
+          const { exitResult } = this;
+          const resolveOrReject = () => {
+            if (isErrorInput(error)) {
+              this.rejectExitPromise(error);
+            } else {
+              this.resolveExitPromise(exitResult);
+            }
+          };
+          const isProcessExiting = error !== void 0 && !isErrorInput(error);
+          if (isProcessExiting) {
+            resolveOrReject();
+          } else if (canWriteToStdout && hasWritableState) {
+            this.options.stdout.write("", resolveOrReject);
+          } else {
+            setImmediate(resolveOrReject);
           }
-        }
-        this.kittyProtocolEnabled = false;
+        };
+        const concurrentReconciler = reconciler_default;
         if (this.options.concurrent) {
-          reconciler_default.updateContainer(null, this.container, null, noop);
+          reconciler_default.updateContainerSync(null, this.container, null, noop);
+          reconciler_default.flushSyncWork();
+          concurrentReconciler.flushPassiveEffects?.();
+          finishUnmount();
         } else {
           reconciler_default.updateContainerSync(null, this.container, null, noop);
           reconciler_default.flushSyncWork();
-        }
-        instances_default.delete(this.options.stdout);
-        const { exitResult } = this;
-        const resolveOrReject = () => {
-          if (isErrorInput(error)) {
-            this.rejectExitPromise(error);
-          } else {
-            this.resolveExitPromise(exitResult);
-          }
-        };
-        const isProcessExiting = error !== void 0 && !isErrorInput(error);
-        const hasWritableState = stdout._writableState !== void 0 || stdout.writableLength !== void 0;
-        if (isProcessExiting) {
-          resolveOrReject();
-        } else if (canWriteToStdout && hasWritableState) {
-          this.options.stdout.write("", resolveOrReject);
-        } else {
-          setImmediate(resolveOrReject);
+          finishUnmount();
         }
       }
       async waitUntilExit() {
-        this.exitPromise ||= new Promise((resolve, reject) => {
-          this.resolveExitPromise = resolve;
-          this.rejectExitPromise = reject;
-        });
         if (!this.beforeExitHandler) {
           this.beforeExitHandler = () => {
             this.unmount();
@@ -55519,8 +56139,41 @@ var init_ink = __esm({
         }
         return this.exitPromise;
       }
+      async waitUntilRenderFlush() {
+        if (this.isUnmounted || this.isUnmounting) {
+          await this.awaitExit();
+          return;
+        }
+        await yieldImmediate();
+        if (this.isUnmounted || this.isUnmounting) {
+          await this.awaitExit();
+          return;
+        }
+        if (this.isConcurrent && this.hasPendingConcurrentWork()) {
+          await Promise.race([this.awaitNextRender(), this.awaitExit()]);
+          if (this.isUnmounted || this.isUnmounting) {
+            this.nextRenderCommit = void 0;
+            await this.awaitExit();
+            return;
+          }
+        }
+        reconciler_default.flushSyncWork();
+        const stdout = this.options.stdout;
+        const { canWriteToStdout, hasWritableState } = getWritableStreamState(stdout);
+        settleThrottle(this.throttledOnRender, canWriteToStdout);
+        settleThrottle(this.throttledLog, canWriteToStdout);
+        if (canWriteToStdout && hasWritableState) {
+          await new Promise((resolve) => {
+            this.options.stdout.write("", () => {
+              resolve();
+            });
+          });
+          return;
+        }
+        await yieldImmediate();
+      }
       clear() {
-        if (!is_in_ci_default && !this.options.debug) {
+        if (this.interactive && !this.options.debug) {
           this.log.clear();
           this.log.sync(this.lastOutputToRender || this.lastOutput + "\n");
         }
@@ -55541,26 +56194,117 @@ var init_ink = __esm({
           }
         });
       }
+      setAlternateScreen(enabled) {
+        this.alternateScreen = this.resolveAlternateScreenOption(enabled, this.interactive);
+        if (this.alternateScreen) {
+          this.writeBestEffort(this.options.stdout, base_exports.enterAlternativeScreen);
+          this.writeBestEffort(this.options.stdout, hideCursorEscape);
+        }
+      }
+      resolveInteractiveOption(interactive) {
+        return interactive ?? (!is_in_ci_default && Boolean(this.options.stdout.isTTY));
+      }
+      resolveAlternateScreenOption(alternateScreen, interactive) {
+        return Boolean(alternateScreen) && interactive && Boolean(this.options.stdout.isTTY);
+      }
+      shouldSync() {
+        return shouldSynchronize(this.options.stdout, this.interactive);
+      }
+      // Best-effort write: streams may already be destroyed during shutdown.
+      writeBestEffort(stream, data) {
+        try {
+          stream.write(data);
+        } catch {
+        }
+      }
+      // Waits for the exit promise to settle, suppressing any rejection.
+      // Errors are surfaced via waitUntilExit() instead.
+      async awaitExit() {
+        try {
+          await this.exitPromise;
+        } catch {
+        }
+      }
+      hasPendingConcurrentWork() {
+        const concurrentContainer = this.container;
+        return (concurrentContainer.pendingLanes ?? 0) !== 0 && concurrentContainer.callbackNode !== void 0 && concurrentContainer.callbackNode !== null;
+      }
+      async awaitNextRender() {
+        if (!this.nextRenderCommit) {
+          let resolveRender;
+          const promise = new Promise((resolve) => {
+            resolveRender = resolve;
+          });
+          this.nextRenderCommit = { promise, resolve: resolveRender };
+        }
+        return this.nextRenderCommit.promise;
+      }
+      renderInteractiveFrame(output, outputHeight, staticOutput) {
+        const hasStaticOutput = staticOutput !== "";
+        const isTty = this.options.stdout.isTTY;
+        const viewportRows = isTty ? getWindowSize(this.options.stdout).rows : 24;
+        const isFullscreen = isTty && outputHeight >= viewportRows;
+        const outputToRender = isFullscreen ? output : output + "\n";
+        const shouldClearTerminal = shouldClearTerminalForFrame({
+          isTty,
+          viewportRows,
+          previousOutputHeight: this.lastOutputHeight,
+          nextOutputHeight: outputHeight,
+          isUnmounting: this.isUnmounting
+        });
+        if (shouldClearTerminal) {
+          const sync = this.shouldSync();
+          if (sync) {
+            this.options.stdout.write(bsu);
+          }
+          this.options.stdout.write(base_exports.clearTerminal + this.fullStaticOutput + output);
+          this.lastOutput = output;
+          this.lastOutputToRender = outputToRender;
+          this.lastOutputHeight = outputHeight;
+          this.log.sync(outputToRender);
+          if (sync) {
+            this.options.stdout.write(esu);
+          }
+          return;
+        }
+        if (hasStaticOutput) {
+          const sync = this.shouldSync();
+          if (sync) {
+            this.options.stdout.write(bsu);
+          }
+          this.log.clear();
+          this.options.stdout.write(staticOutput);
+          this.log(outputToRender);
+          if (sync) {
+            this.options.stdout.write(esu);
+          }
+        } else if (output !== this.lastOutput || this.log.isCursorDirty()) {
+          this.throttledLog(outputToRender);
+        }
+        this.lastOutput = output;
+        this.lastOutputToRender = outputToRender;
+        this.lastOutputHeight = outputHeight;
+      }
       initKittyKeyboard() {
         if (!this.options.kittyKeyboard) {
           return;
         }
         const opts = this.options.kittyKeyboard;
         const mode = opts.mode ?? "auto";
-        if (mode === "disabled" || !this.options.stdin.isTTY || !this.options.stdout.isTTY) {
+        if (mode === "disabled") {
           return;
         }
         const flags = opts.flags ?? ["disambiguateEscapeCodes"];
         if (mode === "enabled") {
-          this.enableKittyProtocol(flags);
+          if (this.options.stdin.isTTY && this.options.stdout.isTTY) {
+            this.enableKittyProtocol(flags);
+          }
           return;
         }
-        const term = process12.env["TERM"] ?? "";
-        const termProgram = process12.env["TERM_PROGRAM"] ?? "";
-        const isKnownSupportingTerminal = "KITTY_WINDOW_ID" in process12.env || term === "xterm-kitty" || termProgram === "WezTerm" || termProgram === "ghostty";
-        if (!is_in_ci_default && isKnownSupportingTerminal) {
-          this.confirmKittySupport(flags);
+        if (!this.interactive || !this.options.stdin.isTTY || !this.options.stdout.isTTY) {
+          return;
         }
+        this.confirmKittySupport(flags);
       }
       confirmKittySupport(flags) {
         const { stdin, stdout } = this.options;
@@ -55572,11 +56316,11 @@ var init_ink = __esm({
           const remaining = stripKittyQueryResponsesAndTrailingPartial(responseBuffer);
           responseBuffer = [];
           if (remaining.length > 0) {
-            stdin.unshift(Buffer.from(remaining));
+            stdin.unshift(Uint8Array.from(remaining));
           }
         };
         const onData = (data) => {
-          const chunk = typeof data === "string" ? Buffer.from(data) : data;
+          const chunk = typeof data === "string" ? textEncoder.encode(data) : data;
           for (const byte of chunk) {
             responseBuffer.push(byte);
           }
@@ -55619,9 +56363,10 @@ var init_render = __esm({
         maxFps: 30,
         incrementalRendering: false,
         concurrent: false,
+        alternateScreen: false,
         ...getOptions(options)
       };
-      const instance = getInstance(inkOptions.stdout, () => new Ink(inkOptions), inkOptions.concurrent ?? false);
+      const instance = getInstance(inkOptions.stdout, () => new Ink(inkOptions));
       instance.render(node);
       return {
         rerender: instance.render,
@@ -55629,7 +56374,10 @@ var init_render = __esm({
           instance.unmount();
         },
         waitUntilExit: instance.waitUntilExit,
-        cleanup: () => instances_default.delete(inkOptions.stdout),
+        waitUntilRenderFlush: instance.waitUntilRenderFlush,
+        cleanup() {
+          instance.unmount();
+        },
         clear: instance.clear
       };
     };
@@ -55643,14 +56391,14 @@ var init_render = __esm({
       }
       return stdout;
     };
-    getInstance = (stdout, createInstance, concurrent) => {
-      let instance = instances_default.get(stdout);
-      if (!instance) {
-        instance = createInstance();
-        instances_default.set(stdout, instance);
-      } else if (instance.isConcurrent !== concurrent) {
-        console.warn(`Warning: render() was called with concurrent: ${concurrent}, but the existing instance for this stdout uses concurrent: ${instance.isConcurrent}. The concurrent option only takes effect on the first render. Call unmount() first if you need to change the rendering mode.`);
+    getInstance = (stdout, createInstance) => {
+      const instance = instances_default.get(stdout);
+      if (instance === void 0) {
+        const newInstance = createInstance();
+        instances_default.set(stdout, newInstance);
+        return newInstance;
       }
+      process13.stderr.write("Warning: render() was called again for the same stdout before the previous Ink instance was unmounted. Reusing stdout across multiple render() calls is unsupported. Call unmount() first.\n");
       return instance;
     };
   }
@@ -55669,41 +56417,40 @@ var init_render_to_string = __esm({
 });
 
 // node_modules/ink/build/components/Static.js
-var import_react16;
+var import_react17;
 var init_Static = __esm({
   "node_modules/ink/build/components/Static.js"() {
-    import_react16 = __toESM(require_react(), 1);
+    import_react17 = __toESM(require_react(), 1);
   }
 });
 
 // node_modules/ink/build/components/Transform.js
-var import_react17;
+var import_react18;
 var init_Transform = __esm({
   "node_modules/ink/build/components/Transform.js"() {
-    import_react17 = __toESM(require_react(), 1);
+    import_react18 = __toESM(require_react(), 1);
     init_AccessibilityContext();
   }
 });
 
 // node_modules/ink/build/components/Newline.js
-var import_react18;
+var import_react19;
 var init_Newline = __esm({
   "node_modules/ink/build/components/Newline.js"() {
-    import_react18 = __toESM(require_react(), 1);
+    import_react19 = __toESM(require_react(), 1);
   }
 });
 
 // node_modules/ink/build/components/Spacer.js
-var import_react19;
+var import_react20;
 var init_Spacer = __esm({
   "node_modules/ink/build/components/Spacer.js"() {
-    import_react19 = __toESM(require_react(), 1);
+    import_react20 = __toESM(require_react(), 1);
     init_Box();
   }
 });
 
 // node_modules/ink/build/parse-keypress.js
-import { Buffer as Buffer2 } from "node:buffer";
 function resolveEventType(value) {
   if (value === 3)
     return "release";
@@ -55715,18 +56462,18 @@ function parseKittyModifiers(modifiers) {
   return {
     ctrl: !!(modifiers & kittyModifiers.ctrl),
     shift: !!(modifiers & kittyModifiers.shift),
-    meta: !!(modifiers & kittyModifiers.meta),
-    option: !!(modifiers & kittyModifiers.alt),
+    meta: !!(modifiers & (kittyModifiers.meta | kittyModifiers.alt)),
     super: !!(modifiers & kittyModifiers.super),
     hyper: !!(modifiers & kittyModifiers.hyper),
     capsLock: !!(modifiers & kittyModifiers.capsLock),
     numLock: !!(modifiers & kittyModifiers.numLock)
   };
 }
-var metaKeyCodeRe, fnKeyRe, keyName, nonAlphanumericKeys, isShiftKey, isCtrlKey, kittyKeyRe, kittySpecialKeyRe, kittySpecialLetterKeys, kittySpecialNumberKeys, kittyCodepointNames, isValidCodepoint, safeFromCodePoint, parseKittyKeypress, parseKittySpecialKey, parseKeypress, parse_keypress_default;
+var textDecoder, metaKeyCodeRe, fnKeyRe, keyName, nonAlphanumericKeys, isShiftKey, isCtrlKey, kittyKeyRe, kittySpecialKeyRe, kittySpecialLetterKeys, kittySpecialNumberKeys, kittyCodepointNames, isValidCodepoint, safeFromCodePoint, parseKittyKeypress, parseKittySpecialKey, parseKeypress, parse_keypress_default;
 var init_parse_keypress = __esm({
   "node_modules/ink/build/parse-keypress.js"() {
     init_kitty_keyboard();
+    textDecoder = new TextDecoder();
     metaKeyCodeRe = /^(?:\x1b)([a-zA-Z0-9])$/;
     fnKeyRe = /^(?:\x1b+)(O|N|\[|\[\[)(?:(\d+)(?:;(\d+))?([~^$])|(?:1;)?(\d+)?([a-zA-Z]))/;
     keyName = {
@@ -55735,6 +56482,11 @@ var init_parse_keypress = __esm({
       OQ: "f2",
       OR: "f3",
       OS: "f4",
+      /* vt220-style ESC [ letter (e.g. Ctrl+F1 sends ESC [ 1 ; 5 P) */
+      "[P": "f1",
+      "[Q": "f2",
+      "[R": "f3",
+      "[S": "f4",
       /* xterm/rxvt ESC [ number ~ */
       "[11~": "f1",
       "[12~": "f2",
@@ -55882,7 +56634,7 @@ var init_parse_keypress = __esm({
       // 13 (return) and 32 (space) are handled before this lookup
       // in parseKittyKeypress so they can be marked as printable.
       9: "tab",
-      127: "delete",
+      127: "backspace",
       8: "backspace",
       57358: "capslock",
       57359: "scrolllock",
@@ -56042,12 +56794,12 @@ var init_parse_keypress = __esm({
     };
     parseKeypress = (s = "") => {
       let parts;
-      if (Buffer2.isBuffer(s)) {
+      if (s instanceof Uint8Array) {
         if (s[0] > 127 && s[1] === void 0) {
           s[0] -= 128;
-          s = "\x1B" + String(s);
+          s = "\x1B" + textDecoder.decode(s);
         } else {
-          s = String(s);
+          s = textDecoder.decode(s);
         }
       } else if (s !== void 0 && typeof s !== "string") {
         s = String(s);
@@ -56066,7 +56818,6 @@ var init_parse_keypress = __esm({
           ctrl: false,
           meta: false,
           shift: false,
-          option: false,
           sequence: s,
           raw: s,
           isKittyProtocol: true,
@@ -56078,7 +56829,6 @@ var init_parse_keypress = __esm({
         ctrl: false,
         meta: false,
         shift: false,
-        option: false,
         sequence: s,
         raw: s
       };
@@ -56086,7 +56836,7 @@ var init_parse_keypress = __esm({
       if (s === "\r" || s === "\x1B\r") {
         key.raw = void 0;
         key.name = "return";
-        key.option = s.length === 2;
+        key.meta = s.length === 2;
       } else if (s === "\n") {
         key.name = "enter";
       } else if (s === "	") {
@@ -56095,7 +56845,7 @@ var init_parse_keypress = __esm({
         key.name = "backspace";
         key.meta = s.charAt(0) === "\x1B";
       } else if (s === "\x7F" || s === "\x1B\x7F") {
-        key.name = "delete";
+        key.name = "backspace";
         key.meta = s.charAt(0) === "\x1B";
       } else if (s === "\x1B" || s === "\x1B\x1B") {
         key.name = "escape";
@@ -56114,20 +56864,21 @@ var init_parse_keypress = __esm({
         key.name = s.toLowerCase();
         key.shift = true;
       } else if (parts = metaKeyCodeRe.exec(s)) {
+        key.name = parts[1].toLowerCase();
         key.meta = true;
         key.shift = /^[A-Z]$/.test(parts[1]);
       } else if (parts = fnKeyRe.exec(s)) {
         const segs = [...s];
         if (segs[0] === "\x1B" && segs[1] === "\x1B") {
-          key.option = true;
+          key.meta = true;
         }
         const code = [parts[1], parts[2], parts[4], parts[6]].filter(Boolean).join("");
         const modifier = (parts[3] || parts[5] || 1) - 1;
         key.ctrl = !!(modifier & 4);
-        key.meta = !!(modifier & 10);
+        key.meta = key.meta || !!(modifier & 10);
         key.shift = !!(modifier & 1);
         key.code = code;
-        key.name = keyName[code];
+        key.name = keyName[code] ?? "";
         key.shift = isShiftKey(code) || key.shift;
         key.ctrl = isCtrlKey(code) || key.ctrl;
       }
@@ -56138,27 +56889,26 @@ var init_parse_keypress = __esm({
 });
 
 // node_modules/ink/build/hooks/use-stdin.js
-var import_react20, useStdin, use_stdin_default;
+var import_react21, useStdinContext;
 var init_use_stdin = __esm({
   "node_modules/ink/build/hooks/use-stdin.js"() {
-    import_react20 = __toESM(require_react(), 1);
+    import_react21 = __toESM(require_react(), 1);
     init_StdinContext();
-    useStdin = () => (0, import_react20.useContext)(StdinContext_default);
-    use_stdin_default = useStdin;
+    useStdinContext = () => (0, import_react21.useContext)(StdinContext_default);
   }
 });
 
 // node_modules/ink/build/hooks/use-input.js
-var import_react21, useInput, use_input_default;
+var import_react22, useInput, use_input_default;
 var init_use_input = __esm({
   async "node_modules/ink/build/hooks/use-input.js"() {
-    import_react21 = __toESM(require_react(), 1);
+    import_react22 = __toESM(require_react(), 1);
     init_parse_keypress();
     await init_reconciler();
     init_use_stdin();
     useInput = (inputHandler, options = {}) => {
-      const { stdin, setRawMode, internal_exitOnCtrlC, internal_eventEmitter } = use_stdin_default();
-      (0, import_react21.useEffect)(() => {
+      const { setRawMode, internal_exitOnCtrlC, internal_eventEmitter } = useStdinContext();
+      (0, import_react22.useEffect)(() => {
         if (options.isActive === false) {
           return;
         }
@@ -56167,142 +56917,177 @@ var init_use_input = __esm({
           setRawMode(false);
         };
       }, [options.isActive, setRawMode]);
-      (0, import_react21.useEffect)(() => {
+      const handleData = (0, import_react22.useEffectEvent)((data) => {
+        const keypress = parse_keypress_default(data);
+        const key = {
+          upArrow: keypress.name === "up",
+          downArrow: keypress.name === "down",
+          leftArrow: keypress.name === "left",
+          rightArrow: keypress.name === "right",
+          pageDown: keypress.name === "pagedown",
+          pageUp: keypress.name === "pageup",
+          home: keypress.name === "home",
+          end: keypress.name === "end",
+          return: keypress.name === "return",
+          escape: keypress.name === "escape",
+          ctrl: keypress.ctrl,
+          shift: keypress.shift,
+          tab: keypress.name === "tab",
+          backspace: keypress.name === "backspace",
+          delete: keypress.name === "delete",
+          meta: keypress.meta,
+          // Kitty keyboard protocol modifiers
+          super: keypress.super ?? false,
+          hyper: keypress.hyper ?? false,
+          capsLock: keypress.capsLock ?? false,
+          numLock: keypress.numLock ?? false,
+          eventType: keypress.eventType
+        };
+        let input;
+        if (keypress.isKittyProtocol) {
+          if (keypress.isPrintable) {
+            input = keypress.text ?? keypress.name;
+          } else if (keypress.ctrl && keypress.name.length === 1) {
+            input = keypress.name;
+          } else {
+            input = "";
+          }
+        } else if (keypress.ctrl) {
+          input = keypress.name ?? "";
+        } else {
+          input = keypress.sequence;
+        }
+        if (!keypress.isKittyProtocol && nonAlphanumericKeys.includes(keypress.name)) {
+          input = "";
+        }
+        if (input.startsWith("\x1B")) {
+          input = input.slice(1);
+        }
+        if (input.length === 1 && /[A-Z]/.test(input)) {
+          key.shift = true;
+        }
+        if (input === "c" && key.ctrl && internal_exitOnCtrlC) {
+          return;
+        }
+        reconciler_default.discreteUpdates(() => {
+          inputHandler(input, key);
+        });
+      });
+      (0, import_react22.useEffect)(() => {
         if (options.isActive === false) {
           return;
         }
-        const handleData = (data) => {
-          const keypress = parse_keypress_default(data);
-          const key = {
-            upArrow: keypress.name === "up",
-            downArrow: keypress.name === "down",
-            leftArrow: keypress.name === "left",
-            rightArrow: keypress.name === "right",
-            pageDown: keypress.name === "pagedown",
-            pageUp: keypress.name === "pageup",
-            home: keypress.name === "home",
-            end: keypress.name === "end",
-            return: keypress.name === "return",
-            escape: keypress.name === "escape",
-            ctrl: keypress.ctrl,
-            shift: keypress.shift,
-            tab: keypress.name === "tab",
-            backspace: keypress.name === "backspace",
-            delete: keypress.name === "delete",
-            // `parseKeypress` parses \u001B\u001B[A (meta + up arrow) as meta = false
-            // but with option = true, so we need to take this into account here
-            // to avoid breaking changes in Ink.
-            // TODO(vadimdemedes): consider removing this in the next major version.
-            meta: keypress.meta || keypress.name === "escape" || keypress.option,
-            // Kitty keyboard protocol modifiers
-            super: keypress.super ?? false,
-            hyper: keypress.hyper ?? false,
-            capsLock: keypress.capsLock ?? false,
-            numLock: keypress.numLock ?? false,
-            eventType: keypress.eventType
-          };
-          let input;
-          if (keypress.isKittyProtocol) {
-            if (keypress.isPrintable) {
-              input = keypress.text ?? keypress.name;
-            } else if (keypress.ctrl && keypress.name.length === 1) {
-              input = keypress.name;
-            } else {
-              input = "";
-            }
-          } else if (keypress.ctrl) {
-            input = keypress.name;
-          } else {
-            input = keypress.sequence;
-          }
-          if (!keypress.isKittyProtocol && nonAlphanumericKeys.includes(keypress.name)) {
-            input = "";
-          }
-          if (input.startsWith("\x1B")) {
-            input = input.slice(1);
-          }
-          if (input.length === 1 && typeof input[0] === "string" && /[A-Z]/.test(input[0])) {
-            key.shift = true;
-          }
-          if (!(input === "c" && key.ctrl) || !internal_exitOnCtrlC) {
-            reconciler_default.batchedUpdates(() => {
-              inputHandler(input, key);
-            });
-          }
-        };
-        internal_eventEmitter?.on("input", handleData);
+        internal_eventEmitter.on("input", handleData);
         return () => {
-          internal_eventEmitter?.removeListener("input", handleData);
+          internal_eventEmitter.removeListener("input", handleData);
         };
-      }, [options.isActive, stdin, internal_exitOnCtrlC, inputHandler]);
+      }, [options.isActive, internal_eventEmitter]);
     };
     use_input_default = useInput;
   }
 });
 
+// node_modules/ink/build/hooks/use-paste.js
+var import_react23;
+var init_use_paste = __esm({
+  async "node_modules/ink/build/hooks/use-paste.js"() {
+    import_react23 = __toESM(require_react(), 1);
+    await init_reconciler();
+    init_use_stdin();
+  }
+});
+
 // node_modules/ink/build/hooks/use-app.js
-var import_react22, useApp, use_app_default;
+var import_react24, useApp, use_app_default;
 var init_use_app = __esm({
   "node_modules/ink/build/hooks/use-app.js"() {
-    import_react22 = __toESM(require_react(), 1);
+    import_react24 = __toESM(require_react(), 1);
     init_AppContext();
-    useApp = () => (0, import_react22.useContext)(AppContext_default);
+    useApp = () => (0, import_react24.useContext)(AppContext_default);
     use_app_default = useApp;
   }
 });
 
 // node_modules/ink/build/hooks/use-stdout.js
-var import_react23;
+var import_react25;
 var init_use_stdout = __esm({
   "node_modules/ink/build/hooks/use-stdout.js"() {
-    import_react23 = __toESM(require_react(), 1);
+    import_react25 = __toESM(require_react(), 1);
     init_StdoutContext();
   }
 });
 
 // node_modules/ink/build/hooks/use-stderr.js
-var import_react24;
+var import_react26;
 var init_use_stderr = __esm({
   "node_modules/ink/build/hooks/use-stderr.js"() {
-    import_react24 = __toESM(require_react(), 1);
+    import_react26 = __toESM(require_react(), 1);
     init_StderrContext();
   }
 });
 
 // node_modules/ink/build/hooks/use-focus.js
-var import_react25;
+var import_react27;
 var init_use_focus = __esm({
   "node_modules/ink/build/hooks/use-focus.js"() {
-    import_react25 = __toESM(require_react(), 1);
+    import_react27 = __toESM(require_react(), 1);
     init_FocusContext();
     init_use_stdin();
   }
 });
 
 // node_modules/ink/build/hooks/use-focus-manager.js
-var import_react26;
+var import_react28;
 var init_use_focus_manager = __esm({
   "node_modules/ink/build/hooks/use-focus-manager.js"() {
-    import_react26 = __toESM(require_react(), 1);
+    import_react28 = __toESM(require_react(), 1);
     init_FocusContext();
   }
 });
 
 // node_modules/ink/build/hooks/use-is-screen-reader-enabled.js
-var import_react27;
+var import_react29;
 var init_use_is_screen_reader_enabled = __esm({
   "node_modules/ink/build/hooks/use-is-screen-reader-enabled.js"() {
-    import_react27 = __toESM(require_react(), 1);
+    import_react29 = __toESM(require_react(), 1);
     init_AccessibilityContext();
   }
 });
 
 // node_modules/ink/build/hooks/use-cursor.js
-var import_react28;
+var import_react30;
 var init_use_cursor = __esm({
   "node_modules/ink/build/hooks/use-cursor.js"() {
-    import_react28 = __toESM(require_react(), 1);
+    import_react30 = __toESM(require_react(), 1);
     init_CursorContext();
+  }
+});
+
+// node_modules/ink/build/hooks/use-animation.js
+var import_react31;
+var init_use_animation = __esm({
+  "node_modules/ink/build/hooks/use-animation.js"() {
+    import_react31 = __toESM(require_react(), 1);
+    init_AnimationContext();
+  }
+});
+
+// node_modules/ink/build/hooks/use-window-size.js
+var import_react32;
+var init_use_window_size = __esm({
+  "node_modules/ink/build/hooks/use-window-size.js"() {
+    import_react32 = __toESM(require_react(), 1);
+    init_utils();
+    init_use_stdout();
+  }
+});
+
+// node_modules/ink/build/hooks/use-box-metrics.js
+var import_react33;
+var init_use_box_metrics = __esm({
+  async "node_modules/ink/build/hooks/use-box-metrics.js"() {
+    import_react33 = __toESM(require_react(), 1);
+    await init_dom();
   }
 });
 
@@ -56324,6 +57109,7 @@ var init_build2 = __esm({
     init_Newline();
     init_Spacer();
     await init_use_input();
+    await init_use_paste();
     init_use_app();
     init_use_stdin();
     init_use_stdout();
@@ -56332,6 +57118,9 @@ var init_build2 = __esm({
     init_use_focus_manager();
     init_use_is_screen_reader_enabled();
     init_use_cursor();
+    init_use_animation();
+    init_use_window_size();
+    await init_use_box_metrics();
     init_measure_element();
     init_kitty_keyboard();
   }
@@ -56636,12 +57425,12 @@ var init_figures = __esm({
 
 // node_modules/ink-select-input/build/Indicator.js
 function Indicator({ isSelected = false }) {
-  return import_react29.default.createElement(Box_default, { marginRight: 1 }, isSelected ? import_react29.default.createElement(Text, { color: "blue" }, figures_default.pointer) : import_react29.default.createElement(Text, null, " "));
+  return import_react34.default.createElement(Box_default, { marginRight: 1 }, isSelected ? import_react34.default.createElement(Text, { color: "blue" }, figures_default.pointer) : import_react34.default.createElement(Text, null, " "));
 }
-var import_react29, Indicator_default;
+var import_react34, Indicator_default;
 var init_Indicator = __esm({
   async "node_modules/ink-select-input/build/Indicator.js"() {
-    import_react29 = __toESM(require_react(), 1);
+    import_react34 = __toESM(require_react(), 1);
     await init_build2();
     init_figures();
     Indicator_default = Indicator;
@@ -56693,17 +57482,17 @@ function SelectInput({ items = [], isFocused = true, initialIndex = 0, indicator
   const hasLimit = typeof customLimit === "number" && items.length > customLimit;
   const limit = hasLimit ? Math.min(customLimit, items.length) : items.length;
   const lastIndex = limit - 1;
-  const [rotateIndex, setRotateIndex] = (0, import_react30.useState)(initialIndex > lastIndex ? lastIndex - initialIndex : 0);
-  const [selectedIndex, setSelectedIndex] = (0, import_react30.useState)(initialIndex ? initialIndex > lastIndex ? lastIndex : initialIndex : 0);
-  const previousItems = (0, import_react30.useRef)(items);
-  (0, import_react30.useEffect)(() => {
+  const [rotateIndex, setRotateIndex] = (0, import_react35.useState)(initialIndex > lastIndex ? lastIndex - initialIndex : 0);
+  const [selectedIndex, setSelectedIndex] = (0, import_react35.useState)(initialIndex ? initialIndex > lastIndex ? lastIndex : initialIndex : 0);
+  const previousItems = (0, import_react35.useRef)(items);
+  (0, import_react35.useEffect)(() => {
     if (!isDeepStrictEqual(previousItems.current.map((item) => item.value), items.map((item) => item.value))) {
       setRotateIndex(0);
       setSelectedIndex(0);
     }
     previousItems.current = items;
   }, [items]);
-  use_input_default((0, import_react30.useCallback)((input, key) => {
+  use_input_default((0, import_react35.useCallback)((input, key) => {
     if (input === "k" || key.upArrow) {
       const lastIndex2 = (hasLimit ? limit : items.length) - 1;
       const atFirstIndex = selectedIndex === 0;
@@ -56755,23 +57544,23 @@ function SelectInput({ items = [], isFocused = true, initialIndex = 0, indicator
     onHighlight
   ]), { isActive: isFocused });
   const slicedItems = hasLimit ? toRotated(items, rotateIndex).slice(0, limit) : items;
-  return import_react30.default.createElement(Box_default, { flexDirection: "column" }, slicedItems.map((item, index) => {
+  return import_react35.default.createElement(Box_default, { flexDirection: "column" }, slicedItems.map((item, index) => {
     const isSelected = index === selectedIndex;
     return (
       // @ts-expect-error - `key` can't be optional but `item.value` is generic T
-      import_react30.default.createElement(
+      import_react35.default.createElement(
         Box_default,
         { key: item.key ?? item.value },
-        import_react30.default.createElement(indicatorComponent, { isSelected }),
-        import_react30.default.createElement(itemComponent, { ...item, isSelected })
+        import_react35.default.createElement(indicatorComponent, { isSelected }),
+        import_react35.default.createElement(itemComponent, { ...item, isSelected })
       )
     );
   }));
 }
-var import_react30, SelectInput_default;
+var import_react35, SelectInput_default;
 var init_SelectInput = __esm({
   async "node_modules/ink-select-input/build/SelectInput.js"() {
-    import_react30 = __toESM(require_react(), 1);
+    import_react35 = __toESM(require_react(), 1);
     init_to_rotated();
     await init_build2();
     await init_Indicator();
@@ -56793,8 +57582,8 @@ var init_build3 = __esm({
 var require_react_jsx_runtime_production = __commonJS({
   "node_modules/react/cjs/react-jsx-runtime.production.js"(exports) {
     "use strict";
-    var REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element");
-    var REACT_FRAGMENT_TYPE = Symbol.for("react.fragment");
+    var REACT_ELEMENT_TYPE = /* @__PURE__ */ Symbol.for("react.transitional.element");
+    var REACT_FRAGMENT_TYPE = /* @__PURE__ */ Symbol.for("react.fragment");
     function jsxProd(type, config, maybeKey) {
       var key = null;
       void 0 !== maybeKey && (key = "" + maybeKey);
@@ -57033,7 +57822,7 @@ var require_react_jsx_runtime_development = __commonJS({
       function isValidElement(object) {
         return "object" === typeof object && null !== object && object.$$typeof === REACT_ELEMENT_TYPE;
       }
-      var React19 = require_react(), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = Symbol.for("react.activity"), REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), ReactSharedInternals = React19.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, hasOwnProperty = Object.prototype.hasOwnProperty, isArrayImpl = Array.isArray, createTask = console.createTask ? console.createTask : function() {
+      var React19 = require_react(), REACT_ELEMENT_TYPE = /* @__PURE__ */ Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = /* @__PURE__ */ Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = /* @__PURE__ */ Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = /* @__PURE__ */ Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = /* @__PURE__ */ Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = /* @__PURE__ */ Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = /* @__PURE__ */ Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = /* @__PURE__ */ Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = /* @__PURE__ */ Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = /* @__PURE__ */ Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = /* @__PURE__ */ Symbol.for("react.memo"), REACT_LAZY_TYPE = /* @__PURE__ */ Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = /* @__PURE__ */ Symbol.for("react.activity"), REACT_CLIENT_REFERENCE = /* @__PURE__ */ Symbol.for("react.client.reference"), ReactSharedInternals = React19.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, hasOwnProperty = Object.prototype.hasOwnProperty, isArrayImpl = Array.isArray, createTask = console.createTask ? console.createTask : function() {
         return null;
       };
       React19 = {
@@ -57160,8 +57949,8 @@ var init_LineSelector = __esm({
 
 // src/tui/components/ItemsEditor.tsx
 function ItemsEditor({ line, lineIndex, onChange, onAddWidget, onDeleteLine, onBack }) {
-  const [cursor, setCursor] = (0, import_react31.useState)(0);
-  const [moveMode, setMoveMode] = (0, import_react31.useState)(false);
+  const [cursor, setCursor] = (0, import_react36.useState)(0);
+  const [moveMode, setMoveMode] = (0, import_react36.useState)(false);
   const safeIdx = Math.min(cursor, Math.max(0, line.length - 1));
   use_input_default((input, key) => {
     if (key.escape) {
@@ -57252,11 +58041,11 @@ function ItemsEditor({ line, lineIndex, onChange, onAddWidget, onDeleteLine, onB
     ] })
   ] });
 }
-var import_react31, import_jsx_runtime3;
+var import_react36, import_jsx_runtime3;
 var init_ItemsEditor = __esm({
   async "src/tui/components/ItemsEditor.tsx"() {
     "use strict";
-    import_react31 = __toESM(require_react(), 1);
+    import_react36 = __toESM(require_react(), 1);
     await init_build2();
     init_registry();
     import_jsx_runtime3 = __toESM(require_jsx_runtime(), 1);
@@ -57268,10 +58057,10 @@ function WidgetPicker({ onSelect, onSelectGroup, onBack }) {
   use_input_default((_input, key) => {
     if (key.escape) onBack();
   });
-  const catalog = (0, import_react32.useMemo)(() => getWidgetCatalog(), []);
-  const categories = (0, import_react32.useMemo)(() => [...new Set(catalog.map((e) => e.category))], [catalog]);
-  const dataKeyGroups = (0, import_react32.useMemo)(() => getDataKeyGroups(catalog), [catalog]);
-  const items = (0, import_react32.useMemo)(() => {
+  const catalog = (0, import_react37.useMemo)(() => getWidgetCatalog(), []);
+  const categories = (0, import_react37.useMemo)(() => [...new Set(catalog.map((e) => e.category))], [catalog]);
+  const dataKeyGroups = (0, import_react37.useMemo)(() => getDataKeyGroups(catalog), [catalog]);
+  const items = (0, import_react37.useMemo)(() => {
     const groupItemsByCategory = /* @__PURE__ */ new Map();
     for (const [dataKey, groupEntries] of dataKeyGroups) {
       const info = getDataKeyInfo(dataKey);
@@ -57323,11 +58112,11 @@ function WidgetPicker({ onSelect, onSelectGroup, onBack }) {
     ) })
   ] });
 }
-var import_react32, import_jsx_runtime4;
+var import_react37, import_jsx_runtime4;
 var init_WidgetPicker = __esm({
   async "src/tui/components/WidgetPicker.tsx"() {
     "use strict";
-    import_react32 = __toESM(require_react(), 1);
+    import_react37 = __toESM(require_react(), 1);
     await init_build2();
     await init_build3();
     init_registry();
@@ -57341,9 +58130,9 @@ function WidgetPickerGroup({ dataKey, onSelect, onBack }) {
   use_input_default((_input, key) => {
     if (key.escape) onBack();
   });
-  const info = (0, import_react33.useMemo)(() => getDataKeyInfo(dataKey), [dataKey]);
-  const widgets = (0, import_react33.useMemo)(() => getWidgetsByDataKey(dataKey), [dataKey]);
-  const items = (0, import_react33.useMemo)(() => {
+  const info = (0, import_react38.useMemo)(() => getDataKeyInfo(dataKey), [dataKey]);
+  const widgets = (0, import_react38.useMemo)(() => getWidgetsByDataKey(dataKey), [dataKey]);
+  const items = (0, import_react38.useMemo)(() => {
     return widgets.map((w) => ({
       label: `${w.displayName}${w.variants?.length ? ` (${w.variants.join("/")})` : ""} \u2014 ${w.description}`,
       value: w.type
@@ -57362,11 +58151,11 @@ function WidgetPickerGroup({ dataKey, onSelect, onBack }) {
     ) })
   ] });
 }
-var import_react33, import_jsx_runtime5;
+var import_react38, import_jsx_runtime5;
 var init_WidgetPickerGroup = __esm({
   async "src/tui/components/WidgetPickerGroup.tsx"() {
     "use strict";
-    import_react33 = __toESM(require_react(), 1);
+    import_react38 = __toESM(require_react(), 1);
     await init_build2();
     await init_build3();
     init_registry();
@@ -57377,8 +58166,8 @@ var init_WidgetPickerGroup = __esm({
 
 // src/tui/components/ColorMenu.tsx
 function ColorMenu({ settings, onChange, onBack }) {
-  const [screen, setScreen] = (0, import_react34.useState)("select-widget");
-  const [selectedWidget, setSelectedWidget] = (0, import_react34.useState)(null);
+  const [screen, setScreen] = (0, import_react39.useState)("select-widget");
+  const [selectedWidget, setSelectedWidget] = (0, import_react39.useState)(null);
   use_input_default((_input, key) => {
     if (key.escape) {
       if (screen === "select-color") setScreen("select-widget");
@@ -57445,11 +58234,11 @@ function ColorMenu({ settings, onChange, onBack }) {
     ) })
   ] });
 }
-var import_react34, import_jsx_runtime6, COLORS;
+var import_react39, import_jsx_runtime6, COLORS;
 var init_ColorMenu = __esm({
   async "src/tui/components/ColorMenu.tsx"() {
     "use strict";
-    import_react34 = __toESM(require_react(), 1);
+    import_react39 = __toESM(require_react(), 1);
     await init_build2();
     await init_build3();
     init_registry();
@@ -57477,13 +58266,13 @@ var init_ColorMenu = __esm({
 // src/tui/app.tsx
 function App2() {
   const { exit } = use_app_default();
-  const [settings, setSettings] = (0, import_react35.useState)(createDefaultSettings);
-  const [screen, setScreen] = (0, import_react35.useState)("main");
-  const [editingLine, setEditingLine] = (0, import_react35.useState)(0);
-  const [selectedDataKey, setSelectedDataKey] = (0, import_react35.useState)(null);
-  const [hasChanges, setHasChanges] = (0, import_react35.useState)(false);
-  const [flash, setFlash] = (0, import_react35.useState)(null);
-  (0, import_react35.useEffect)(() => {
+  const [settings, setSettings] = (0, import_react40.useState)(createDefaultSettings);
+  const [screen, setScreen] = (0, import_react40.useState)("main");
+  const [editingLine, setEditingLine] = (0, import_react40.useState)(0);
+  const [selectedDataKey, setSelectedDataKey] = (0, import_react40.useState)(null);
+  const [hasChanges, setHasChanges] = (0, import_react40.useState)(false);
+  const [flash, setFlash] = (0, import_react40.useState)(null);
+  (0, import_react40.useEffect)(() => {
     setSettings(loadSettings());
   }, []);
   use_input_default((input, key) => {
@@ -57711,11 +58500,11 @@ function App2() {
     /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Box_default, { marginTop: 1, children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Text, { dimColor: true, children: "Ctrl+S save | Ctrl+C quit" }) })
   ] });
 }
-var import_react35, import_jsx_runtime7;
+var import_react40, import_jsx_runtime7;
 var init_app = __esm({
   async "src/tui/app.tsx"() {
     "use strict";
-    import_react35 = __toESM(require_react(), 1);
+    import_react40 = __toESM(require_react(), 1);
     await init_build2();
     init_loader();
     init_schema();
@@ -58445,7 +59234,7 @@ function removeStatusLineIfDisabled() {
 function readStdin() {
   return new Promise((resolve, reject) => {
     const chunks = [];
-    process.stdin.on("data", (chunk) => chunks.push(chunk));
+    process.stdin.on("data", (chunk) => chunks.push(typeof chunk === "string" ? Buffer.from(chunk) : chunk));
     process.stdin.on("end", () => resolve(Buffer.concat(chunks).toString("utf-8")));
     process.stdin.on("error", reject);
     setTimeout(() => resolve(Buffer.concat(chunks).toString("utf-8")), 1e3);
