@@ -1174,6 +1174,10 @@ var RemoteFieldWidget = class extends BaseGitWidget {
     this.remote = remote;
     this.field = field;
   }
+  displayName;
+  description;
+  remote;
+  field;
   getDisplayName() {
     return this.displayName;
   }
