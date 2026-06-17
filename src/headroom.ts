@@ -32,7 +32,10 @@ function getHeadroomBaseUrl(): string {
 
 export function isHeadroomActive(): boolean {
   const cache = readHeadroomCache();
-  if (cache !== null) return cache.isActive;
+  if (cache !== null) {
+    if (typeof cache.isActive === "boolean") return cache.isActive;
+    return cache.data !== null;
+  }
   return true; // no cache yet — optimistic; background fetch will write real status
 }
 
