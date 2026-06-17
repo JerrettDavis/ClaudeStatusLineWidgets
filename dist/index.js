@@ -58876,7 +58876,10 @@ function getHeadroomBaseUrl() {
 }
 function isHeadroomActive() {
   const cache3 = readHeadroomCache();
-  if (cache3 !== null) return cache3.isActive;
+  if (cache3 !== null) {
+    if (typeof cache3.isActive === "boolean") return cache3.isActive;
+    return cache3.data !== null;
+  }
   return true;
 }
 function readHeadroomCache() {
@@ -58916,7 +58919,7 @@ async function fetchAndCacheHeadroom() {
       return;
     }
     const health = await healthRes.json();
-    if (health.status !== "healthy" || health.config?.optimize === false) {
+    if (health.status !== "healthy") {
       writeFileSync2(CACHE_FILE2, JSON.stringify(inactive), "utf-8");
       return;
     }
@@ -58924,7 +58927,10 @@ async function fetchAndCacheHeadroom() {
     const sTimer = setTimeout(() => sCtrl.abort(), 2e3);
     const statsRes = await fetch(`${baseUrl}/stats`, { signal: sCtrl.signal });
     clearTimeout(sTimer);
-    if (!statsRes.ok) return;
+    if (!statsRes.ok) {
+      writeFileSync2(CACHE_FILE2, JSON.stringify(inactive), "utf-8");
+      return;
+    }
     const raw = await statsRes.json();
     const stats = {
       compressionPct: raw.tokens?.savings_percent ?? 0,

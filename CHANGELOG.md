@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/compare/v1.5.0...v1.5.1) (2026-06-17)
+
+
+### Bug Fixes
+
+* address PR [#33](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/issues/33) review-thread feedback ([#34](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/issues/34)) ([1304d8d](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/commit/1304d8df83fd8ed93bd1322bf5ae6769ce4ec427))
+
 # [1.5.0](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/compare/v1.4.0...v1.5.0) (2026-05-05)
 
 
