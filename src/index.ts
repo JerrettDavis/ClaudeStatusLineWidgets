@@ -98,7 +98,7 @@ async function main(): Promise<void> {
 
   // Kick off background fetches if caches are stale (non-blocking)
   triggerBackgroundFetch();
-  if (isHeadroomActive()) triggerHeadroomFetch();
+  triggerHeadroomFetch();
   triggerSessionTracking();
 
   const cacheRead = payload.context_window?.current_usage?.cache_read_input_tokens ?? 0;

@@ -197,7 +197,7 @@ The usage line shows your real-time Anthropic rate-limit utilisation. Data is fe
 
 ![Headroom stats line](docs/images/statusline-headroom.svg)
 
-Set `ANTHROPIC_BASE_URL=http://127.0.0.1:8787` to activate the Headroom widgets.  They query the local proxy's `/stats` endpoint and display token savings, compression ratio, cost savings, and cache hit rate.
+Set `ANTHROPIC_BASE_URL` to your Headroom proxy base URL (for example `http://127.0.0.1:8787`) to activate the Headroom widgets. The statusline first probes `<base>/health`; when healthy, it queries `<base>/stats` and displays token savings, compression ratio, cost savings, and cache hit rate.
 
 ---
 
@@ -210,7 +210,7 @@ Claude Code pipes a JSON payload to the statusline command via stdin on each ren
 3. **Renders each widget** in your configured layout via the widget registry
 4. **Reads the session transcript** (JSONL) backwards to find the last cache write for TTL
 5. **Fetches API usage data** in a detached background process (non-blocking, cached 60 s)
-6. **Shows Headroom proxy stats** if `ANTHROPIC_BASE_URL` points to `localhost:8787`
+6. **Shows Headroom proxy stats** when the configured Headroom base URL responds healthy on `<base>/health`
 
 When run interactively (stdin is a TTY), it launches the React/Ink TUI configurator instead.
 

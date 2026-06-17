@@ -17,16 +17,27 @@ export interface HeadroomStats {
 
 interface HeadroomCache {
   fetchedAt: number;
-  data: HeadroomStats;
+  isActive: boolean;
+  data: HeadroomStats | null;
 }
 
 const CACHE_FILE = join(tmpdir(), "claude-statusline-headroom.json");
 const STALE_THRESHOLD_MS = 30_000; // 30 seconds — local call, cheap
-const HEADROOM_URL = "http://127.0.0.1:8787/stats";
+const HEADROOM_FALLBACK_BASE = "http://127.0.0.1:8787";
+
+function getHeadroomBaseUrl(): string {
+  const envBase = process.env.ANTHROPIC_BASE_URL;
+  return envBase ? envBase.replace(/\/$/, "") : HEADROOM_FALLBACK_BASE;
+}
 
 export function isHeadroomActive(): boolean {
-  const base = process.env.ANTHROPIC_BASE_URL ?? "";
-  return base.includes("127.0.0.1:8787") || base.includes("localhost:8787");
+  const cache = readHeadroomCache();
+  if (cache !== null) {
+    if (typeof cache.isActive === "boolean") return cache.isActive;
+    // Legacy cache format had no isActive flag; non-null stats indicate a successful fetch.
+    return cache.data !== null;
+  }
+  return true; // no cache yet — optimistic; background fetch will write real status
 }
 
 export function readHeadroomCache(): HeadroomCache | null {
@@ -57,25 +68,44 @@ export function triggerHeadroomFetch(): void {
 }
 
 export async function fetchAndCacheHeadroom(): Promise<void> {
+  const baseUrl = getHeadroomBaseUrl();
+  const inactive: HeadroomCache = { fetchedAt: Date.now(), isActive: false, data: null };
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 2000);
-    const res = await fetch(HEADROOM_URL, { signal: controller.signal });
-    clearTimeout(timeout);
-    if (!res.ok) return;
+    const hCtrl = new AbortController();
+    const hTimer = setTimeout(() => hCtrl.abort(), 2000);
+    const healthRes = await fetch(`${baseUrl}/health`, { signal: hCtrl.signal });
+    clearTimeout(hTimer);
 
-    const raw: any = await res.json();
+    if (!healthRes.ok) {
+      writeFileSync(CACHE_FILE, JSON.stringify(inactive), "utf-8");
+      return;
+    }
+    const health: any = await healthRes.json();
+    if (health.status !== "healthy") {
+      writeFileSync(CACHE_FILE, JSON.stringify(inactive), "utf-8");
+      return;
+    }
+
+    const sCtrl = new AbortController();
+    const sTimer = setTimeout(() => sCtrl.abort(), 2000);
+    const statsRes = await fetch(`${baseUrl}/stats`, { signal: sCtrl.signal });
+    clearTimeout(sTimer);
+    if (!statsRes.ok) {
+      writeFileSync(CACHE_FILE, JSON.stringify(inactive), "utf-8");
+      return;
+    }
+
+    const raw: any = await statsRes.json();
     const stats: HeadroomStats = {
       compressionPct: raw.tokens?.savings_percent ?? 0,
       tokensSaved: (raw.tokens?.saved ?? 0) + (raw.tokens?.cli_tokens_avoided ?? 0),
       cliTokensSaved: raw.tokens?.cli_tokens_avoided ?? 0,
       costSavedUsd: raw.cost?.savings_usd ?? 0,
       requests: raw.requests?.total ?? 0,
-      cacheHitRate: raw.prefix_cache?.totals?.hit_rate ?? 0,
+      cacheHitRate: (raw.prefix_cache?.totals?.hit_rate ?? 0) / 100,
     };
-    const cache: HeadroomCache = { fetchedAt: Date.now(), data: stats };
-    writeFileSync(CACHE_FILE, JSON.stringify(cache), "utf-8");
+    writeFileSync(CACHE_FILE, JSON.stringify({ fetchedAt: Date.now(), isActive: true, data: stats }), "utf-8");
   } catch {
-    // Headroom not running or unreachable — silently ignore
+    writeFileSync(CACHE_FILE, JSON.stringify(inactive), "utf-8");
   }
 }
