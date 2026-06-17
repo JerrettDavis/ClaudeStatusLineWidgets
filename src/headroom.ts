@@ -86,7 +86,10 @@ export async function fetchAndCacheHeadroom(): Promise<void> {
     const sTimer = setTimeout(() => sCtrl.abort(), 2000);
     const statsRes = await fetch(`${baseUrl}/stats`, { signal: sCtrl.signal });
     clearTimeout(sTimer);
-    if (!statsRes.ok) return;
+    if (!statsRes.ok) {
+      writeFileSync(CACHE_FILE, JSON.stringify(inactive), "utf-8");
+      return;
+    }
 
     const raw: any = await statsRes.json();
     const stats: HeadroomStats = {
