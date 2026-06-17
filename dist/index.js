@@ -58869,10 +58869,15 @@ import { spawn as spawn2 } from "child_process";
 var __dirname2 = dirname2(fileURLToPath2(import.meta.url));
 var CACHE_FILE2 = join2(tmpdir2(), "claude-statusline-headroom.json");
 var STALE_THRESHOLD_MS2 = 3e4;
-var HEADROOM_URL = "http://127.0.0.1:8787/stats";
+var HEADROOM_FALLBACK_BASE = "http://127.0.0.1:8787";
+function getHeadroomBaseUrl() {
+  const envBase = process.env.ANTHROPIC_BASE_URL;
+  return envBase ? envBase.replace(/\/$/, "") : HEADROOM_FALLBACK_BASE;
+}
 function isHeadroomActive() {
-  const base = process.env.ANTHROPIC_BASE_URL ?? "";
-  return base.includes("127.0.0.1:8787") || base.includes("localhost:8787");
+  const cache3 = readHeadroomCache();
+  if (cache3 !== null) return cache3.isActive;
+  return true;
 }
 function readHeadroomCache() {
   try {
@@ -58899,24 +58904,39 @@ function triggerHeadroomFetch() {
   child.unref();
 }
 async function fetchAndCacheHeadroom() {
+  const baseUrl = getHeadroomBaseUrl();
+  const inactive = { fetchedAt: Date.now(), isActive: false, data: null };
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 2e3);
-    const res = await fetch(HEADROOM_URL, { signal: controller.signal });
-    clearTimeout(timeout);
-    if (!res.ok) return;
-    const raw = await res.json();
+    const hCtrl = new AbortController();
+    const hTimer = setTimeout(() => hCtrl.abort(), 2e3);
+    const healthRes = await fetch(`${baseUrl}/health`, { signal: hCtrl.signal });
+    clearTimeout(hTimer);
+    if (!healthRes.ok) {
+      writeFileSync2(CACHE_FILE2, JSON.stringify(inactive), "utf-8");
+      return;
+    }
+    const health = await healthRes.json();
+    if (health.status !== "healthy" || health.config?.optimize === false) {
+      writeFileSync2(CACHE_FILE2, JSON.stringify(inactive), "utf-8");
+      return;
+    }
+    const sCtrl = new AbortController();
+    const sTimer = setTimeout(() => sCtrl.abort(), 2e3);
+    const statsRes = await fetch(`${baseUrl}/stats`, { signal: sCtrl.signal });
+    clearTimeout(sTimer);
+    if (!statsRes.ok) return;
+    const raw = await statsRes.json();
     const stats = {
       compressionPct: raw.tokens?.savings_percent ?? 0,
       tokensSaved: (raw.tokens?.saved ?? 0) + (raw.tokens?.cli_tokens_avoided ?? 0),
       cliTokensSaved: raw.tokens?.cli_tokens_avoided ?? 0,
       costSavedUsd: raw.cost?.savings_usd ?? 0,
       requests: raw.requests?.total ?? 0,
-      cacheHitRate: raw.prefix_cache?.totals?.hit_rate ?? 0
+      cacheHitRate: (raw.prefix_cache?.totals?.hit_rate ?? 0) / 100
     };
-    const cache3 = { fetchedAt: Date.now(), data: stats };
-    writeFileSync2(CACHE_FILE2, JSON.stringify(cache3), "utf-8");
+    writeFileSync2(CACHE_FILE2, JSON.stringify({ fetchedAt: Date.now(), isActive: true, data: stats }), "utf-8");
   } catch {
+    writeFileSync2(CACHE_FILE2, JSON.stringify(inactive), "utf-8");
   }
 }
 
@@ -59276,7 +59296,7 @@ async function main() {
     return;
   }
   triggerBackgroundFetch();
-  if (isHeadroomActive()) triggerHeadroomFetch();
+  triggerHeadroomFetch();
   triggerSessionTracking();
   const cacheRead = payload.context_window?.current_usage?.cache_read_input_tokens ?? 0;
   const cacheTTL = getCacheTTL(payload.transcript_path, cacheRead);
