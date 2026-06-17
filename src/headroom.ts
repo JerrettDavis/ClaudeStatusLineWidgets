@@ -34,6 +34,7 @@ export function isHeadroomActive(): boolean {
   const cache = readHeadroomCache();
   if (cache !== null) {
     if (typeof cache.isActive === "boolean") return cache.isActive;
+    // Legacy cache format had no isActive flag; non-null stats indicate a successful fetch.
     return cache.data !== null;
   }
   return true; // no cache yet — optimistic; background fetch will write real status

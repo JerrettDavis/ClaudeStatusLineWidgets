@@ -37,6 +37,11 @@ describe("isHeadroomActive", () => {
     expect(isHeadroomActive()).toBe(true);
   });
 
+  it("treats legacy cache format with null data as inactive", () => {
+    writeFileSync(CACHE_FILE, JSON.stringify({ fetchedAt: Date.now(), data: null }), "utf-8");
+    expect(isHeadroomActive()).toBe(false);
+  });
+
   it("uses explicit isActive when present", () => {
     writeFileSync(CACHE_FILE, JSON.stringify({ fetchedAt: Date.now(), isActive: false, data: stats }), "utf-8");
     expect(isHeadroomActive()).toBe(false);
