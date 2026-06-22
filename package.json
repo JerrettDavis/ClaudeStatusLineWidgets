@@ -42,5 +42,17 @@
     "semantic-release": "^25.0.5",
     "typescript": "^6.0.3",
     "vitest": "^4.1.9"
+  },
+  "overrides": {
+    "undici": ">=7.28.0",
+    "@actions/http-client": {
+      "undici": "6.27.0"
+    },
+    "npm": {
+      "undici": "6.27.0"
+    },
+    "node-gyp": {
+      "undici": "6.27.0"
+    }
   }
 }
