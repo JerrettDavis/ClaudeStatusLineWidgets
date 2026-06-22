@@ -32287,6 +32287,10 @@ var require_receiver = __commonJS({
        *     extensions
        * @param {Boolean} [options.isServer=false] Specifies whether to operate in
        *     client or server mode
+       * @param {Number} [options.maxBufferedChunks=0] The maximum number of
+       *     buffered data chunks
+       * @param {Number} [options.maxFragments=0] The maximum number of message
+       *     fragments
        * @param {Number} [options.maxPayload=0] The maximum allowed message length
        * @param {Boolean} [options.skipUTF8Validation=false] Specifies whether or
        *     not to skip UTF-8 validation for text and close messages
@@ -32297,6 +32301,8 @@ var require_receiver = __commonJS({
         this._binaryType = options.binaryType || BINARY_TYPES[0];
         this._extensions = options.extensions || {};
         this._isServer = !!options.isServer;
+        this._maxBufferedChunks = options.maxBufferedChunks | 0;
+        this._maxFragments = options.maxFragments | 0;
         this._maxPayload = options.maxPayload | 0;
         this._skipUTF8Validation = !!options.skipUTF8Validation;
         this[kWebSocket] = void 0;
@@ -32326,6 +32332,18 @@ var require_receiver = __commonJS({
        */
       _write(chunk, encoding, cb) {
         if (this._opcode === 8 && this._state == GET_INFO) return cb();
+        if (this._maxBufferedChunks > 0 && this._buffers.length >= this._maxBufferedChunks) {
+          cb(
+            this.createError(
+              RangeError,
+              "Too many buffered chunks",
+              false,
+              1008,
+              "WS_ERR_TOO_MANY_BUFFERED_PARTS"
+            )
+          );
+          return;
+        }
         this._bufferedBytes += chunk.length;
         this._buffers.push(chunk);
         this.startLoop(cb);
@@ -32655,6 +32673,17 @@ var require_receiver = __commonJS({
           return;
         }
         if (data.length) {
+          if (this._maxFragments > 0 && this._fragments.length >= this._maxFragments) {
+            const error = this.createError(
+              RangeError,
+              "Too many message fragments",
+              false,
+              1008,
+              "WS_ERR_TOO_MANY_BUFFERED_PARTS"
+            );
+            cb(error);
+            return;
+          }
           this._messageLength = this._totalPayloadLength;
           this._fragments.push(data);
         }
@@ -32680,6 +32709,17 @@ var require_receiver = __commonJS({
                 false,
                 1009,
                 "WS_ERR_UNSUPPORTED_MESSAGE_LENGTH"
+              );
+              cb(error);
+              return;
+            }
+            if (this._maxFragments > 0 && this._fragments.length >= this._maxFragments) {
+              const error = this.createError(
+                RangeError,
+                "Too many message fragments",
+                false,
+                1008,
+                "WS_ERR_TOO_MANY_BUFFERED_PARTS"
               );
               cb(error);
               return;
@@ -32850,6 +32890,9 @@ var require_sender = __commonJS({
     "use strict";
     var { Duplex } = __require("stream");
     var { randomFillSync } = __require("crypto");
+    var {
+      types: { isUint8Array }
+    } = __require("util");
     var PerMessageDeflate2 = require_permessage_deflate();
     var { EMPTY_BUFFER, kWebSocket, NOOP } = require_constants2();
     var { isBlob, isValidStatusCode } = require_validation();
@@ -33003,8 +33046,10 @@ var require_sender = __commonJS({
           buf.writeUInt16BE(code, 0);
           if (typeof data === "string") {
             buf.write(data, 2);
-          } else {
+          } else if (isUint8Array(data)) {
             buf.set(data, 2);
+          } else {
+            throw new TypeError("Second argument must be a string or a Uint8Array");
           }
         }
         const options = {
@@ -33885,6 +33930,10 @@ var require_websocket = __commonJS({
        *     multiple times in the same tick
        * @param {Function} [options.generateMask] The function used to generate the
        *     masking key
+       * @param {Number} [options.maxBufferedChunks=0] The maximum number of
+       *     buffered data chunks
+       * @param {Number} [options.maxFragments=0] The maximum number of message
+       *     fragments
        * @param {Number} [options.maxPayload=0] The maximum allowed message size
        * @param {Boolean} [options.skipUTF8Validation=false] Specifies whether or
        *     not to skip UTF-8 validation for text and close messages
@@ -33896,6 +33945,8 @@ var require_websocket = __commonJS({
           binaryType: this.binaryType,
           extensions: this._extensions,
           isServer: this._isServer,
+          maxBufferedChunks: options.maxBufferedChunks,
+          maxFragments: options.maxFragments,
           maxPayload: options.maxPayload,
           skipUTF8Validation: options.skipUTF8Validation
         });
@@ -34195,6 +34246,8 @@ var require_websocket = __commonJS({
         autoPong: true,
         closeTimeout: CLOSE_TIMEOUT,
         protocolVersion: protocolVersions[1],
+        maxBufferedChunks: 1024 * 1024,
+        maxFragments: 128 * 1024,
         maxPayload: 100 * 1024 * 1024,
         skipUTF8Validation: false,
         perMessageDeflate: true,
@@ -34437,6 +34490,8 @@ var require_websocket = __commonJS({
         websocket.setSocket(socket, head, {
           allowSynchronousEvents: opts.allowSynchronousEvents,
           generateMask: opts.generateMask,
+          maxBufferedChunks: opts.maxBufferedChunks,
+          maxFragments: opts.maxFragments,
           maxPayload: opts.maxPayload,
           skipUTF8Validation: opts.skipUTF8Validation
         });
@@ -34779,6 +34834,10 @@ var require_websocket_server = __commonJS({
        *     called
        * @param {Function} [options.handleProtocols] A hook to handle protocols
        * @param {String} [options.host] The hostname where to bind the server
+       * @param {Number} [options.maxBufferedChunks=1048576] The maximum number of
+       *     buffered data chunks
+       * @param {Number} [options.maxFragments=131072] The maximum number of message
+       *     fragments
        * @param {Number} [options.maxPayload=104857600] The maximum allowed message
        *     size
        * @param {Boolean} [options.noServer=false] Enable no server mode
@@ -34800,6 +34859,8 @@ var require_websocket_server = __commonJS({
         options = {
           allowSynchronousEvents: true,
           autoPong: true,
+          maxBufferedChunks: 1024 * 1024,
+          maxFragments: 128 * 1024,
           maxPayload: 100 * 1024 * 1024,
           skipUTF8Validation: false,
           perMessageDeflate: false,
@@ -35079,6 +35140,8 @@ var require_websocket_server = __commonJS({
         socket.removeListener("error", socketOnError);
         ws.setSocket(socket, head, {
           allowSynchronousEvents: this.options.allowSynchronousEvents,
+          maxBufferedChunks: this.options.maxBufferedChunks,
+          maxFragments: this.options.maxFragments,
           maxPayload: this.options.maxPayload,
           skipUTF8Validation: this.options.skipUTF8Validation
         });
@@ -35443,7 +35506,7 @@ var require_backend = __commonJS({
                       dispatcherHookName: "LayoutEffect"
                     });
                   },
-                  useInsertionEffect: function useInsertionEffect2(create3) {
+                  useInsertionEffect: function useInsertionEffect3(create3) {
                     nextHook();
                     hookLog.push({
                       displayName: null,
@@ -54398,15 +54461,28 @@ var init_input_parser = __esm({
 });
 
 // node_modules/ink/build/components/AppContext.js
-var import_react2, defaultValue, AppContext, AppContext_default;
+var import_react2, noopSuspension, defaultValue, AppContext, AppContext_default;
 var init_AppContext = __esm({
   "node_modules/ink/build/components/AppContext.js"() {
     import_react2 = __toESM(require_react(), 1);
+    noopSuspension = {
+      async resume() {
+      },
+      async [Symbol.asyncDispose]() {
+      }
+    };
     defaultValue = {
       exit(_errorOrResult) {
       },
       async waitUntilRenderFlush() {
-      }
+      },
+      suspendTerminal: (async (callback) => {
+        if (callback) {
+          await callback();
+          return void 0;
+        }
+        return noopSuspension;
+      })
     };
     AppContext = (0, import_react2.createContext)(defaultValue);
     AppContext.displayName = "InternalAppContext";
@@ -55108,7 +55184,7 @@ var init_ErrorBoundary = __esm({
 // node_modules/ink/build/components/App.js
 import { EventEmitter as EventEmitter2 } from "node:events";
 import process11 from "node:process";
-function App({ children, stdin, stdout, stderr, writeToStdout, writeToStderr, exitOnCtrlC, onExit, onWaitUntilRenderFlush, setCursorPosition, interactive, renderThrottleMs }) {
+function App({ children, stdin, stdout, stderr, writeToStdout, writeToStderr, exitOnCtrlC, onExit, onWaitUntilRenderFlush, onSuspendTerminal, onRegisterInputControl, setCursorPosition, interactive, renderThrottleMs }) {
   const [isFocusEnabled, setIsFocusEnabled] = (0, import_react15.useState)(true);
   const [activeFocusId, setActiveFocusId] = (0, import_react15.useState)(void 0);
   const [, setFocusables] = (0, import_react15.useState)([]);
@@ -55327,6 +55403,47 @@ function App({ children, stdin, stdout, stderr, writeToStdout, writeToStderr, ex
       stdout.write("\x1B[?2004l");
     }
   }, [stdout]);
+  const suspendedInputStateRef = (0, import_react15.useRef)({
+    rawMode: false,
+    bracketedPaste: false
+  });
+  const pauseInput = (0, import_react15.useCallback)(() => {
+    const wasRawMode = isRawModeSupported && rawModeEnabledCount.current > 0;
+    const wasBracketedPaste = bracketedPasteModeEnabledCount.current > 0;
+    suspendedInputStateRef.current = {
+      rawMode: wasRawMode,
+      bracketedPaste: wasBracketedPaste
+    };
+    if (wasBracketedPaste && stdout.isTTY) {
+      try {
+        stdout.write("\x1B[?2004l");
+      } catch {
+      }
+    }
+    if (wasRawMode) {
+      stdin.setRawMode(false);
+      stdin.unref();
+      clearInputState();
+    }
+  }, [isRawModeSupported, stdin, stdout, clearInputState]);
+  const resumeInput = (0, import_react15.useCallback)(() => {
+    const { rawMode, bracketedPaste } = suspendedInputStateRef.current;
+    if (rawMode) {
+      stdin.setEncoding("utf8");
+      stdin.ref();
+      stdin.setRawMode(true);
+      attachReadableListener();
+    }
+    if (bracketedPaste && stdout.isTTY) {
+      try {
+        stdout.write("\x1B[?2004h");
+      } catch {
+      }
+    }
+  }, [stdin, stdout, attachReadableListener]);
+  (0, import_react15.useInsertionEffect)(() => {
+    onRegisterInputControl(pauseInput, resumeInput);
+  }, [onRegisterInputControl, pauseInput, resumeInput]);
   const findNextFocusable = (0, import_react15.useCallback)((currentFocusables, currentActiveFocusId) => {
     const activeIndex = currentFocusables.findIndex((focusable) => {
       return focusable.id === currentActiveFocusId;
@@ -55485,8 +55602,9 @@ function App({ children, stdin, stdout, stderr, writeToStdout, writeToStderr, ex
   }, [stdout, isRawModeSupported, disableRawMode, interactive]);
   const appContextValue = (0, import_react15.useMemo)(() => ({
     exit: handleExit,
-    waitUntilRenderFlush: onWaitUntilRenderFlush
-  }), [handleExit, onWaitUntilRenderFlush]);
+    waitUntilRenderFlush: onWaitUntilRenderFlush,
+    suspendTerminal: onSuspendTerminal
+  }), [handleExit, onWaitUntilRenderFlush, onSuspendTerminal]);
   const stdinContextValue = (0, import_react15.useMemo)(() => ({
     stdin,
     setRawMode: handleSetRawMode,
@@ -55787,8 +55905,15 @@ var init_ink = __esm({
       throttledOnRender;
       hasPendingThrottledRender = false;
       kittyProtocolEnabled = false;
+      kittyFlags;
       cancelKittyDetection;
       nextRenderCommit;
+      // Set while suspendTerminal() has handed the terminal to a child process.
+      isSuspended = false;
+      // Input pause/resume hooks registered by the App component, which owns raw
+      // mode and bracketed paste state.
+      pauseInput;
+      resumeInput;
       constructor(options) {
         autoBind(this);
         this.options = options;
@@ -55924,6 +56049,13 @@ var init_ink = __esm({
         if (this.isUnmounted) {
           return;
         }
+        if (this.isSuspended) {
+          if (this.nextRenderCommit) {
+            this.nextRenderCommit.resolve();
+            this.nextRenderCommit = void 0;
+          }
+          return;
+        }
         if (this.nextRenderCommit) {
           this.nextRenderCommit.resolve();
           this.nextRenderCommit = void 0;
@@ -55995,7 +56127,7 @@ var init_ink = __esm({
         const tree = import_react16.default.createElement(
           accessibilityContext.Provider,
           { value: { isScreenReaderEnabled: this.isScreenReaderEnabled } },
-          import_react16.default.createElement(App_default, { stdin: this.options.stdin, stdout: this.options.stdout, stderr: this.options.stderr, exitOnCtrlC: this.options.exitOnCtrlC, interactive: this.interactive, renderThrottleMs: this.renderThrottleMs, writeToStdout: this.writeToStdout, writeToStderr: this.writeToStderr, setCursorPosition: this.setCursorPosition, onExit: this.handleAppExit, onWaitUntilRenderFlush: this.waitUntilRenderFlush }, node)
+          import_react16.default.createElement(App_default, { stdin: this.options.stdin, stdout: this.options.stdout, stderr: this.options.stderr, exitOnCtrlC: this.options.exitOnCtrlC, interactive: this.interactive, renderThrottleMs: this.renderThrottleMs, writeToStdout: this.writeToStdout, writeToStderr: this.writeToStderr, setCursorPosition: this.setCursorPosition, onExit: this.handleAppExit, onWaitUntilRenderFlush: this.waitUntilRenderFlush, onSuspendTerminal: this.suspendTerminal, onRegisterInputControl: this.registerInputControl }, node)
         );
         if (this.options.concurrent) {
           reconciler_default.updateContainer(tree, this.container, null, noop);
@@ -56006,6 +56138,9 @@ var init_ink = __esm({
       }
       writeToStdout(data) {
         if (this.isUnmounted) {
+          return;
+        }
+        if (this.isSuspended) {
           return;
         }
         if (this.options.debug) {
@@ -56029,6 +56164,9 @@ var init_ink = __esm({
       }
       writeToStderr(data) {
         if (this.isUnmounted) {
+          return;
+        }
+        if (this.isSuspended) {
           return;
         }
         if (this.options.debug) {
@@ -56194,6 +56332,25 @@ var init_ink = __esm({
           }
         });
       }
+      registerInputControl(pauseInput, resumeInput) {
+        this.pauseInput = pauseInput;
+        this.resumeInput = resumeInput;
+      }
+      async suspendTerminal(callback) {
+        this.beginSuspend();
+        if (callback) {
+          try {
+            await callback();
+          } finally {
+            await this.endSuspend();
+          }
+          return void 0;
+        }
+        const resume = async () => {
+          await this.endSuspend();
+        };
+        return { resume, [Symbol.asyncDispose]: resume };
+      }
       setAlternateScreen(enabled) {
         this.alternateScreen = this.resolveAlternateScreenOption(enabled, this.interactive);
         if (this.alternateScreen) {
@@ -56339,6 +56496,70 @@ var init_ink = __esm({
       enableKittyProtocol(flags) {
         this.options.stdout.write(`\x1B[>${resolveFlags(flags)}u`);
         this.kittyProtocolEnabled = true;
+        this.kittyFlags = flags;
+      }
+      beginSuspend() {
+        if (this.isSuspended) {
+          throw new Error("The terminal is already suspended. Resume the current suspension before suspending again.");
+        }
+        this.isSuspended = true;
+        if (!this.interactive || this.isUnmounted || this.isUnmounting) {
+          return;
+        }
+        try {
+          const stdout = this.options.stdout;
+          const { canWriteToStdout } = getWritableStreamState(stdout);
+          settleThrottle(this.throttledOnRender, canWriteToStdout);
+          settleThrottle(this.throttledLog, canWriteToStdout);
+          if (canWriteToStdout) {
+            this.log.clear();
+            this.log.done();
+            if (this.kittyProtocolEnabled) {
+              this.writeBestEffort(this.options.stdout, "\x1B[<u");
+            }
+            if (this.alternateScreen) {
+              this.writeBestEffort(this.options.stdout, base_exports.exitAlternativeScreen);
+            }
+          }
+          this.pauseInput?.();
+        } catch (error) {
+          this.isSuspended = false;
+          try {
+            this.resumeInput?.();
+          } catch {
+          }
+          throw error;
+        }
+      }
+      async endSuspend() {
+        if (!this.isSuspended) {
+          return;
+        }
+        this.isSuspended = false;
+        this.resumeInput?.();
+        if (!this.interactive || this.isUnmounted || this.isUnmounting) {
+          return;
+        }
+        const stdout = this.options.stdout;
+        const { canWriteToStdout } = getWritableStreamState(stdout);
+        if (canWriteToStdout) {
+          if (this.alternateScreen) {
+            this.writeBestEffort(this.options.stdout, base_exports.enterAlternativeScreen);
+          }
+          if (this.kittyProtocolEnabled && this.kittyFlags) {
+            this.writeBestEffort(this.options.stdout, `\x1B[>${resolveFlags(this.kittyFlags)}u`);
+          }
+        }
+        this.lastOutput = "";
+        this.lastOutputToRender = "";
+        this.lastOutputHeight = 0;
+        this.log.reset();
+        try {
+          this.calculateLayout();
+          this.onRender();
+          await this.waitUntilRenderFlush();
+        } catch {
+        }
       }
     };
   }
