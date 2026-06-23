@@ -1,4 +1,4 @@
-import { statSync, openSync, readSync, closeSync } from "fs";
+import { fstatSync, openSync, readSync, closeSync } from "fs";
 
 export interface CacheTTLResult {
   /** Seconds remaining on cache TTL. 0 = expired. -1 = no cache data found. */
@@ -52,15 +52,20 @@ const TTL_1H = 60 * 60;
  */
 function readFromStart(filePath: string, maxBytes: number = 2 * 1024 * 1024): string[] {
   let content: string;
+  // Open first, then fstat on the fd to avoid a TOCTOU race between
+  // stat() and open() (js/file-system-race mitigation).
+  let fd: number | null = null;
   try {
-    const stats = statSync(filePath);
-    const readSize = Math.min(stats.size, maxBytes);
+    fd = openSync(filePath, "r");
+    const fileSize = fstatSync(fd).size;
+    const readSize = Math.min(fileSize, maxBytes);
     const buffer = Buffer.alloc(readSize);
-    const fd = openSync(filePath, "r");
     readSync(fd, buffer, 0, readSize, 0);
     closeSync(fd);
+    fd = null;
     content = buffer.toString("utf-8");
   } catch {
+    if (fd !== null) { try { closeSync(fd); } catch { /* ignore */ } }
     return [];
   }
   return content.split("\n").filter((l) => l.trim().length > 0);
@@ -72,17 +77,21 @@ function readFromStart(filePath: string, maxBytes: number = 2 * 1024 * 1024): st
  */
 function readLastLines(filePath: string, maxLines: number): string[] {
   let content: string;
+  // Open first, then fstat on the fd to avoid a TOCTOU race between
+  // stat() and open() (js/file-system-race mitigation).
+  let fd: number | null = null;
   try {
-    const stats = statSync(filePath);
-    const fileSize = stats.size;
+    fd = openSync(filePath, "r");
+    const fileSize = fstatSync(fd).size;
     // Read last 256KB or whole file if smaller
     const readSize = Math.min(fileSize, 256 * 1024);
     const buffer = Buffer.alloc(readSize);
-    const fd = openSync(filePath, "r");
     readSync(fd, buffer, 0, readSize, fileSize - readSize);
     closeSync(fd);
+    fd = null;
     content = buffer.toString("utf-8");
   } catch {
+    if (fd !== null) { try { closeSync(fd); } catch { /* ignore */ } }
     return [];
   }
 

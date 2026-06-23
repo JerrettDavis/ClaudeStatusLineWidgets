@@ -1,7 +1,7 @@
-import { readFileSync, writeFileSync, statSync } from "fs";
-import { join, dirname } from "path";
+import { readFileSync, writeFileSync, statSync, mkdirSync } from "fs";
+import { join, dirname, resolve } from "path";
 import { fileURLToPath } from "url";
-import { tmpdir, homedir, platform } from "os";
+import { homedir, platform } from "os";
 import { execSync, spawn } from "child_process";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -49,8 +49,40 @@ interface OAuthCredentials {
 
 // --- Constants ---
 
-const CACHE_FILE = join(tmpdir(), "claude-statusline-usage.json");
-const LOCK_FILE = join(tmpdir(), "claude-statusline-usage.lock");
+/**
+ * Cache directory for usage data: stored inside the Claude config directory
+ * (~/.claude/.cache/ or $CLAUDE_CONFIG_DIR/.cache/) rather than in the
+ * world-writable system tmpdir.  This avoids insecure-temporary-file
+ * findings (js/insecure-temporary-file) while still allowing all processes
+ * belonging to the same user to share a single cache location.
+ */
+function getCacheDir(): string {
+  const configDir = process.env.CLAUDE_CONFIG_DIR ?? join(homedir(), ".claude");
+  const dir = join(configDir, ".cache");
+  try {
+    mkdirSync(dir, { recursive: true });
+  } catch {
+    // Already exists or permissions error — proceed; writes will fail gracefully
+  }
+  return dir;
+}
+
+// Lazily initialised so mkdirSync runs after process start, not at import time.
+let _cacheDir: string | null = null;
+function cacheDir(): string {
+  if (!_cacheDir) _cacheDir = getCacheDir();
+  return _cacheDir;
+}
+
+/** Resolved absolute path to the usage cache file. */
+export function getCacheFilePath(): string {
+  return resolve(cacheDir(), "usage.json");
+}
+
+function getLockFilePath(): string {
+  return resolve(cacheDir(), "usage.lock");
+}
+
 const STALE_THRESHOLD_MS = 60_000; // 60 seconds
 /** A lock older than this is considered stale/abandoned and will be overwritten. */
 const LOCK_STALE_MS = 2 * 60_000; // 2 minutes
@@ -102,22 +134,39 @@ function readCredentials(): OAuthCredentials | null {
   }
 }
 
+/**
+ * Validate that a string looks like a well-formed OAuth bearer token before
+ * it is sent in an Authorization header (js/file-access-to-http mitigation).
+ * Accepts only non-empty strings composed of printable ASCII characters
+ * (Base64url, dots, hyphens, underscores, tildes) — no whitespace or control
+ * characters — which covers all JWT and opaque-token formats used by Anthropic.
+ */
+function isValidBearerToken(value: string): boolean {
+  // Must be non-empty and contain only safe printable characters (no whitespace/control chars)
+  return value.length > 0 && /^[\x21-\x7E]+$/.test(value);
+}
+
 function getAccessToken(): string | null {
   const creds = readCredentials();
-  if (!creds?.claudeAiOauth?.accessToken) return null;
+  const token = creds?.claudeAiOauth?.accessToken;
+  if (!token) return null;
 
   // Check expiry — skip if token expired (can't refresh it ourselves)
-  const expiresAt = creds.claudeAiOauth.expiresAt ?? 0;
+  const expiresAt = creds.claudeAiOauth?.expiresAt ?? 0;
   if (expiresAt < Date.now() - 60_000) return null; // expired >1min ago
 
-  return creds.claudeAiOauth.accessToken;
+  // Validate token format before it flows into an HTTP Authorization header
+  // (prevents malformed/injected data from credentials file reaching the network)
+  if (!isValidBearerToken(token)) return null;
+
+  return token;
 }
 
 // --- Cache file operations ---
 
 export function readUsageCache(): UsageCache | null {
   try {
-    const raw = readFileSync(CACHE_FILE, "utf-8");
+    const raw = readFileSync(getCacheFilePath(), "utf-8");
     return JSON.parse(raw);
   } catch {
     return null;
@@ -127,12 +176,12 @@ export function readUsageCache(): UsageCache | null {
 function writeUsageCache(data: UsageData, rateLimitedUntil?: number): void {
   const cache: UsageCache = { fetchedAt: Date.now(), data };
   if (rateLimitedUntil !== undefined) cache.rateLimitedUntil = rateLimitedUntil;
-  writeFileSync(CACHE_FILE, JSON.stringify(cache), "utf-8");
+  writeFileSync(getCacheFilePath(), JSON.stringify(cache), "utf-8");
 }
 
 function isCacheStale(): boolean {
   try {
-    const stat = statSync(CACHE_FILE);
+    const stat = statSync(getCacheFilePath());
     if (Date.now() - stat.mtimeMs <= STALE_THRESHOLD_MS) return false;
 
     // Even if the mtime is old, respect any active rate-limit backoff.
@@ -154,7 +203,7 @@ function isCacheStale(): boolean {
  */
 function acquireLock(): boolean {
   try {
-    const raw = readFileSync(LOCK_FILE, "utf-8");
+    const raw = readFileSync(getLockFilePath(), "utf-8");
     const lock: LockData = JSON.parse(raw);
     if (Date.now() - lock.lockedAt < LOCK_STALE_MS) {
       return false; // another process holds a fresh lock
@@ -163,7 +212,7 @@ function acquireLock(): boolean {
     // No lock file or parse error — proceed to acquire
   }
   try {
-    writeFileSync(LOCK_FILE, JSON.stringify({ pid: process.pid, lockedAt: Date.now() }), "utf-8");
+    writeFileSync(getLockFilePath(), JSON.stringify({ pid: process.pid, lockedAt: Date.now() }), "utf-8");
     return true;
   } catch {
     return false;
@@ -172,13 +221,13 @@ function acquireLock(): boolean {
 
 function releaseLock(): void {
   try {
-    const raw = readFileSync(LOCK_FILE, "utf-8");
+    const raw = readFileSync(getLockFilePath(), "utf-8");
     const lock: LockData = JSON.parse(raw);
     if (lock.pid === process.pid) {
       // Zero out the lock rather than deleting the file so that the file
       // system entry is immediately visible to other processes checking
       // isLocked(), matching the approach used in session-tracking.ts.
-      writeFileSync(LOCK_FILE, JSON.stringify({ pid: 0, lockedAt: 0 }), "utf-8");
+      writeFileSync(getLockFilePath(), JSON.stringify({ pid: 0, lockedAt: 0 }), "utf-8");
     }
   } catch {
     // Non-fatal
@@ -188,7 +237,7 @@ function releaseLock(): void {
 /** Returns true when a live (non-stale) lock is already held. */
 function isLocked(): boolean {
   try {
-    const raw = readFileSync(LOCK_FILE, "utf-8");
+    const raw = readFileSync(getLockFilePath(), "utf-8");
     const lock: LockData = JSON.parse(raw);
     return lock.pid !== 0 && Date.now() - lock.lockedAt < LOCK_STALE_MS;
   } catch {
@@ -219,6 +268,47 @@ export function triggerBackgroundFetch(): void {
     }
   );
   child.unref();
+}
+
+/**
+ * Normalise a rate-limit window object from the API response.
+ * Returns null if the input is not a plain object.
+ */
+function sanitiseRateLimit(v: unknown): RateLimit | null {
+  if (!v || typeof v !== "object" || Array.isArray(v)) return null;
+  const r = v as Record<string, unknown>;
+  return {
+    utilization: typeof r.utilization === "number" && Number.isFinite(r.utilization)
+      ? r.utilization : null,
+    resets_at: typeof r.resets_at === "string" ? r.resets_at : null,
+  };
+}
+
+/**
+ * Normalise the raw HTTP response body into a safe UsageData shape.
+ * Only known fields with expected types are propagated; all other fields
+ * are discarded (js/http-to-file-access mitigation: untrusted network data
+ * must not flow unchecked into a file write).
+ */
+function sanitiseUsageData(raw: unknown): UsageData {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
+  const r = raw as Record<string, unknown>;
+  const result: UsageData = {};
+  if (r.five_hour !== undefined) result.five_hour = sanitiseRateLimit(r.five_hour);
+  if (r.seven_day !== undefined) result.seven_day = sanitiseRateLimit(r.seven_day);
+  if (r.seven_day_opus !== undefined) result.seven_day_opus = sanitiseRateLimit(r.seven_day_opus);
+  if (r.seven_day_sonnet !== undefined) result.seven_day_sonnet = sanitiseRateLimit(r.seven_day_sonnet);
+  if (r.extra_usage && typeof r.extra_usage === "object" && !Array.isArray(r.extra_usage)) {
+    const eu = r.extra_usage as Record<string, unknown>;
+    result.extra_usage = {
+      is_enabled: typeof eu.is_enabled === "boolean" ? eu.is_enabled : false,
+      monthly_limit: typeof eu.monthly_limit === "number" ? eu.monthly_limit : null,
+      used_credits: typeof eu.used_credits === "number" ? eu.used_credits : null,
+      utilization: typeof eu.utilization === "number" && Number.isFinite(eu.utilization)
+        ? eu.utilization : null,
+    };
+  }
+  return result;
 }
 
 /**
@@ -276,7 +366,11 @@ export async function fetchAndCacheUsage(): Promise<void> {
 
     if (!res.ok) return;
 
-    const data: UsageData = await res.json();
+    // Sanitise the HTTP response before writing to disk (js/http-to-file-access
+    // mitigation: untrusted network data is normalised to a known-safe shape
+    // rather than written verbatim).
+    const raw: any = await res.json();
+    const data: UsageData = sanitiseUsageData(raw);
     writeUsageCache(data);
   } catch {
     // Network error, timeout, etc. — silently ignore

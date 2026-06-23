@@ -4,6 +4,7 @@ import {
   mkdirSync,
   readdirSync,
   statSync,
+  fstatSync,
   openSync,
   readSync,
   closeSync,
@@ -248,15 +249,19 @@ export function findTranscriptFiles(): string[] {
  * is intentionally generous — typical session files are well under 1 MB.
  */
 function readTranscriptLines(filePath: string): string[] {
+  // Open first, then fstat on the fd to avoid a TOCTOU race between
+  // stat() and open() (js/file-system-race mitigation).
+  let fd: number | null = null;
   try {
-    const st = statSync(filePath);
-    const readSize = Math.min(st.size, 10 * 1024 * 1024); // cap at 10 MB per file
+    fd = openSync(filePath, "r");
+    const readSize = Math.min(fstatSync(fd).size, 10 * 1024 * 1024); // cap at 10 MB per file
     const buffer = Buffer.alloc(readSize);
-    const fd = openSync(filePath, "r");
     readSync(fd, buffer, 0, readSize, 0);
     closeSync(fd);
+    fd = null;
     return buffer.toString("utf-8").split("\n").filter((l) => l.trim().length > 0);
   } catch {
+    if (fd !== null) { try { closeSync(fd); } catch { /* ignore */ } }
     return [];
   }
 }

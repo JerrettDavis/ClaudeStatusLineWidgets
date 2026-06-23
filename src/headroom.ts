@@ -1,6 +1,6 @@
-import { readFileSync, writeFileSync, statSync } from "fs";
-import { tmpdir } from "os";
-import { join, dirname } from "path";
+import { readFileSync, writeFileSync, statSync, mkdirSync } from "fs";
+import { homedir } from "os";
+import { join, dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 import { spawn } from "child_process";
 
@@ -21,7 +21,34 @@ interface HeadroomCache {
   data: HeadroomStats | null;
 }
 
-const CACHE_FILE = join(tmpdir(), "claude-statusline-headroom.json");
+/**
+ * Cache directory for headroom data: stored inside the Claude config directory
+ * (~/.claude/.cache/) rather than the world-writable system tmpdir.
+ * This avoids insecure-temporary-file findings (js/insecure-temporary-file)
+ * while keeping the cache accessible to all processes for the same user.
+ */
+function getCacheDir(): string {
+  const configDir = process.env.CLAUDE_CONFIG_DIR ?? join(homedir(), ".claude");
+  const dir = join(configDir, ".cache");
+  try {
+    mkdirSync(dir, { recursive: true });
+  } catch {
+    // Already exists or permissions error — proceed; writes will fail gracefully
+  }
+  return dir;
+}
+
+let _cacheDir: string | null = null;
+function cacheDir(): string {
+  if (!_cacheDir) _cacheDir = getCacheDir();
+  return _cacheDir;
+}
+
+/** Absolute path to the headroom cache file. */
+export function getCacheFilePath(): string {
+  return resolve(cacheDir(), "headroom.json");
+}
+
 const STALE_THRESHOLD_MS = 30_000; // 30 seconds — local call, cheap
 const HEADROOM_FALLBACK_BASE = "http://127.0.0.1:8787";
 
@@ -42,7 +69,7 @@ export function isHeadroomActive(): boolean {
 
 export function readHeadroomCache(): HeadroomCache | null {
   try {
-    const raw = readFileSync(CACHE_FILE, "utf-8");
+    const raw = readFileSync(getCacheFilePath(), "utf-8");
     return JSON.parse(raw);
   } catch {
     return null;
@@ -51,7 +78,7 @@ export function readHeadroomCache(): HeadroomCache | null {
 
 function isCacheStale(): boolean {
   try {
-    return Date.now() - statSync(CACHE_FILE).mtimeMs > STALE_THRESHOLD_MS;
+    return Date.now() - statSync(getCacheFilePath()).mtimeMs > STALE_THRESHOLD_MS;
   } catch {
     return true;
   }
@@ -67,6 +94,21 @@ export function triggerHeadroomFetch(): void {
   child.unref();
 }
 
+/**
+ * Sanitise a numeric value received from the Headroom HTTP API.
+ * Coerces to a finite number, defaulting to `fallback` (0) if the value is
+ * missing, non-numeric, NaN, or Infinity (js/http-to-file-access mitigation:
+ * untrusted HTTP response data is normalised before being written to disk).
+ */
+function safeNum(value: unknown, fallback = 0): number {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function writeCacheFile(cache: HeadroomCache): void {
+  writeFileSync(getCacheFilePath(), JSON.stringify(cache), "utf-8");
+}
+
 export async function fetchAndCacheHeadroom(): Promise<void> {
   const baseUrl = getHeadroomBaseUrl();
   const inactive: HeadroomCache = { fetchedAt: Date.now(), isActive: false, data: null };
@@ -77,12 +119,12 @@ export async function fetchAndCacheHeadroom(): Promise<void> {
     clearTimeout(hTimer);
 
     if (!healthRes.ok) {
-      writeFileSync(CACHE_FILE, JSON.stringify(inactive), "utf-8");
+      writeCacheFile(inactive);
       return;
     }
     const health: any = await healthRes.json();
     if (health.status !== "healthy") {
-      writeFileSync(CACHE_FILE, JSON.stringify(inactive), "utf-8");
+      writeCacheFile(inactive);
       return;
     }
 
@@ -91,21 +133,24 @@ export async function fetchAndCacheHeadroom(): Promise<void> {
     const statsRes = await fetch(`${baseUrl}/stats`, { signal: sCtrl.signal });
     clearTimeout(sTimer);
     if (!statsRes.ok) {
-      writeFileSync(CACHE_FILE, JSON.stringify(inactive), "utf-8");
+      writeCacheFile(inactive);
       return;
     }
 
+    // Validate and normalise all fields from the HTTP response before persisting
+    // to disk (js/http-to-file-access: untrusted HTTP data must not flow
+    // unchecked into file writes).
     const raw: any = await statsRes.json();
     const stats: HeadroomStats = {
-      compressionPct: raw.tokens?.savings_percent ?? 0,
-      tokensSaved: (raw.tokens?.saved ?? 0) + (raw.tokens?.cli_tokens_avoided ?? 0),
-      cliTokensSaved: raw.tokens?.cli_tokens_avoided ?? 0,
-      costSavedUsd: raw.cost?.savings_usd ?? 0,
-      requests: raw.requests?.total ?? 0,
-      cacheHitRate: (raw.prefix_cache?.totals?.hit_rate ?? 0) / 100,
+      compressionPct: safeNum(raw?.tokens?.savings_percent),
+      tokensSaved: safeNum(raw?.tokens?.saved) + safeNum(raw?.tokens?.cli_tokens_avoided),
+      cliTokensSaved: safeNum(raw?.tokens?.cli_tokens_avoided),
+      costSavedUsd: safeNum(raw?.cost?.savings_usd),
+      requests: safeNum(raw?.requests?.total),
+      cacheHitRate: safeNum(raw?.prefix_cache?.totals?.hit_rate) / 100,
     };
-    writeFileSync(CACHE_FILE, JSON.stringify({ fetchedAt: Date.now(), isActive: true, data: stats }), "utf-8");
+    writeCacheFile({ fetchedAt: Date.now(), isActive: true, data: stats });
   } catch {
-    writeFileSync(CACHE_FILE, JSON.stringify(inactive), "utf-8");
+    writeCacheFile(inactive);
   }
 }
