@@ -127,9 +127,9 @@ var init_schema = __esm({
 });
 
 // src/config/loader.ts
-import { readFileSync as readFileSync4, writeFileSync as writeFileSync4, mkdirSync as mkdirSync2, existsSync as existsSync2 } from "fs";
+import { readFileSync as readFileSync4, writeFileSync as writeFileSync4, mkdirSync as mkdirSync4, existsSync as existsSync2 } from "fs";
 import { join as join4, dirname as dirname4 } from "path";
-import { homedir as homedir3 } from "os";
+import { homedir as homedir4 } from "os";
 function getConfigPath() {
   return customConfigPath ?? CONFIG_FILE;
 }
@@ -152,7 +152,7 @@ function loadSettings() {
 function saveSettings(settings) {
   const configPath = getConfigPath();
   const dir = dirname4(configPath);
-  mkdirSync2(dir, { recursive: true });
+  mkdirSync4(dir, { recursive: true });
   writeFileSync4(configPath, JSON.stringify(settings, null, 2), "utf-8");
 }
 function migrateSettings(raw) {
@@ -163,7 +163,7 @@ var init_loader = __esm({
   "src/config/loader.ts"() {
     "use strict";
     init_schema();
-    CONFIG_DIR = join4(homedir3(), ".config", "claude-statusline-widgets");
+    CONFIG_DIR = join4(homedir4(), ".config", "claude-statusline-widgets");
     CONFIG_FILE = join4(CONFIG_DIR, "settings.json");
     customConfigPath = null;
   }
@@ -1038,10 +1038,10 @@ var init_CustomTextWidget = __esm({
 });
 
 // src/runtime.ts
-import { existsSync as existsSync3, openSync as openSync3, readFileSync as readFileSync5, readSync as readSync3, closeSync as closeSync3, statSync as statSync5 } from "fs";
+import { existsSync as existsSync3, openSync as openSync3, readFileSync as readFileSync5, readSync as readSync3, closeSync as closeSync3, fstatSync as fstatSync3 } from "fs";
 import { basename, join as join5 } from "path";
 import { execFileSync, execSync as execSync2 } from "child_process";
-import { freemem, homedir as homedir4, totalmem } from "os";
+import { freemem, homedir as homedir5, totalmem } from "os";
 function safeExecFile(command, args, cwd2) {
   try {
     return execFileSync(command, args, {
@@ -1201,15 +1201,22 @@ function parseGitInfo(cwd2) {
   };
 }
 function readInitialChunk(filePath, maxBytes = 256 * 1024) {
+  let fd = null;
   try {
-    const stats = statSync5(filePath);
-    const readSize = Math.min(stats.size, maxBytes);
+    fd = openSync3(filePath, "r");
+    const readSize = Math.min(fstatSync3(fd).size, maxBytes);
     const buffer = Buffer.alloc(readSize);
-    const fd = openSync3(filePath, "r");
     readSync3(fd, buffer, 0, readSize, 0);
     closeSync3(fd);
+    fd = null;
     return buffer.toString("utf8").split(/\r?\n/).filter(Boolean);
   } catch {
+    if (fd !== null) {
+      try {
+        closeSync3(fd);
+      } catch {
+      }
+    }
     return [];
   }
 }
@@ -1248,8 +1255,8 @@ function findEmailInValue(value) {
 }
 function readAccountEmail() {
   const candidates = [
-    join5(homedir4(), ".claude.json"),
-    join5(process.env.CLAUDE_CONFIG_DIR ?? join5(homedir4(), ".claude"), ".credentials.json")
+    join5(homedir5(), ".claude.json"),
+    join5(process.env.CLAUDE_CONFIG_DIR ?? join5(homedir5(), ".claude"), ".credentials.json")
   ];
   for (const path of candidates) {
     if (!existsSync3(path)) continue;
@@ -3432,21 +3439,21 @@ var require_react_development = __commonJS({
         );
         actScopeDepth = prevActScopeDepth;
       }
-      function recursivelyFlushAsyncActWork(returnValue, resolve, reject) {
+      function recursivelyFlushAsyncActWork(returnValue, resolve3, reject) {
         var queue = ReactSharedInternals.actQueue;
         if (null !== queue)
           if (0 !== queue.length)
             try {
               flushActQueue(queue);
               enqueueTask(function() {
-                return recursivelyFlushAsyncActWork(returnValue, resolve, reject);
+                return recursivelyFlushAsyncActWork(returnValue, resolve3, reject);
               });
               return;
             } catch (error) {
               ReactSharedInternals.thrownErrors.push(error);
             }
           else ReactSharedInternals.actQueue = null;
-        0 < ReactSharedInternals.thrownErrors.length ? (queue = aggregateErrors(ReactSharedInternals.thrownErrors), ReactSharedInternals.thrownErrors.length = 0, reject(queue)) : resolve(returnValue);
+        0 < ReactSharedInternals.thrownErrors.length ? (queue = aggregateErrors(ReactSharedInternals.thrownErrors), ReactSharedInternals.thrownErrors.length = 0, reject(queue)) : resolve3(returnValue);
       }
       function flushActQueue(queue) {
         if (!isFlushing) {
@@ -3633,7 +3640,7 @@ var require_react_development = __commonJS({
             ));
           });
           return {
-            then: function(resolve, reject) {
+            then: function(resolve3, reject) {
               didAwaitActCall = true;
               thenable.then(
                 function(returnValue) {
@@ -3643,7 +3650,7 @@ var require_react_development = __commonJS({
                       flushActQueue(queue), enqueueTask(function() {
                         return recursivelyFlushAsyncActWork(
                           returnValue,
-                          resolve,
+                          resolve3,
                           reject
                         );
                       });
@@ -3657,7 +3664,7 @@ var require_react_development = __commonJS({
                       ReactSharedInternals.thrownErrors.length = 0;
                       reject(_thrownError);
                     }
-                  } else resolve(returnValue);
+                  } else resolve3(returnValue);
                 },
                 function(error) {
                   popActScope(prevActQueue, prevActScopeDepth);
@@ -3679,15 +3686,15 @@ var require_react_development = __commonJS({
         if (0 < ReactSharedInternals.thrownErrors.length)
           throw callback = aggregateErrors(ReactSharedInternals.thrownErrors), ReactSharedInternals.thrownErrors.length = 0, callback;
         return {
-          then: function(resolve, reject) {
+          then: function(resolve3, reject) {
             didAwaitActCall = true;
             0 === prevActScopeDepth ? (ReactSharedInternals.actQueue = queue, enqueueTask(function() {
               return recursivelyFlushAsyncActWork(
                 returnValue$jscomp$0,
-                resolve,
+                resolve3,
                 reject
               );
-            })) : resolve(returnValue$jscomp$0);
+            })) : resolve3(returnValue$jscomp$0);
           }
         };
       };
@@ -8685,8 +8692,8 @@ var require_react_reconciler_production = __commonJS({
           currentEntangledActionThenable = {
             status: "pending",
             value: void 0,
-            then: function(resolve) {
-              entangledListeners.push(resolve);
+            then: function(resolve3) {
+              entangledListeners.push(resolve3);
             }
           };
         }
@@ -8709,8 +8716,8 @@ var require_react_reconciler_production = __commonJS({
           status: "pending",
           value: null,
           reason: null,
-          then: function(resolve) {
-            listeners.push(resolve);
+          then: function(resolve3) {
+            listeners.push(resolve3);
           }
         };
         thenable.then(
@@ -18309,8 +18316,8 @@ var require_react_reconciler_development = __commonJS({
           currentEntangledActionThenable = {
             status: "pending",
             value: void 0,
-            then: function(resolve) {
-              entangledListeners.push(resolve);
+            then: function(resolve3) {
+              entangledListeners.push(resolve3);
             }
           };
         }
@@ -18333,8 +18340,8 @@ var require_react_reconciler_development = __commonJS({
           status: "pending",
           value: null,
           reason: null,
-          then: function(resolve) {
-            listeners.push(resolve);
+          then: function(resolve3) {
+            listeners.push(resolve3);
           }
         };
         thenable.then(
@@ -51988,22 +51995,22 @@ var init_devtools = __esm({
     init_devtools_window_polyfill();
     init_wrapper();
     import_react_devtools_core = __toESM(require_backend(), 1);
-    isDevToolsReachable = async () => new Promise((resolve) => {
+    isDevToolsReachable = async () => new Promise((resolve3) => {
       const socket = new wrapper_default("ws://localhost:8097");
       const timeout = setTimeout(() => {
         socket.terminate();
-        resolve(false);
+        resolve3(false);
       }, 2e3);
       timeout.unref();
       socket.on("open", () => {
         clearTimeout(timeout);
         socket.terminate();
-        resolve(true);
+        resolve3(true);
       });
       socket.on("error", () => {
         clearTimeout(timeout);
         socket.terminate();
-        resolve(false);
+        resolve3(false);
       });
     });
     if (await isDevToolsReachable()) {
@@ -55771,8 +55778,8 @@ var init_ink = __esm({
     noop = () => {
     };
     textEncoder = new TextEncoder();
-    yieldImmediate = async () => new Promise((resolve) => {
-      setImmediate(resolve);
+    yieldImmediate = async () => new Promise((resolve3) => {
+      setImmediate(resolve3);
     });
     kittyQueryEscapeByte = 27;
     kittyQueryOpenBracketByte = 91;
@@ -55989,8 +55996,8 @@ var init_ink = __esm({
           };
         }
         this.initKittyKeyboard();
-        this.exitPromise = new Promise((resolve, reject) => {
-          this.resolveExitPromise = resolve;
+        this.exitPromise = new Promise((resolve3, reject) => {
+          this.resolveExitPromise = resolve3;
           this.rejectExitPromise = reject;
         });
         void this.exitPromise.catch(noop);
@@ -56301,9 +56308,9 @@ var init_ink = __esm({
         settleThrottle(this.throttledOnRender, canWriteToStdout);
         settleThrottle(this.throttledLog, canWriteToStdout);
         if (canWriteToStdout && hasWritableState) {
-          await new Promise((resolve) => {
+          await new Promise((resolve3) => {
             this.options.stdout.write("", () => {
-              resolve();
+              resolve3();
             });
           });
           return;
@@ -56389,8 +56396,8 @@ var init_ink = __esm({
       async awaitNextRender() {
         if (!this.nextRenderCommit) {
           let resolveRender;
-          const promise = new Promise((resolve) => {
-            resolveRender = resolve;
+          const promise = new Promise((resolve3) => {
+            resolveRender = resolve3;
           });
           this.nextRenderCommit = { promise, resolve: resolveRender };
         }
@@ -58760,41 +58767,56 @@ var init_tui = __esm({
 });
 
 // src/index.ts
-import { readFileSync as readFileSync8, writeFileSync as writeFileSync5, existsSync as existsSync6 } from "fs";
+import { readFileSync as readFileSync8, writeFileSync as writeFileSync5 } from "fs";
 import { join as join7 } from "path";
-import { homedir as homedir5 } from "os";
+import { homedir as homedir6 } from "os";
 
 // src/cache.ts
-import { statSync, openSync, readSync, closeSync } from "fs";
+import { fstatSync, openSync, readSync, closeSync } from "fs";
 var TTL_5M = 5 * 60;
 var TTL_1H = 60 * 60;
 function readFromStart(filePath, maxBytes = 2 * 1024 * 1024) {
   let content;
+  let fd = null;
   try {
-    const stats = statSync(filePath);
-    const readSize = Math.min(stats.size, maxBytes);
+    fd = openSync(filePath, "r");
+    const fileSize = fstatSync(fd).size;
+    const readSize = Math.min(fileSize, maxBytes);
     const buffer = Buffer.alloc(readSize);
-    const fd = openSync(filePath, "r");
     readSync(fd, buffer, 0, readSize, 0);
     closeSync(fd);
+    fd = null;
     content = buffer.toString("utf-8");
   } catch {
+    if (fd !== null) {
+      try {
+        closeSync(fd);
+      } catch {
+      }
+    }
     return [];
   }
   return content.split("\n").filter((l) => l.trim().length > 0);
 }
 function readLastLines(filePath, maxLines) {
   let content;
+  let fd = null;
   try {
-    const stats = statSync(filePath);
-    const fileSize = stats.size;
+    fd = openSync(filePath, "r");
+    const fileSize = fstatSync(fd).size;
     const readSize = Math.min(fileSize, 256 * 1024);
     const buffer = Buffer.alloc(readSize);
-    const fd = openSync(filePath, "r");
     readSync(fd, buffer, 0, readSize, fileSize - readSize);
     closeSync(fd);
+    fd = null;
     content = buffer.toString("utf-8");
   } catch {
+    if (fd !== null) {
+      try {
+        closeSync(fd);
+      } catch {
+      }
+    }
     return [];
   }
   const lines = content.split("\n").filter((l) => l.trim().length > 0);
@@ -58910,14 +58932,32 @@ function getCacheSessionStats(transcriptPath) {
 }
 
 // src/usage.ts
-import { readFileSync, writeFileSync, statSync as statSync2 } from "fs";
-import { join, dirname } from "path";
+import { readFileSync, writeFileSync, statSync, mkdirSync } from "fs";
+import { join, dirname, resolve } from "path";
 import { fileURLToPath } from "url";
-import { tmpdir, homedir, platform } from "os";
+import { homedir, platform } from "os";
 import { execSync, spawn } from "child_process";
 var __dirname = dirname(fileURLToPath(import.meta.url));
-var CACHE_FILE = join(tmpdir(), "claude-statusline-usage.json");
-var LOCK_FILE = join(tmpdir(), "claude-statusline-usage.lock");
+function getCacheDir() {
+  const configDir = process.env.CLAUDE_CONFIG_DIR ?? join(homedir(), ".claude");
+  const dir = join(configDir, ".cache");
+  try {
+    mkdirSync(dir, { recursive: true });
+  } catch {
+  }
+  return dir;
+}
+var _cacheDir = null;
+function cacheDir() {
+  if (!_cacheDir) _cacheDir = getCacheDir();
+  return _cacheDir;
+}
+function getCacheFilePath() {
+  return resolve(cacheDir(), "usage.json");
+}
+function getLockFilePath() {
+  return resolve(cacheDir(), "usage.lock");
+}
 var STALE_THRESHOLD_MS = 6e4;
 var LOCK_STALE_MS = 2 * 6e4;
 var API_URL = "https://api.anthropic.com/api/oauth/usage";
@@ -58957,16 +58997,21 @@ function readCredentials() {
     return null;
   }
 }
+function isValidBearerToken(value) {
+  return value.length > 0 && /^[\x21-\x7E]+$/.test(value);
+}
 function getAccessToken() {
   const creds = readCredentials();
-  if (!creds?.claudeAiOauth?.accessToken) return null;
-  const expiresAt = creds.claudeAiOauth.expiresAt ?? 0;
+  const token = creds?.claudeAiOauth?.accessToken;
+  if (!token) return null;
+  const expiresAt = creds.claudeAiOauth?.expiresAt ?? 0;
   if (expiresAt < Date.now() - 6e4) return null;
-  return creds.claudeAiOauth.accessToken;
+  if (!isValidBearerToken(token)) return null;
+  return token;
 }
 function readUsageCache() {
   try {
-    const raw = readFileSync(CACHE_FILE, "utf-8");
+    const raw = readFileSync(getCacheFilePath(), "utf-8");
     return JSON.parse(raw);
   } catch {
     return null;
@@ -58975,11 +59020,11 @@ function readUsageCache() {
 function writeUsageCache(data, rateLimitedUntil) {
   const cache3 = { fetchedAt: Date.now(), data };
   if (rateLimitedUntil !== void 0) cache3.rateLimitedUntil = rateLimitedUntil;
-  writeFileSync(CACHE_FILE, JSON.stringify(cache3), "utf-8");
+  writeFileSync(getCacheFilePath(), JSON.stringify(cache3), "utf-8");
 }
 function isCacheStale() {
   try {
-    const stat = statSync2(CACHE_FILE);
+    const stat = statSync(getCacheFilePath());
     if (Date.now() - stat.mtimeMs <= STALE_THRESHOLD_MS) return false;
     const cached = readUsageCache();
     if (cached?.rateLimitedUntil && Date.now() < cached.rateLimitedUntil) return false;
@@ -58990,7 +59035,7 @@ function isCacheStale() {
 }
 function acquireLock() {
   try {
-    const raw = readFileSync(LOCK_FILE, "utf-8");
+    const raw = readFileSync(getLockFilePath(), "utf-8");
     const lock = JSON.parse(raw);
     if (Date.now() - lock.lockedAt < LOCK_STALE_MS) {
       return false;
@@ -58998,7 +59043,7 @@ function acquireLock() {
   } catch {
   }
   try {
-    writeFileSync(LOCK_FILE, JSON.stringify({ pid: process.pid, lockedAt: Date.now() }), "utf-8");
+    writeFileSync(getLockFilePath(), JSON.stringify({ pid: process.pid, lockedAt: Date.now() }), "utf-8");
     return true;
   } catch {
     return false;
@@ -59006,17 +59051,17 @@ function acquireLock() {
 }
 function releaseLock() {
   try {
-    const raw = readFileSync(LOCK_FILE, "utf-8");
+    const raw = readFileSync(getLockFilePath(), "utf-8");
     const lock = JSON.parse(raw);
     if (lock.pid === process.pid) {
-      writeFileSync(LOCK_FILE, JSON.stringify({ pid: 0, lockedAt: 0 }), "utf-8");
+      writeFileSync(getLockFilePath(), JSON.stringify({ pid: 0, lockedAt: 0 }), "utf-8");
     }
   } catch {
   }
 }
 function isLocked() {
   try {
-    const raw = readFileSync(LOCK_FILE, "utf-8");
+    const raw = readFileSync(getLockFilePath(), "utf-8");
     const lock = JSON.parse(raw);
     return lock.pid !== 0 && Date.now() - lock.lockedAt < LOCK_STALE_MS;
   } catch {
@@ -59036,6 +59081,33 @@ function triggerBackgroundFetch() {
     }
   );
   child.unref();
+}
+function sanitiseRateLimit(v) {
+  if (!v || typeof v !== "object" || Array.isArray(v)) return null;
+  const r = v;
+  return {
+    utilization: typeof r.utilization === "number" && Number.isFinite(r.utilization) ? r.utilization : null,
+    resets_at: typeof r.resets_at === "string" ? r.resets_at : null
+  };
+}
+function sanitiseUsageData(raw) {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
+  const r = raw;
+  const result = {};
+  if (r.five_hour !== void 0) result.five_hour = sanitiseRateLimit(r.five_hour);
+  if (r.seven_day !== void 0) result.seven_day = sanitiseRateLimit(r.seven_day);
+  if (r.seven_day_opus !== void 0) result.seven_day_opus = sanitiseRateLimit(r.seven_day_opus);
+  if (r.seven_day_sonnet !== void 0) result.seven_day_sonnet = sanitiseRateLimit(r.seven_day_sonnet);
+  if (r.extra_usage && typeof r.extra_usage === "object" && !Array.isArray(r.extra_usage)) {
+    const eu = r.extra_usage;
+    result.extra_usage = {
+      is_enabled: typeof eu.is_enabled === "boolean" ? eu.is_enabled : false,
+      monthly_limit: typeof eu.monthly_limit === "number" ? eu.monthly_limit : null,
+      used_credits: typeof eu.used_credits === "number" ? eu.used_credits : null,
+      utilization: typeof eu.utilization === "number" && Number.isFinite(eu.utilization) ? eu.utilization : null
+    };
+  }
+  return result;
 }
 async function fetchAndCacheUsage() {
   const token = getAccessToken();
@@ -59073,7 +59145,8 @@ async function fetchAndCacheUsage() {
       return;
     }
     if (!res.ok) return;
-    const data = await res.json();
+    const raw = await res.json();
+    const data = sanitiseUsageData(raw);
     writeUsageCache(data);
   } catch {
   } finally {
@@ -59082,13 +59155,29 @@ async function fetchAndCacheUsage() {
 }
 
 // src/headroom.ts
-import { readFileSync as readFileSync2, writeFileSync as writeFileSync2, statSync as statSync3 } from "fs";
-import { tmpdir as tmpdir2 } from "os";
-import { join as join2, dirname as dirname2 } from "path";
+import { readFileSync as readFileSync2, writeFileSync as writeFileSync2, statSync as statSync2, mkdirSync as mkdirSync2 } from "fs";
+import { homedir as homedir2 } from "os";
+import { join as join2, dirname as dirname2, resolve as resolve2 } from "path";
 import { fileURLToPath as fileURLToPath2 } from "url";
 import { spawn as spawn2 } from "child_process";
 var __dirname2 = dirname2(fileURLToPath2(import.meta.url));
-var CACHE_FILE2 = join2(tmpdir2(), "claude-statusline-headroom.json");
+function getCacheDir2() {
+  const configDir = process.env.CLAUDE_CONFIG_DIR ?? join2(homedir2(), ".claude");
+  const dir = join2(configDir, ".cache");
+  try {
+    mkdirSync2(dir, { recursive: true });
+  } catch {
+  }
+  return dir;
+}
+var _cacheDir2 = null;
+function cacheDir2() {
+  if (!_cacheDir2) _cacheDir2 = getCacheDir2();
+  return _cacheDir2;
+}
+function getCacheFilePath2() {
+  return resolve2(cacheDir2(), "headroom.json");
+}
 var STALE_THRESHOLD_MS2 = 3e4;
 var HEADROOM_FALLBACK_BASE = "http://127.0.0.1:8787";
 function getHeadroomBaseUrl() {
@@ -59105,7 +59194,7 @@ function isHeadroomActive() {
 }
 function readHeadroomCache() {
   try {
-    const raw = readFileSync2(CACHE_FILE2, "utf-8");
+    const raw = readFileSync2(getCacheFilePath2(), "utf-8");
     return JSON.parse(raw);
   } catch {
     return null;
@@ -59113,7 +59202,7 @@ function readHeadroomCache() {
 }
 function isCacheStale2() {
   try {
-    return Date.now() - statSync3(CACHE_FILE2).mtimeMs > STALE_THRESHOLD_MS2;
+    return Date.now() - statSync2(getCacheFilePath2()).mtimeMs > STALE_THRESHOLD_MS2;
   } catch {
     return true;
   }
@@ -59127,6 +59216,13 @@ function triggerHeadroomFetch() {
   );
   child.unref();
 }
+function safeNum(value, fallback = 0) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : fallback;
+}
+function writeCacheFile(cache3) {
+  writeFileSync2(getCacheFilePath2(), JSON.stringify(cache3), "utf-8");
+}
 async function fetchAndCacheHeadroom() {
   const baseUrl = getHeadroomBaseUrl();
   const inactive = { fetchedAt: Date.now(), isActive: false, data: null };
@@ -59136,12 +59232,12 @@ async function fetchAndCacheHeadroom() {
     const healthRes = await fetch(`${baseUrl}/health`, { signal: hCtrl.signal });
     clearTimeout(hTimer);
     if (!healthRes.ok) {
-      writeFileSync2(CACHE_FILE2, JSON.stringify(inactive), "utf-8");
+      writeCacheFile(inactive);
       return;
     }
     const health = await healthRes.json();
     if (health.status !== "healthy") {
-      writeFileSync2(CACHE_FILE2, JSON.stringify(inactive), "utf-8");
+      writeCacheFile(inactive);
       return;
     }
     const sCtrl = new AbortController();
@@ -59149,21 +59245,21 @@ async function fetchAndCacheHeadroom() {
     const statsRes = await fetch(`${baseUrl}/stats`, { signal: sCtrl.signal });
     clearTimeout(sTimer);
     if (!statsRes.ok) {
-      writeFileSync2(CACHE_FILE2, JSON.stringify(inactive), "utf-8");
+      writeCacheFile(inactive);
       return;
     }
     const raw = await statsRes.json();
     const stats = {
-      compressionPct: raw.tokens?.savings_percent ?? 0,
-      tokensSaved: (raw.tokens?.saved ?? 0) + (raw.tokens?.cli_tokens_avoided ?? 0),
-      cliTokensSaved: raw.tokens?.cli_tokens_avoided ?? 0,
-      costSavedUsd: raw.cost?.savings_usd ?? 0,
-      requests: raw.requests?.total ?? 0,
-      cacheHitRate: (raw.prefix_cache?.totals?.hit_rate ?? 0) / 100
+      compressionPct: safeNum(raw?.tokens?.savings_percent),
+      tokensSaved: safeNum(raw?.tokens?.saved) + safeNum(raw?.tokens?.cli_tokens_avoided),
+      cliTokensSaved: safeNum(raw?.tokens?.cli_tokens_avoided),
+      costSavedUsd: safeNum(raw?.cost?.savings_usd),
+      requests: safeNum(raw?.requests?.total),
+      cacheHitRate: safeNum(raw?.prefix_cache?.totals?.hit_rate) / 100
     };
-    writeFileSync2(CACHE_FILE2, JSON.stringify({ fetchedAt: Date.now(), isActive: true, data: stats }), "utf-8");
+    writeCacheFile({ fetchedAt: Date.now(), isActive: true, data: stats });
   } catch {
-    writeFileSync2(CACHE_FILE2, JSON.stringify(inactive), "utf-8");
+    writeCacheFile(inactive);
   }
 }
 
@@ -59171,9 +59267,10 @@ async function fetchAndCacheHeadroom() {
 import {
   writeFileSync as writeFileSync3,
   existsSync,
-  mkdirSync,
+  mkdirSync as mkdirSync3,
   readdirSync,
-  statSync as statSync4,
+  statSync as statSync3,
+  fstatSync as fstatSync2,
   openSync as openSync2,
   readSync as readSync2,
   closeSync as closeSync2,
@@ -59181,12 +59278,12 @@ import {
   readFileSync as readFileSync3
 } from "fs";
 import { join as join3, dirname as dirname3 } from "path";
-import { homedir as homedir2 } from "os";
+import { homedir as homedir3 } from "os";
 import { fileURLToPath as fileURLToPath3 } from "url";
 import { spawn as spawn3 } from "child_process";
 var __dirname3 = dirname3(fileURLToPath3(import.meta.url));
 function getTrackingDir() {
-  const configDir = process.env.CLAUDE_CONFIG_DIR ?? join3(homedir2(), ".claude");
+  const configDir = process.env.CLAUDE_CONFIG_DIR ?? join3(homedir3(), ".claude");
   return join3(configDir, ".session-tracking");
 }
 function getDataFile() {
@@ -59201,7 +59298,7 @@ function getBackupsDir() {
 var POLL_INTERVAL_MS = 6e4;
 function isStale() {
   try {
-    return Date.now() - statSync4(getDataFile()).mtimeMs > POLL_INTERVAL_MS;
+    return Date.now() - statSync3(getDataFile()).mtimeMs > POLL_INTERVAL_MS;
   } catch {
     return true;
   }
@@ -59245,7 +59342,7 @@ function walkJsonlFiles(dir, results) {
   for (const name of entries) {
     const full = join3(dir, name);
     try {
-      const st = statSync4(full);
+      const st = statSync3(full);
       if (st.isDirectory()) {
         walkJsonlFiles(full, results);
       } else if (name.endsWith(".jsonl")) {
@@ -59256,21 +59353,28 @@ function walkJsonlFiles(dir, results) {
   }
 }
 function findTranscriptFiles() {
-  const configDir = process.env.CLAUDE_CONFIG_DIR ?? join3(homedir2(), ".claude");
+  const configDir = process.env.CLAUDE_CONFIG_DIR ?? join3(homedir3(), ".claude");
   const results = [];
   walkJsonlFiles(join3(configDir, "projects"), results);
   return results;
 }
 function readTranscriptLines(filePath) {
+  let fd = null;
   try {
-    const st = statSync4(filePath);
-    const readSize = Math.min(st.size, 10 * 1024 * 1024);
+    fd = openSync2(filePath, "r");
+    const readSize = Math.min(fstatSync2(fd).size, 10 * 1024 * 1024);
     const buffer = Buffer.alloc(readSize);
-    const fd = openSync2(filePath, "r");
     readSync2(fd, buffer, 0, readSize, 0);
     closeSync2(fd);
+    fd = null;
     return buffer.toString("utf-8").split("\n").filter((l) => l.trim().length > 0);
   } catch {
+    if (fd !== null) {
+      try {
+        closeSync2(fd);
+      } catch {
+      }
+    }
     return [];
   }
 }
@@ -59350,9 +59454,9 @@ function computeWindowData(startMs, endMs) {
 }
 function ensureDirs() {
   const dir = getTrackingDir();
-  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+  if (!existsSync(dir)) mkdirSync3(dir, { recursive: true });
   const backups = getBackupsDir();
-  if (!existsSync(backups)) mkdirSync(backups, { recursive: true });
+  if (!existsSync(backups)) mkdirSync3(backups, { recursive: true });
 }
 function writeRecordAppend(record) {
   writeFileSync3(getDataFile(), JSON.stringify(record) + "\n", { flag: "a", encoding: "utf-8" });
@@ -59370,7 +59474,7 @@ function maybeBackup() {
     return;
   }
   try {
-    if (Date.now() - statSync4(backupFile).mtimeMs > 24 * 60 * 6e4) {
+    if (Date.now() - statSync3(backupFile).mtimeMs > 24 * 60 * 6e4) {
       copyFileSync(dataFile, backupFile);
     }
   } catch {
@@ -59466,10 +59570,14 @@ init_runtime();
 var PLUGIN_KEY = "cache-ttl-statusline@claude-statusline-widgets";
 function removeStatusLineIfDisabled() {
   try {
-    const claudeDir = process.env.CLAUDE_CONFIG_DIR ?? join7(homedir5(), ".claude");
+    const claudeDir = process.env.CLAUDE_CONFIG_DIR ?? join7(homedir6(), ".claude");
     const settingsPath = join7(claudeDir, "settings.json");
-    if (!existsSync6(settingsPath)) return false;
-    const settings = JSON.parse(readFileSync8(settingsPath, "utf8"));
+    let settings;
+    try {
+      settings = JSON.parse(readFileSync8(settingsPath, "utf8"));
+    } catch {
+      return false;
+    }
     if (settings?.enabledPlugins?.[PLUGIN_KEY] !== false) return false;
     delete settings.statusLine;
     writeFileSync5(settingsPath, JSON.stringify(settings, null, 2), "utf8");
@@ -59479,12 +59587,12 @@ function removeStatusLineIfDisabled() {
   }
 }
 function readStdin() {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve3, reject) => {
     const chunks = [];
     process.stdin.on("data", (chunk) => chunks.push(typeof chunk === "string" ? Buffer.from(chunk) : chunk));
-    process.stdin.on("end", () => resolve(Buffer.concat(chunks).toString("utf-8")));
+    process.stdin.on("end", () => resolve3(Buffer.concat(chunks).toString("utf-8")));
     process.stdin.on("error", reject);
-    setTimeout(() => resolve(Buffer.concat(chunks).toString("utf-8")), 1e3);
+    setTimeout(() => resolve3(Buffer.concat(chunks).toString("utf-8")), 1e3);
   });
 }
 async function main() {

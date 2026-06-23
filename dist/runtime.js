@@ -2,7 +2,7 @@ import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 
 // src/runtime.ts
-import { existsSync, openSync, readFileSync, readSync, closeSync, statSync } from "fs";
+import { existsSync, openSync, readFileSync, readSync, closeSync, fstatSync } from "fs";
 import { basename, join } from "path";
 import { execFileSync, execSync } from "child_process";
 import { freemem, homedir, totalmem } from "os";
@@ -165,15 +165,22 @@ function parseGitInfo(cwd) {
   };
 }
 function readInitialChunk(filePath, maxBytes = 256 * 1024) {
+  let fd = null;
   try {
-    const stats = statSync(filePath);
-    const readSize = Math.min(stats.size, maxBytes);
+    fd = openSync(filePath, "r");
+    const readSize = Math.min(fstatSync(fd).size, maxBytes);
     const buffer = Buffer.alloc(readSize);
-    const fd = openSync(filePath, "r");
     readSync(fd, buffer, 0, readSize, 0);
     closeSync(fd);
+    fd = null;
     return buffer.toString("utf8").split(/\r?\n/).filter(Boolean);
   } catch {
+    if (fd !== null) {
+      try {
+        closeSync(fd);
+      } catch {
+      }
+    }
     return [];
   }
 }

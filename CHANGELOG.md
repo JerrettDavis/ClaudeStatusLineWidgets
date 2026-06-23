@@ -1,3 +1,10 @@
+## [1.5.3](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/compare/v1.5.2...v1.5.3) (2026-06-23)
+
+
+### Bug Fixes
+
+* **security:** remediate 20 CodeQL security findings ([#41](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/issues/41)) ([6f69c11](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/commit/6f69c111ced21796c8660085d879b60db30e2f45))
+
 ## [1.5.2](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/compare/v1.5.1...v1.5.2) (2026-06-22)
 
 
