@@ -1,5 +1,5 @@
 import { readFileSync, writeFileSync, statSync, mkdirSync } from "fs";
-import { tmpdir } from "os";
+import { homedir } from "os";
 import { join, dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 import { spawn } from "child_process";
@@ -22,30 +22,31 @@ interface HeadroomCache {
 }
 
 /**
- * Per-user secure tmpdir subdirectory (mode 0700).
- * Isolating cache files in a user-owned subdirectory prevents symlink attacks
- * on predictable filenames in the world-writable tmpdir (js/insecure-temporary-file).
+ * Cache directory for headroom data: stored inside the Claude config directory
+ * (~/.claude/.cache/) rather than the world-writable system tmpdir.
+ * This avoids insecure-temporary-file findings (js/insecure-temporary-file)
+ * while keeping the cache accessible to all processes for the same user.
  */
-function getSecureTmpDir(): string {
-  const uid = process.getuid?.() ?? process.pid;
-  const dir = join(tmpdir(), `claude-statusline-${uid}`);
+function getCacheDir(): string {
+  const configDir = process.env.CLAUDE_CONFIG_DIR ?? join(homedir(), ".claude");
+  const dir = join(configDir, ".cache");
   try {
-    mkdirSync(dir, { recursive: true, mode: 0o700 });
+    mkdirSync(dir, { recursive: true });
   } catch {
     // Already exists or permissions error — proceed; writes will fail gracefully
   }
   return dir;
 }
 
-let _secureTmpDir: string | null = null;
-function secureTmpDir(): string {
-  if (!_secureTmpDir) _secureTmpDir = getSecureTmpDir();
-  return _secureTmpDir;
+let _cacheDir: string | null = null;
+function cacheDir(): string {
+  if (!_cacheDir) _cacheDir = getCacheDir();
+  return _cacheDir;
 }
 
-/** Absolute path to the headroom cache file (inside the secure subdir). */
+/** Absolute path to the headroom cache file. */
 export function getCacheFilePath(): string {
-  return resolve(secureTmpDir(), "headroom.json");
+  return resolve(cacheDir(), "headroom.json");
 }
 
 const STALE_THRESHOLD_MS = 30_000; // 30 seconds — local call, cheap

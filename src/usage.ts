@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync, statSync, mkdirSync } from "fs";
 import { join, dirname, resolve } from "path";
 import { fileURLToPath } from "url";
-import { tmpdir, homedir, platform } from "os";
+import { homedir, platform } from "os";
 import { execSync, spawn } from "child_process";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -50,40 +50,37 @@ interface OAuthCredentials {
 // --- Constants ---
 
 /**
- * Shared cache directory under a per-user tmpdir subdirectory.
- * Using a dedicated subdirectory (mode 0700) prevents symlink-based
- * attacks on the predictable filenames inside (js/insecure-temporary-file).
- * All processes for the same user share this directory, which is the
- * intentional design — only single inter-process cache sharing is needed.
+ * Cache directory for usage data: stored inside the Claude config directory
+ * (~/.claude/.cache/ or $CLAUDE_CONFIG_DIR/.cache/) rather than in the
+ * world-writable system tmpdir.  This avoids insecure-temporary-file
+ * findings (js/insecure-temporary-file) while still allowing all processes
+ * belonging to the same user to share a single cache location.
  */
-function getSecureTmpDir(): string {
-  const uid = process.getuid?.() ?? process.pid; // uid on POSIX; pid fallback on Windows
-  const dir = join(tmpdir(), `claude-statusline-${uid}`);
+function getCacheDir(): string {
+  const configDir = process.env.CLAUDE_CONFIG_DIR ?? join(homedir(), ".claude");
+  const dir = join(configDir, ".cache");
   try {
-    mkdirSync(dir, { recursive: true, mode: 0o700 });
+    mkdirSync(dir, { recursive: true });
   } catch {
-    // Already exists, or permissions error — proceed anyway; writes will fail gracefully
+    // Already exists or permissions error — proceed; writes will fail gracefully
   }
   return dir;
 }
 
 // Lazily initialised so mkdirSync runs after process start, not at import time.
-let _secureTmpDir: string | null = null;
-function secureTmpDir(): string {
-  if (!_secureTmpDir) _secureTmpDir = getSecureTmpDir();
-  return _secureTmpDir;
+let _cacheDir: string | null = null;
+function cacheDir(): string {
+  if (!_cacheDir) _cacheDir = getCacheDir();
+  return _cacheDir;
 }
 
-const CACHE_FILENAME = "usage.json";
-const LOCK_FILENAME = "usage.lock";
-
-/** Resolved absolute path to the usage cache file (inside the secure subdir). */
+/** Resolved absolute path to the usage cache file. */
 export function getCacheFilePath(): string {
-  return resolve(secureTmpDir(), CACHE_FILENAME);
+  return resolve(cacheDir(), "usage.json");
 }
 
 function getLockFilePath(): string {
-  return resolve(secureTmpDir(), LOCK_FILENAME);
+  return resolve(cacheDir(), "usage.lock");
 }
 
 const STALE_THRESHOLD_MS = 60_000; // 60 seconds
