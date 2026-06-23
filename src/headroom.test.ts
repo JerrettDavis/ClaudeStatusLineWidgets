@@ -1,10 +1,11 @@
 import { beforeEach, afterEach, describe, expect, it } from "vitest";
 import { rmSync, writeFileSync } from "fs";
-import { tmpdir } from "os";
-import { join } from "path";
-import { isHeadroomActive } from "./headroom.js";
+import { isHeadroomActive, getCacheFilePath } from "./headroom.js";
 
-const CACHE_FILE = join(tmpdir(), "claude-statusline-headroom.json");
+// Use the exported path accessor so tests always target the same secure
+// subdirectory that the module writes to (eliminates the insecure-temporary-file
+// finding on the previously-hardcoded join(tmpdir(), "...") path in tests).
+const CACHE_FILE = getCacheFilePath();
 
 const stats = {
   compressionPct: 0,

@@ -4,7 +4,7 @@
 // pointing at this plugin version's dist/index.js.
 // Only writes if the value has changed, to avoid unnecessary file churn.
 
-import { readFileSync, writeFileSync, existsSync } from "fs";
+import { readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import { homedir } from "os";
 
@@ -16,12 +16,14 @@ if (!pluginRoot) {
 
 const claudeDir = process.env.CLAUDE_CONFIG_DIR ?? join(homedir(), ".claude");
 const settingsPath = join(claudeDir, "settings.json");
-if (!existsSync(settingsPath)) process.exit(0);
 
+// Read directly without a preceding existsSync to avoid a TOCTOU race
+// between the existence check and the file read (js/file-system-race).
 let settings;
 try {
   settings = JSON.parse(readFileSync(settingsPath, "utf8"));
 } catch {
+  // File absent, unreadable, or not valid JSON — nothing to configure.
   process.exit(0);
 }
 

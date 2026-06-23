@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, existsSync } from "fs";
+import { readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import { homedir } from "os";
 import { getCacheTTL, getCacheSessionStats } from "./cache.js";
@@ -26,9 +26,16 @@ function removeStatusLineIfDisabled(): boolean {
   try {
     const claudeDir = process.env.CLAUDE_CONFIG_DIR ?? join(homedir(), ".claude");
     const settingsPath = join(claudeDir, "settings.json");
-    if (!existsSync(settingsPath)) return false;
 
-    const settings = JSON.parse(readFileSync(settingsPath, "utf8"));
+    // Read directly without a preceding existsSync to avoid a TOCTOU race
+    // between the existence check and the file read (js/file-system-race).
+    let settings: any;
+    try {
+      settings = JSON.parse(readFileSync(settingsPath, "utf8"));
+    } catch {
+      return false; // file absent or unreadable
+    }
+
     if (settings?.enabledPlugins?.[PLUGIN_KEY] !== false) return false;
 
     delete settings.statusLine;
