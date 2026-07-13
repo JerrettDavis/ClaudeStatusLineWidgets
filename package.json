@@ -32,16 +32,16 @@
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/exec": "^7.1.0",
     "@semantic-release/git": "^10.0.1",
-    "@types/node": "^26.0.1",
+    "@types/node": "^26.1.1",
     "@types/react": "^19.2.17",
     "esbuild": "^0.28.1",
     "ink": "^7.1.0",
     "ink-select-input": "^6.2.0",
     "react": "^19.2.7",
     "react-devtools-core": "^7.0.1",
-    "semantic-release": "^25.0.5",
-    "typescript": "^6.0.3",
-    "vitest": "^4.1.9"
+    "semantic-release": "^25.0.6",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.10"
   },
   "overrides": {
     "undici": ">=7.28.0",
