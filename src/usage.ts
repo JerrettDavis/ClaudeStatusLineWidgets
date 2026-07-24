@@ -95,6 +95,20 @@ function getCredentialsPath(): string {
   return join(configDir, ".credentials.json");
 }
 
+/**
+ * Decode a raw credential payload read from the macOS keychain.
+ *
+ * The keychain item may hold either plain JSON or a hex-encoded payload
+ * depending on which Claude Code version wrote it.  `Buffer.from(x, "hex")`
+ * stops at the first invalid pair and silently returns an empty buffer for
+ * non-hex input, so the encoding must be detected rather than assumed —
+ * otherwise a plain-JSON payload decodes to "" and JSON.parse throws.
+ */
+export function decodeCredentialPayload(raw: string): string {
+  const isHex = raw.length > 0 && raw.length % 2 === 0 && /^[0-9a-fA-F]+$/.test(raw);
+  return isHex ? Buffer.from(raw, "hex").toString("utf-8") : raw;
+}
+
 function readCredentials(): OAuthCredentials | null {
   // Try environment variable first (managed sessions)
   if (process.env.CLAUDE_CODE_OAUTH_TOKEN) {
@@ -111,13 +125,12 @@ function readCredentials(): OAuthCredentials | null {
   if (plat === "darwin") {
     // macOS: try keychain first, fall back to file
     try {
-      const hex = execSync(
+      const raw = execSync(
         'security find-generic-password -a "$(whoami)" -w -s "Claude Code-credentials"',
         { timeout: 2000, stdio: ["pipe", "pipe", "pipe"] }
       ).toString().trim();
-      if (hex) {
-        const json = Buffer.from(hex, "hex").toString("utf-8");
-        return JSON.parse(json);
+      if (raw) {
+        return JSON.parse(decodeCredentialPayload(raw));
       }
     } catch {
       // Fall through to file-based
