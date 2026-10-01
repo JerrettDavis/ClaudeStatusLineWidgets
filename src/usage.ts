@@ -192,9 +192,25 @@ function writeUsageCache(data: UsageData, rateLimitedUntil?: number): void {
   writeFileSync(getCacheFilePath(), JSON.stringify(cache), "utf-8");
 }
 
-function isCacheStale(): boolean {
+/**
+ * True when the credentials file was rewritten after `mtimeMs` — a re-login,
+ * an account switch (e.g. claude-swap), or a token refresh.  Cached usage
+ * written before that may belong to another account.
+ */
+function credentialsChangedSince(mtimeMs: number): boolean {
+  try {
+    return statSync(getCredentialsPath()).mtimeMs > mtimeMs;
+  } catch {
+    return false; // env-var token or macOS keychain: no file to watch
+  }
+}
+
+export function isCacheStale(): boolean {
   try {
     const stat = statSync(getCacheFilePath());
+    // Checked first so neither the freshness window nor a rate-limit backoff
+    // keeps showing the previous account's usage.
+    if (credentialsChangedSince(stat.mtimeMs)) return true;
     if (Date.now() - stat.mtimeMs <= STALE_THRESHOLD_MS) return false;
 
     // Even if the mtime is old, respect any active rate-limit backoff.
@@ -372,8 +388,10 @@ export async function fetchAndCacheUsage(): Promise<void> {
         }
       }
       const existing = readUsageCache();
-      // Preserve existing data (may be null/empty) and only update the backoff.
-      writeUsageCache(existing?.data ?? {}, Date.now() + backoffMs);
+      // Preserve existing data (may be null/empty) and only update the backoff,
+      // unless that data predates the current login and belongs to another account.
+      const keep = existing && !credentialsChangedSince(existing.fetchedAt);
+      writeUsageCache(keep ? existing.data : {}, Date.now() + backoffMs);
       return;
     }
 
