@@ -1,6 +1,6 @@
 # Claude StatusLine Widgets
 
-A configurable statusline plugin for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) that displays real-time session metrics at the bottom of your terminal — model, cost, context window, cache TTL, API usage, and more. Comes with an interactive TUI for zero-friction visual configuration.
+A configurable native **Claude Code Mod** that owns the status line below the prompt and displays real-time session metrics — model, cost, context window, cache TTL, API usage, git state, Headroom stats, and more. The existing 62-widget renderer and interactive TUI remain intact; the Mod replaces the old settings-file statusLine bootstrap.
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue)
 ![Node.js](https://img.shields.io/badge/Node.js-18%2B-green)
@@ -52,26 +52,25 @@ claude plugin marketplace add JerrettDavis/ClaudeStatusLineWidgets
 claude plugin install cache-ttl-statusline@claude-statusline-widgets
 ```
 
-Restart Claude Code — the statusline appears immediately at the bottom of your terminal.
+Restart Claude Code, or run `/reload-plugins` in an already-open session. Claude Code loads the plugin's Mod automatically; no `statusLine` entry is written to `settings.json`. Mods require Claude Code 2.1.287+ in the terminal.
 
-### Standalone (without marketplace)
+### Local development / standalone
 
 ```bash
 git clone https://github.com/JerrettDavis/ClaudeStatusLineWidgets.git
 cd ClaudeStatusLineWidgets
 npm install
+npm run build
+claude --plugin-dir .
 ```
 
-Add to your Claude Code settings (`~/.claude/settings.json`):
+To inspect the Mod before loading it:
 
-```json
-{
-  "statusLine": {
-    "type": "command",
-    "command": "node /path/to/ClaudeStatusLineWidgets/dist/index.js"
-  }
-}
+```bash
+claude plugin validate .
 ```
+
+The Mod is declared by `hooks/hooks.json` and `hooks/register.ts`. It reads Claude's native session APIs, calls the existing renderer as a subprocess, and publishes the result through `$.ui.status(...)`.
 
 ### Install the `ccfooter-config` CLI globally
 
@@ -203,16 +202,16 @@ Set `ANTHROPIC_BASE_URL` to your Headroom proxy base URL (for example `http://12
 
 ## How it works
 
-Claude Code pipes a JSON payload to the statusline command via stdin on each render cycle. This plugin:
+The plugin now loads a Claude Code Mod from `hooks/register.ts`:
 
-1. **Loads your settings** from `~/.config/claude-statusline-widgets/settings.json` (falls back to defaults)
-2. **Parses the payload** for model, cost, context window, transcript path, and git info
-3. **Renders each widget** in your configured layout via the widget registry
-4. **Reads the session transcript** (JSONL) backwards to find the last cache write for TTL
-5. **Fetches API usage data** in a detached background process (non-blocking, cached 60 s)
-6. **Shows Headroom proxy stats** when the configured Headroom base URL responds healthy on `<base>/health`
+1. **Observes native session lifecycle and measurement events** such as `session.start`, `session.measure`, and `turn.complete`.
+2. **Reads session state through the Mod API** including model, cwd, session id, context usage, version, and transcript metadata.
+3. **Builds a compatibility payload** and runs the existing `dist/index.js` renderer through `$.process.run(..., { stdin })`.
+4. **Publishes the rendered result with `$.ui.status(...)`**, so Claude Code owns the actual status-line surface. No settings mutation is required.
+5. **Keeps the existing widget registry, settings file, transcript-based cache TTL logic, API usage cache, Headroom integration, and TUI configurator** unchanged.
+6. **Refreshes on session measurements, completed turns, session changes, and a low-frequency timer** so countdown-style widgets continue to move while idle.
 
-When run interactively (stdin is a TTY), it launches the React/Ink TUI configurator instead.
+Running `dist/index.js` interactively still launches the React/Ink TUI configurator, and its piped-input mode remains available as a legacy/standalone renderer.
 
 ---
 
@@ -222,6 +221,10 @@ When run interactively (stdin is a TTY), it launches the React/Ink TUI configura
 .claude-plugin/
   marketplace.json  — Marketplace catalog
   plugin.json       — Plugin manifest
+
+hooks/
+  hooks.json        — Mod module declaration
+  register.ts       — Native Claude Code Mod lifecycle/status integration
 
 src/
   index.ts          — Entry point: TTY detection (TUI vs render mode)
