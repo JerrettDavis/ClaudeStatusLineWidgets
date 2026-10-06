@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "es2023",
+    "lib": ["es2023"],
+    "types": [],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "jsx": "react",
+    "jsxFactory": "h",
+    "jsxFragmentFactory": "Fragment",
+    "allowImportingTsExtensions": false,
+    "resolveJsonModule": true
+  },
+  "include": [".claude-plugin/types", "hooks", "src/mod-engine.ts", "src/cache-mod.ts", "src/headroom-mod.ts", "src/usage-mod.ts", "src/runtime-mod.ts", "src/extensions/loader-mod.ts", "src/extensions/types.ts", "src/config/loader-mod.ts", "src/config/schema.ts", "src/context-mod.ts", "src/widgets/registry.ts", "src/widgets/types.ts", "src/widgets/renderer-mod.ts", "src/widgets/renderer.ts", "src/widgets/colors.ts", "src/segments.ts", "src/colors.ts", "src/cache.ts", "src/usage.ts", "src/headroom.ts", "src/runtime.ts"]
+}
