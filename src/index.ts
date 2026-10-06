@@ -9,7 +9,7 @@ import {
 import { triggerSessionTracking, performSessionTracking } from "./session-tracking.js";
 import { loadSettings } from "./config/loader.js";
 import { renderStatusLine } from "./renderer.js";
-import { loadExtensions } from "./widgets/registry.js";
+import { loadExtensions } from "./extensions/register-cli.js";
 import type { StatusLinePayload, RenderContext } from "./widgets/types.js";
 import { buildRuntimeData } from "./runtime.js";
 
