@@ -1,4 +1,5 @@
 import { formatUsage7d } from "../segments.js";
+import { tokensToAnsi } from "../colors.js";
 import type { Widget, WidgetItem, RenderContext } from "./types.js";
 import { DATA_KEY } from "./data-keys.js";
 import { formatDurationCompact, getVariant, renderLabel } from "./helpers.js";
@@ -22,6 +23,7 @@ export class Usage7dWidget implements Widget {
       return pct !== null ? renderLabel("7d", `${Math.round(pct)}%`, item, ctx) : null;
     }
     if (ctx.isPreview) return "7d \u2588\u2591\u2591\u2591\u2591 20%";
-    return formatUsage7d(ctx.usageData);
+    const tokens = formatUsage7d(ctx.usageData);
+    return tokens ? tokensToAnsi(tokens) : null;
   }
 }

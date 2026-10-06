@@ -1,4 +1,5 @@
 import { formatUsageOverage } from "../segments.js";
+import { tokensToAnsi } from "../colors.js";
 import type { Widget, WidgetItem, RenderContext } from "./types.js";
 import { DATA_KEY } from "./data-keys.js";
 import { getVariant, renderLabel } from "./helpers.js";
@@ -18,6 +19,7 @@ export class UsageOverageWidget implements Widget {
       return pct !== null ? renderLabel("Overage", `${Math.round(pct)}%`, item, ctx) : null;
     }
     if (ctx.isPreview) return "+$5/$20 \u2588\u2591\u2591\u2591\u2591 25%";
-    return formatUsageOverage(ctx.usageData);
+    const tokens = formatUsageOverage(ctx.usageData);
+    return tokens ? tokensToAnsi(tokens) : null;
   }
 }

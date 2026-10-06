@@ -1,5 +1,5 @@
 import { formatCacheStats, compactTokens } from "../segments.js";
-import { dim, yellow } from "../colors.js";
+import { tokensToAnsi, dim, yellow } from "../colors.js";
 import type { Widget, WidgetItem, RenderContext } from "./types.js";
 import { DATA_KEY } from "./data-keys.js";
 
@@ -19,6 +19,7 @@ export class CacheTokensWidget implements Widget {
       const breaks = yellow("3↺ 2:34p");
       return `${reads} ${writes} ${breaks}`;
     }
-    return formatCacheStats(ctx.cacheStats);
+    const tokens = formatCacheStats(ctx.cacheStats);
+    return tokens ? tokensToAnsi(tokens) : null;
   }
 }

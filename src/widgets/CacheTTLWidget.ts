@@ -1,4 +1,5 @@
 import { formatCache } from "../segments.js";
+import { tokensToAnsi } from "../colors.js";
 import type { Widget, WidgetItem, RenderContext } from "./types.js";
 import { DATA_KEY } from "./data-keys.js";
 import { formatDurationCompact, getVariant, renderBadge, renderLabel } from "./helpers.js";
@@ -33,9 +34,7 @@ export class CacheTTLWidget implements Widget {
       return renderBadge(`${cache.tier} ${formatDurationCompact(cache.remainingSeconds)}`);
     }
 
-    if (ctx.isPreview) {
-      return formatCache(cache);
-    }
-    return formatCache(ctx.cacheTTL);
+    const tokens = formatCache(ctx.isPreview ? cache : ctx.cacheTTL);
+    return tokens ? tokensToAnsi(tokens) : null;
   }
 }

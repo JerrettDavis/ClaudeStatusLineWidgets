@@ -1,4 +1,5 @@
 import { formatCost } from "../segments.js";
+import { tokensToAnsi } from "../colors.js";
 import type { Widget, WidgetItem, RenderContext } from "./types.js";
 
 export class CostWidget implements Widget {
@@ -9,6 +10,7 @@ export class CostWidget implements Widget {
   supportsColors() { return true; }
   render(_item: WidgetItem, ctx: RenderContext): string | null {
     if (ctx.isPreview) return "$0.45";
-    return formatCost(ctx.payload.cost?.total_cost_usd);
+    const tokens = formatCost(ctx.payload.cost?.total_cost_usd);
+    return tokens ? tokensToAnsi(tokens) : null;
   }
 }

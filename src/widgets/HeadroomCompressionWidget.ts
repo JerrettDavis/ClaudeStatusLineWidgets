@@ -1,4 +1,5 @@
 import { formatHeadroomCompression } from "../segments.js";
+import { tokensToAnsi } from "../colors.js";
 import type { Widget, WidgetItem, RenderContext } from "./types.js";
 import { DATA_KEY } from "./data-keys.js";
 
@@ -11,6 +12,7 @@ export class HeadroomCompressionWidget implements Widget {
   getDataKey() { return DATA_KEY.HEADROOM_STATS; }
   render(_item: WidgetItem, ctx: RenderContext): string | null {
     if (ctx.isPreview) return "34% compressed";
-    return formatHeadroomCompression(ctx.headroomStats);
+    const tokens = formatHeadroomCompression(ctx.headroomStats);
+    return tokens ? tokensToAnsi(tokens) : null;
   }
 }

@@ -1,4 +1,5 @@
 import { formatModel } from "../segments.js";
+import { tokensToAnsi } from "../colors.js";
 import type { Widget, WidgetItem, RenderContext } from "./types.js";
 
 export class ModelWidget implements Widget {
@@ -9,6 +10,7 @@ export class ModelWidget implements Widget {
   supportsColors() { return true; }
   render(_item: WidgetItem, ctx: RenderContext): string | null {
     if (ctx.isPreview) return "Opus";
-    return formatModel(ctx.payload.model ?? {});
+    const tokens = formatModel(ctx.payload.model ?? {});
+    return tokens ? tokensToAnsi(tokens) : null;
   }
 }
