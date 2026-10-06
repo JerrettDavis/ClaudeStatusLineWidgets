@@ -1,7 +1,7 @@
 {
   "name": "cache-ttl-statusline",
   "version": "1.5.4",
-  "description": "StatusLine showing cache TTL countdown, model, cost, context usage, API rate limits, and Headroom proxy stats for Claude Code",
+  "description": "Native Claude Code status-line mod with configurable widgets for cache TTL, model, cost, context, API rate limits, git, and Headroom stats",
   "author": {
     "name": "Jerrett Davis",
     "email": "mxjerrett@gmail.com"
