@@ -14,18 +14,19 @@ function stripTrailingBlankLines(value: string): string {
 }
 
 async function buildPayload($: EngineInterface): Promise<Record<string, unknown>> {
-  const [cwd, sessionId, model, usage] = await Promise.all([
+  const [cwd, sessionId, model, usage, versionInfo] = await Promise.all([
     $.session.cwd(),
     $.session.id(),
     $.session.model(),
     $.session.usage(),
+    $.session.version(),
   ]);
 
   const context = usage.context;
   const payload: Record<string, unknown> = {
     cwd,
     session_id: sessionId,
-    version: meta.version,
+    version: meta.version ?? versionInfo.version,
     model: {
       id: model,
       display_name: model,
@@ -33,7 +34,8 @@ async function buildPayload($: EngineInterface): Promise<Record<string, unknown>
     context_window: {
       used_percentage: context.percent ?? null,
       context_window_size: context.window,
-      total_input_tokens: context.tokens ?? undefined,
+      // Mod usage exposes the live context total, not the legacy statusLine
+      // payload's cumulative input/output token counters. Do not mislabel it.
     },
     transcript_path: meta.transcriptPath,
   };
@@ -46,7 +48,8 @@ async function buildPayload($: EngineInterface): Promise<Record<string, unknown>
     payload.cost = { total_cost_usd: cost };
   } else if (cost && typeof cost === "object") {
     const total = (cost as Record<string, unknown>).total_cost_usd
-      ?? (cost as Record<string, unknown>).totalCostUsd;
+      ?? (cost as Record<string, unknown>).totalCostUsd
+      ?? (cost as Record<string, unknown>).usd;
     if (typeof total === "number") payload.cost = { total_cost_usd: total };
   }
 
@@ -75,7 +78,7 @@ async function render($: EngineInterface): Promise<void> {
 
   const output = stripTrailingBlankLines(result.stdout);
   if (!output) {
-    $.ui.status(undefined);
+    $.ui.status("");
     return;
   }
 
