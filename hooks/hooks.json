@@ -1,16 +1,6 @@
 {
-  "hooks": {
-    "SessionStart": [
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/configure-statusline.js\" \"${CLAUDE_PLUGIN_ROOT}\"",
-            "timeout": 10
-          }
-        ]
-      }
-    ]
-  }
+  "description": "Native Claude Code Mod status line for Claude StatusLine Widgets",
+  "modules": [
+    "./register.ts"
+  ]
 }
