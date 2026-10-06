@@ -9,6 +9,15 @@ let meta: SessionMeta = {};
 let refreshInFlight: Promise<void> | null = null;
 let refreshAgain = false;
 
+// The native API reports the model id; the legacy payload carried a display
+// name ("Sonnet 5.5"). Rebuild it for current ids and pass anything else through.
+export function modelDisplayName(id: string): string {
+  const m = /^claude-(opus|sonnet|haiku|fable)-(\d+)(?:-(\d{1,2}))?(?:-\d{8})?/.exec(id);
+  if (!m) return id;
+  const family = m[1][0].toUpperCase() + m[1].slice(1);
+  return `${family} ${m[2]}${m[3] ? `.${m[3]}` : ""}`;
+}
+
 function stripTrailingBlankLines(value: string): string {
   return value.replace(/[\r\n]+$/g, "");
 }
@@ -29,7 +38,7 @@ async function buildPayload($: EngineInterface): Promise<Record<string, unknown>
     version: meta.version ?? versionInfo.version,
     model: {
       id: model,
-      display_name: model,
+      display_name: modelDisplayName(model),
     },
     context_window: {
       used_percentage: context.percent ?? null,
@@ -114,6 +123,10 @@ function scheduleRefresh($: EngineInterface): void {
 export const register: Register = (on) => {
   on("session.start", async ($, e, next) => {
     const result = await next(e);
+    // Drop the statusLine entry older releases wrote to settings.json.
+    void $.process
+      .run(["node", `${$.plugin.root}/scripts/cleanup-legacy-statusline.js`], { timeoutMs: 5_000 })
+      .catch(() => undefined);
     $.clock.after(0, () => scheduleRefresh($));
 
     // Cache TTL and reset countdown widgets need to advance even while Claude
