@@ -70,7 +70,7 @@ To inspect the Mod before loading it:
 claude plugin validate .
 ```
 
-The Mod is declared by `hooks/hooks.json` and `hooks/register.ts`. It reads Claude's native session APIs, calls the existing renderer as a subprocess, and publishes the result through `$.ui.status(...)`.
+The Mod is declared by `hooks/hooks.json` and `hooks/register.tsx`. It reads Claude's native session APIs, calls the existing renderer as a subprocess, and draws the result as a coloured band via `ui.render` (`ui.status` is plain-text only).
 
 ### Install the `ccfooter-config` CLI globally
 
@@ -202,7 +202,7 @@ Set `ANTHROPIC_BASE_URL` to your Headroom proxy base URL (for example `http://12
 
 ## How it works
 
-The plugin now loads a Claude Code Mod from `hooks/register.ts`:
+The plugin now loads a Claude Code Mod from `hooks/register.tsx`:
 
 1. **Observes native session lifecycle and measurement events** such as `session.start`, `session.measure`, and `turn.complete`.
 2. **Reads session state through the Mod API** including model, cwd, session id, context usage, version, and transcript metadata.
@@ -224,7 +224,7 @@ Running `dist/index.js` interactively still launches the React/Ink TUI configura
 
 hooks/
   hooks.json        — Mod module declaration
-  register.ts       — Native Claude Code Mod lifecycle/status integration
+  register.tsx       — Native Claude Code Mod lifecycle/status integration
 
 src/
   index.ts          — Entry point: TTY detection (TUI vs render mode)

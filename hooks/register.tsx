@@ -8,6 +8,7 @@ type SessionMeta = {
 let meta: SessionMeta = {};
 let refreshInFlight: Promise<void> | null = null;
 let refreshAgain = false;
+let lines: Span[][] = [];
 
 // The native API reports the model id; the legacy payload carried a display
 // name ("Sonnet 5.5"). Rebuild it for current ids and pass anything else through.
@@ -16,6 +17,49 @@ export function modelDisplayName(id: string): string {
   if (!m) return id;
   const family = m[1][0].toUpperCase() + m[1].slice(1);
   return `${family} ${m[2]}${m[3] ? `.${m[3]}` : ""}`;
+}
+
+export type Span = {
+  text: string;
+  color?: string;
+  bold?: boolean;
+  dim?: boolean;
+  italic?: boolean;
+  underline?: boolean;
+};
+
+const BASIC = ["black", "red", "green", "yellow", "blue", "magenta", "cyan", "white"];
+const BRIGHT = ["gray", "redBright", "greenBright", "yellowBright", "blueBright", "magentaBright", "cyanBright", "whiteBright"];
+
+// ui.status and Text both drop control characters, so the renderer's SGR
+// colours cannot pass through as text. Parse them into styled spans instead.
+export function parseAnsiLine(line: string): Span[] {
+  const spans: Span[] = [];
+  let style: Omit<Span, "text"> = {};
+  let last = 0;
+  const re = /\x1b\[([0-9;]*)m/g;
+  const push = (text: string) => {
+    if (text) spans.push({ ...style, text });
+  };
+  for (let m = re.exec(line); m; m = re.exec(line)) {
+    push(line.slice(last, m.index));
+    last = m.index + m[0].length;
+    const codes = m[1] === "" ? [0] : m[1].split(";").map(Number);
+    for (const c of codes) {
+      if (c === 0) style = {};
+      else if (c === 1) style = { ...style, bold: true };
+      else if (c === 2) style = { ...style, dim: true };
+      else if (c === 3) style = { ...style, italic: true };
+      else if (c === 4) style = { ...style, underline: true };
+      else if (c === 22) style = { ...style, bold: false, dim: false };
+      else if (c >= 30 && c <= 37) style = { ...style, color: BASIC[c - 30] };
+      else if (c >= 90 && c <= 97) style = { ...style, color: BRIGHT[c - 90] };
+      else if (c === 39) style = { ...style, color: undefined };
+    }
+  }
+  push(line.slice(last));
+  // Any escape the parser did not understand would render as garbage.
+  return spans.map((sp) => ({ ...sp, text: sp.text.replace(/[\u0000-\u0008\u000b-\u001f\u007f]/g, "") }));
 }
 
 function stripTrailingBlankLines(value: string): string {
@@ -102,14 +146,15 @@ async function render($: EngineInterface): Promise<void> {
 
   const output = stripTrailingBlankLines(result.stdout);
   if (!output) {
-    $.ui.status("");
+    lines = [];
+    $.ui.invalidate("ui.render");
     return;
   }
 
-  // ui.status owns the native line below the prompt. Existing configurations
-  // may contain multiple rows, so collapse them deterministically into one
-  // status line rather than drawing a second custom band above the prompt.
-  $.ui.status(output.replace(/\r?\n+/g, "  "));
+  // Colours and multi-row layouts only survive in a drawn tree, so the output
+  // is published to the AbovePrompt band; ui.status is plain text only.
+  lines = output.split(/\r?\n/).map(parseAnsiLine);
+  $.ui.invalidate("ui.render");
 }
 
 function scheduleRefresh($: EngineInterface): void {
@@ -136,6 +181,31 @@ function scheduleRefresh($: EngineInterface): void {
 }
 
 export const register: Register = (on) => {
+  on("ui.render", { component: "AbovePrompt" }, ($, e, next) => {
+    if (e.props.hasSurvey || lines.length === 0) return next(e);
+    const { Box, Text } = $.ui.resolve(e);
+    return (
+      <Box flexDirection="column">
+        {lines.map((spans, row) => (
+          <Box key={`row-${row}`}>
+            {spans.map((sp, i) => (
+              <Text
+                key={`s-${i}`}
+                color={sp.color}
+                bold={sp.bold}
+                dimColor={sp.dim}
+                italic={sp.italic}
+                underline={sp.underline}
+              >
+                {sp.text}
+              </Text>
+            ))}
+          </Box>
+        ))}
+      </Box>
+    );
+  });
+
   on("session.start", async ($, e, next) => {
     const result = await next(e);
     // Drop the statusLine entry older releases wrote to settings.json.
