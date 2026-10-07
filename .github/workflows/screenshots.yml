@@ -17,6 +17,8 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
+          # PAT: the default GITHUB_TOKEN can't push to protected main
+          token: ${{ secrets.RELEASE_TOKEN }}
           # Need full history for semantic-release compatibility
           fetch-depth: 0
 
