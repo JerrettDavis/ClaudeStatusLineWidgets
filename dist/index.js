@@ -57892,9 +57892,9 @@ var init_tui = __esm({
 });
 
 // src/index.ts
-import { readFileSync as readFileSync8, writeFileSync as writeFileSync5 } from "fs";
-import { join as join7 } from "path";
-import { homedir as homedir6 } from "os";
+import { readFileSync as readFileSync9, writeFileSync as writeFileSync5 } from "fs";
+import { join as join8 } from "path";
+import { homedir as homedir7 } from "os";
 
 // src/cache.ts
 import { fstatSync, openSync, readSync, closeSync } from "fs";
@@ -59039,20 +59039,41 @@ function buildRuntimeData(payload, usageData) {
   };
 }
 
+// src/self-clean.ts
+import { readFileSync as readFileSync7 } from "fs";
+import { join as join7 } from "path";
+import { homedir as homedir6 } from "os";
+function readInstallMode() {
+  const env3 = process.env.CCFOOTER_MODE;
+  if (env3 === "hook" || env3 === "mod") return env3;
+  try {
+    const file = join7(homedir6(), ".config", "claude-statusline-widgets", "mode.json");
+    const mode = JSON.parse(readFileSync7(file, "utf8"))?.mode;
+    if (mode === "hook" || mode === "mod") return mode;
+  } catch {
+  }
+  return "hook";
+}
+function shouldStripStatusLine(mode, pluginEnabled) {
+  if (pluginEnabled === void 0) return false;
+  return mode === "mod" || pluginEnabled === false;
+}
+
 // src/index.ts
 var PLUGIN_KEY = "cache-ttl-statusline@claude-statusline-widgets";
 function removeStatusLineIfMigrated() {
   try {
-    const claudeDir = process.env.CLAUDE_CONFIG_DIR ?? join7(homedir6(), ".claude");
-    const settingsPath = join7(claudeDir, "settings.json");
+    const claudeDir = process.env.CLAUDE_CONFIG_DIR ?? join8(homedir7(), ".claude");
+    const settingsPath = join8(claudeDir, "settings.json");
     let settings;
     try {
-      settings = JSON.parse(readFileSync8(settingsPath, "utf-8"));
+      settings = JSON.parse(readFileSync9(settingsPath, "utf-8"));
     } catch {
       return false;
     }
     const pluginState = settings?.enabledPlugins?.[PLUGIN_KEY];
-    if (pluginState !== false && pluginState !== true) return false;
+    const pluginEnabled = typeof pluginState === "boolean" ? pluginState : void 0;
+    if (!shouldStripStatusLine(readInstallMode(), pluginEnabled)) return false;
     if (!settings.statusLine) return false;
     delete settings.statusLine;
     writeFileSync5(settingsPath, JSON.stringify(settings, null, 2), "utf-8");
