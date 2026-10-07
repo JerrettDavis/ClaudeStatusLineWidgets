@@ -1,5 +1,19 @@
 {
-  "description": "Native Claude Code Mod status line for Claude StatusLine Widgets",
+  "description": "Claude StatusLine Widgets: classic statusLine hook and native Mod, selected by install mode",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/configure-statusline.js\" \"${CLAUDE_PLUGIN_ROOT}\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
   "modules": [
     "./register.tsx"
   ]
