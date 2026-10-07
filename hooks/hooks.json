@@ -1,6 +1,6 @@
 {
   "description": "Native Claude Code Mod status line for Claude StatusLine Widgets",
   "modules": [
-    "./register.ts"
+    "./register.tsx"
   ]
 }
