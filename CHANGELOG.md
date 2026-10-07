@@ -1,3 +1,20 @@
+# [1.6.0](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/compare/v1.5.4...v1.6.0) (2026-10-07)
+
+
+### Bug Fixes
+
+* classic statusLine no longer strips its own entry in hook mode ([#80](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/issues/80)) ([0b7e58b](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/commit/0b7e58b56f0066aa04c99498c854a4eb99880063))
+* **mod:** draw coloured multi-row band; ui.status strips control chars ([#76](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/issues/76)) ([afa218e](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/commit/afa218e38209a1af79c1909ecbb7d99b8afb87fe))
+* **mod:** persist transcript path across hot reloads ([#75](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/issues/75)) ([91a89d5](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/commit/91a89d5e19213ae17d932fb4757569256265f47e))
+* **usage:** refetch when credentials change after the cache was written ([#71](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/issues/71)) ([e628585](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/commit/e628585b9fb00398345d9e438111f6cec222d684))
+
+
+### Features
+
+* in-process native Mod + switchable install modes ([#79](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/issues/79)) ([2c0fc05](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/commit/2c0fc059bf741e9555db48c55d3753a334bc404d))
+* **mod:** /statusline-mode command to show or switch install mode ([#78](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/issues/78)) ([7f1620d](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/commit/7f1620db5ac4b4acc4ef226f885b16bfb70b12bd))
+* switchable install modes (classic statusLine hook or native Mod) over one renderer ([#77](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/issues/77)) ([e20820f](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/commit/e20820f1a5b043b6d1b014c01b5ca17ad1f17356))
+
 ## [1.5.4](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/compare/v1.5.3...v1.5.4) (2026-07-24)
 
 

@@ -1,6 +1,6 @@
 {
   "name": "cache-ttl-statusline",
-  "version": "1.5.4",
+  "version": "1.6.0",
   "description": "Native Claude Code status-line mod with configurable widgets for cache TTL, model, cost, context, API rate limits, git, and Headroom stats",
   "types": "./hooks/types/plugin.d.ts",
   "author": {
