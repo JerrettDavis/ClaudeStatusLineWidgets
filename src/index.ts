@@ -12,21 +12,14 @@ import { renderStatusLine } from "./renderer.js";
 import { loadExtensions } from "./extensions/register-cli.js";
 import type { StatusLinePayload, RenderContext } from "./widgets/types.js";
 import { buildRuntimeData } from "./runtime.js";
+import { readInstallMode, shouldStripStatusLine } from "./self-clean.js";
 
 const PLUGIN_KEY = "cache-ttl-statusline@claude-statusline-widgets";
 
 /**
- * If the plugin status no longer requires the legacy `statusLine` entry,
- * remove it from settings.json and return true so the caller can exit cleanly.
- *
- * - Plugin explicitly disabled (`enabledPlugins[PLUGIN_KEY] === false`):
- *   hooks don't fire, so we must stop being the statusLine command.
- * - Plugin explicitly enabled: the native mod will draw the statusline
- *   into AbovePrompt. The statusLine command would render the *same*
- *   content on top of the mod's draw — wasteful and confusing. Strip it.
- *
- * `enabledPlugins` missing or `undefined` for this key is treated as
- * "not configured" — leave the settings alone; the user may be trialing.
+ * Remove the legacy `statusLine` entry from settings.json when the install mode
+ * and plugin state say it shouldn't be there (see shouldStripStatusLine).
+ * Returns true if it did, so the caller can exit cleanly.
  */
 function removeStatusLineIfMigrated(): boolean {
   try {
@@ -43,7 +36,8 @@ function removeStatusLineIfMigrated(): boolean {
     }
 
     const pluginState = settings?.enabledPlugins?.[PLUGIN_KEY];
-    if (pluginState !== false && pluginState !== true) return false;
+    const pluginEnabled = typeof pluginState === "boolean" ? pluginState : undefined;
+    if (!shouldStripStatusLine(readInstallMode(), pluginEnabled)) return false;
 
     if (!settings.statusLine) return false;
 
@@ -106,10 +100,8 @@ async function main(): Promise<void> {
     return;
   }
 
-  // Self-clean: if the plugin is now enabled, the mod draws AbovePrompt
-  // and we don't need the legacy statusLine subprocess. If the plugin is
-  // explicitly disabled, hooks don't fire and we can't keep drawing. Either
-  // way, strip the statusLine entry so future sessions stop calling us.
+  // Self-clean: in mod mode the Mod draws the line, and a disabled plugin can't
+  // re-add its entry, so strip the statusLine entry. Hook mode keeps it.
   if (removeStatusLineIfMigrated()) {
     process.stdout.write("\n");
     return;
