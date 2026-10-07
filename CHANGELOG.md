@@ -1,3 +1,10 @@
+## [1.6.1](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/compare/v1.6.0...v1.6.1) (2026-10-07)
+
+
+### Bug Fixes
+
+* repair global CLI installation and add cross-platform CI coverage ([#82](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/issues/82)) ([7f427a5](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/commit/7f427a5b0908b33c6dc542973586565f959571e4))
+
 # [1.6.0](https://github.com/JerrettDavis/ClaudeStatusLineWidgets/compare/v1.5.4...v1.6.0) (2026-10-07)
 
 

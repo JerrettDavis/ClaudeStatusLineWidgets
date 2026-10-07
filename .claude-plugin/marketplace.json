@@ -6,14 +6,14 @@
   },
   "metadata": {
     "description": "Native Claude Code status-line mod with configurable cache, usage, context, cost, git, and Headroom widgets",
-    "version": "1.6.0"
+    "version": "1.6.1"
   },
   "plugins": [
     {
       "name": "cache-ttl-statusline",
       "source": "./",
       "description": "Native Claude Code status-line mod showing cache TTL, model, cost, context usage, API rate limits, git, and Headroom stats with an interactive TUI configurator",
-      "version": "1.6.0",
+      "version": "1.6.1",
       "author": {
         "name": "Jerrett Davis"
       },
