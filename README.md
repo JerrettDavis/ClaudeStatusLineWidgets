@@ -52,7 +52,7 @@ claude plugin marketplace add JerrettDavis/ClaudeStatusLineWidgets
 claude plugin install cache-ttl-statusline@claude-statusline-widgets
 ```
 
-Restart Claude Code, or run `/reload-plugins` in an already-open session. Claude Code loads the plugin's Mod automatically; no `statusLine` entry is written to `settings.json`. Mods require Claude Code 2.1.287+ in the terminal.
+Restart Claude Code, or run `/reload-plugins` in an already-open session. The default `hook` mode registers the classic status line; see below for the native Mod mode.
 
 ### Local development / standalone
 
@@ -71,6 +71,17 @@ claude plugin validate .
 ```
 
 The Mod is declared by `hooks/hooks.json` and `hooks/register.tsx`. It reads Claude's native session APIs, calls the existing renderer as a subprocess, and draws the result as a coloured band via `ui.render` (`ui.status` is plain-text only).
+
+### Choose how the status line is drawn
+
+One plugin, one renderer, two install modes. Switch with `ccfooter-config mode <hook|mod>` (or `node scripts/mode.js set <mode>`), then restart Claude Code or run `/reload-plugins`:
+
+| Mode | How it is drawn | Trade-offs |
+| --- | --- | --- |
+| `hook` (default) | Classic `statusLine` command written to `settings.json` at SessionStart | Full ANSI colour and every row, **below** the prompt |
+| `mod` | Native Claude Code Mod, no `settings.json` entry | Coloured rows drawn **above** the prompt (`ui.status` is plain text only); needs Claude Code 2.1.287+ |
+
+The mode is stored in `~/.config/claude-statusline-widgets/mode.json`; `CCFOOTER_MODE` overrides it. Switching only ever adds or removes this plugin's own `statusLine` entry, never a custom one.
 
 ### Install the `ccfooter-config` CLI globally
 

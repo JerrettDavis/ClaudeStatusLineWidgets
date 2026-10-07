@@ -9,6 +9,7 @@ let meta: SessionMeta = {};
 let refreshInFlight: Promise<void> | null = null;
 let refreshAgain = false;
 let lines: Span[][] = [];
+let active = false;
 
 // The native API reports the model id; the legacy payload carried a display
 // name ("Sonnet 5.5"). Rebuild it for current ids and pass anything else through.
@@ -158,6 +159,7 @@ async function render($: EngineInterface): Promise<void> {
 }
 
 function scheduleRefresh($: EngineInterface): void {
+  if (!active) return;
   if (refreshInFlight) {
     refreshAgain = true;
     return;
@@ -182,7 +184,7 @@ function scheduleRefresh($: EngineInterface): void {
 
 export const register: Register = (on) => {
   on("ui.render", { component: "AbovePrompt" }, ($, e, next) => {
-    if (e.props.hasSurvey || lines.length === 0) return next(e);
+    if (!active || e.props.hasSurvey || lines.length === 0) return next(e);
     const { Box, Text } = $.ui.resolve(e);
     return (
       <Box flexDirection="column">
@@ -208,10 +210,17 @@ export const register: Register = (on) => {
 
   on("session.start", async ($, e, next) => {
     const result = await next(e);
-    // Drop the statusLine entry older releases wrote to settings.json.
-    void $.process
-      .run(["node", `${$.plugin.root}/scripts/cleanup-legacy-statusline.js`], { timeoutMs: 5_000 })
-      .catch(() => undefined);
+    // Install mode (scripts/mode.js): in "hook" mode the classic statusLine
+    // command draws the line and this Mod stays inert.
+    const mode = await $.process
+      .run(["node", `${$.plugin.root}/scripts/mode.js`, "get"], { timeoutMs: 5_000 })
+      .then((r) => (r.exitCode === 0 ? r.stdout.trim() : "hook"))
+      .catch(() => "hook");
+    active = mode === "mod";
+    if (!active) {
+      lines = [];
+      return result;
+    }
     $.clock.after(0, () => scheduleRefresh($));
 
     // Cache TTL and reset countdown widgets need to advance even while Claude
