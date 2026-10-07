@@ -9,20 +9,26 @@ import {
 import { triggerSessionTracking, performSessionTracking } from "./session-tracking.js";
 import { loadSettings } from "./config/loader.js";
 import { renderStatusLine } from "./renderer.js";
-import { loadExtensions } from "./widgets/registry.js";
+import { loadExtensions } from "./extensions/register-cli.js";
 import type { StatusLinePayload, RenderContext } from "./widgets/types.js";
 import { buildRuntimeData } from "./runtime.js";
 
 const PLUGIN_KEY = "cache-ttl-statusline@claude-statusline-widgets";
 
 /**
- * If the plugin was explicitly disabled in settings.json, remove the statusLine
- * entry we previously wrote and return true so the caller can exit cleanly.
- * This handles the case where the plugin is disabled but the statusLine command
- * is still set (hooks don't fire for disabled plugins, so this is the only
- * opportunity to self-clean).
+ * If the plugin status no longer requires the legacy `statusLine` entry,
+ * remove it from settings.json and return true so the caller can exit cleanly.
+ *
+ * - Plugin explicitly disabled (`enabledPlugins[PLUGIN_KEY] === false`):
+ *   hooks don't fire, so we must stop being the statusLine command.
+ * - Plugin explicitly enabled: the native mod will draw the statusline
+ *   into AbovePrompt. The statusLine command would render the *same*
+ *   content on top of the mod's draw — wasteful and confusing. Strip it.
+ *
+ * `enabledPlugins` missing or `undefined` for this key is treated as
+ * "not configured" — leave the settings alone; the user may be trialing.
  */
-function removeStatusLineIfDisabled(): boolean {
+function removeStatusLineIfMigrated(): boolean {
   try {
     const claudeDir = process.env.CLAUDE_CONFIG_DIR ?? join(homedir(), ".claude");
     const settingsPath = join(claudeDir, "settings.json");
@@ -31,15 +37,18 @@ function removeStatusLineIfDisabled(): boolean {
     // between the existence check and the file read (js/file-system-race).
     let settings: any;
     try {
-      settings = JSON.parse(readFileSync(settingsPath, "utf8"));
+      settings = JSON.parse(readFileSync(settingsPath, "utf-8"));
     } catch {
       return false; // file absent or unreadable
     }
 
-    if (settings?.enabledPlugins?.[PLUGIN_KEY] !== false) return false;
+    const pluginState = settings?.enabledPlugins?.[PLUGIN_KEY];
+    if (pluginState !== false && pluginState !== true) return false;
+
+    if (!settings.statusLine) return false;
 
     delete settings.statusLine;
-    writeFileSync(settingsPath, JSON.stringify(settings, null, 2), "utf8");
+    writeFileSync(settingsPath, JSON.stringify(settings, null, 2), "utf-8");
     return true;
   } catch {
     return false;
@@ -81,7 +90,8 @@ async function main(): Promise<void> {
     return;
   }
 
-  // Piped mode: render statusline
+  // Piped mode: render statusline (the `hook` install mode's statusLine command).
+
   const input = await readStdin();
   if (!input.trim()) {
     process.stdout.write("\n");
@@ -96,9 +106,11 @@ async function main(): Promise<void> {
     return;
   }
 
-  // Self-clean if the plugin was disabled while the statusLine command was still set.
-  // After this write, future sessions won't call us at all.
-  if (removeStatusLineIfDisabled()) {
+  // Self-clean: if the plugin is now enabled, the mod draws AbovePrompt
+  // and we don't need the legacy statusLine subprocess. If the plugin is
+  // explicitly disabled, hooks don't fire and we can't keep drawing. Either
+  // way, strip the statusLine entry so future sessions stop calling us.
+  if (removeStatusLineIfMigrated()) {
     process.stdout.write("\n");
     return;
   }

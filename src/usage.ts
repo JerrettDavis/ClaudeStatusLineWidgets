@@ -3,12 +3,15 @@ import { join, dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 import { homedir, platform } from "os";
 import { execSync, spawn } from "child_process";
+import type { UsageData, RateLimit } from "./usage-core.js";
+
+export type { UsageData, RateLimit } from "./usage-core.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // --- Types ---
 
-interface RateLimit {
+interface InternalRateLimit {
   utilization: number | null;
   resets_at: string | null;
 }
@@ -18,14 +21,6 @@ interface ExtraUsage {
   monthly_limit: number | null; // cents
   used_credits: number | null;  // cents
   utilization: number | null;
-}
-
-export interface UsageData {
-  five_hour?: RateLimit | null;
-  seven_day?: RateLimit | null;
-  seven_day_opus?: RateLimit | null;
-  seven_day_sonnet?: RateLimit | null;
-  extra_usage?: ExtraUsage | null;
 }
 
 interface UsageCache {
@@ -303,7 +298,7 @@ export function triggerBackgroundFetch(): void {
  * Normalise a rate-limit window object from the API response.
  * Returns null if the input is not a plain object.
  */
-function sanitiseRateLimit(v: unknown): RateLimit | null {
+function sanitiseRateLimit(v: unknown): InternalRateLimit | null {
   if (!v || typeof v !== "object" || Array.isArray(v)) return null;
   const r = v as Record<string, unknown>;
   return {
@@ -323,10 +318,10 @@ function sanitiseUsageData(raw: unknown): UsageData {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
   const r = raw as Record<string, unknown>;
   const result: UsageData = {};
-  if (r.five_hour !== undefined) result.five_hour = sanitiseRateLimit(r.five_hour);
-  if (r.seven_day !== undefined) result.seven_day = sanitiseRateLimit(r.seven_day);
-  if (r.seven_day_opus !== undefined) result.seven_day_opus = sanitiseRateLimit(r.seven_day_opus);
-  if (r.seven_day_sonnet !== undefined) result.seven_day_sonnet = sanitiseRateLimit(r.seven_day_sonnet);
+  if (r.five_hour !== undefined) result.five_hour = sanitiseRateLimit(r.five_hour) ?? undefined;
+  if (r.seven_day !== undefined) result.seven_day = sanitiseRateLimit(r.seven_day) ?? undefined;
+  if (r.seven_day_opus !== undefined) result.seven_day_opus = sanitiseRateLimit(r.seven_day_opus) ?? undefined;
+  if (r.seven_day_sonnet !== undefined) result.seven_day_sonnet = sanitiseRateLimit(r.seven_day_sonnet) ?? undefined;
   if (r.extra_usage && typeof r.extra_usage === "object" && !Array.isArray(r.extra_usage)) {
     const eu = r.extra_usage as Record<string, unknown>;
     result.extra_usage = {
@@ -334,7 +329,7 @@ function sanitiseUsageData(raw: unknown): UsageData {
       monthly_limit: typeof eu.monthly_limit === "number" ? eu.monthly_limit : null,
       used_credits: typeof eu.used_credits === "number" ? eu.used_credits : null,
       utilization: typeof eu.utilization === "number" && Number.isFinite(eu.utilization)
-        ? eu.utilization : null,
+        ? eu.utilization : 0,
     };
   }
   return result;

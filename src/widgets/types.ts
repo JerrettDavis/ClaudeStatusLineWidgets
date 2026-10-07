@@ -1,7 +1,7 @@
-import type { CacheTTLResult, CacheSessionStats } from "../cache.js";
-import type { UsageData } from "../usage.js";
-import type { HeadroomStats } from "../headroom.js";
-import type { RuntimeData } from "../runtime.js";
+import type { CacheTTLResult, CacheSessionStats } from "../cache-core.js";
+import type { UsageData } from "../usage-core.js";
+import type { HeadroomStats } from "../headroom-core.js";
+import type { RuntimeData } from "../runtime-core.js";
 
 export interface StatusLinePayload {
   cwd?: string;
@@ -79,12 +79,38 @@ export interface WidgetCatalogEntry {
   dataKey?: string;
 }
 
+/**
+ * One styled span produced by a formatter. Both the legacy ANSI path and
+ * the mod's native `<Text>`/`<Link>` path consume the same token list —
+ * the data layer's output is identical; only the renderer differs.
+ */
+export type TokenStyle =
+  | { color?: string; dim?: boolean; bold?: boolean }
+  | { type: "link"; url: string };
+
+export interface StyledToken {
+  text: string;
+  style?: TokenStyle;
+}
+
 export interface Widget {
   getDisplayName(): string;
   getDescription(): string;
   getCategory(): string;
   getDefaultColor(): string;
+  /**
+   * Legacy ANSI renderer path. Kept for the CLI and any consumer that
+   * wants raw text. The mod path does not call this directly — it asks
+   * for tokens via `renderTokens` and renders them as native elements.
+   */
   render(item: WidgetItem, context: RenderContext): string | null;
+  /**
+   * Token renderer used by the mod (and by the legacy renderer, which
+   * converts tokens back to ANSI). Optional: defaults to splitting `render`'s
+   * ANSI output into tokens (SGR only; OSC-8 hyperlinks pass through as text).
+   * Widgets that can emit tokens natively should override for fidelity.
+   */
+  renderTokens?(item: WidgetItem, context: RenderContext): StyledToken[] | null;
   supportsColors(): boolean;
   getVariants?(): string[];
   getDataKey?(): string;

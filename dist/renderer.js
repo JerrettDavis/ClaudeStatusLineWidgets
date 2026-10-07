@@ -1,48 +1,15 @@
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 
-// src/colors.ts
-var ESC = "\x1B[";
-var RESET = `${ESC}0m`;
-var COLOR_CODE_MAP = {
-  red: "31",
-  green: "32",
-  yellow: "33",
-  blue: "34",
-  magenta: "35",
-  cyan: "36",
-  white: "37",
-  gray: "90",
-  redBright: "91",
-  greenBright: "92",
-  yellowBright: "93",
-  blueBright: "94",
-  magentaBright: "95",
-  cyanBright: "96"
-};
-function applyColor(text, color) {
-  if (!color || color === "default") return text;
-  const code = COLOR_CODE_MAP[color];
-  if (!code) return text;
-  return `${ESC}${code}m${text}${RESET}`;
-}
-function green(text) {
-  return `${ESC}32m${text}${RESET}`;
-}
-function yellow(text) {
-  return `${ESC}33m${text}${RESET}`;
-}
-function red(text) {
-  return `${ESC}31m${text}${RESET}`;
-}
-function cyan(text) {
-  return `${ESC}36m${text}${RESET}`;
-}
-function dim(text) {
-  return `${ESC}2m${text}${RESET}`;
-}
-
 // src/segments.ts
+function t(text, style) {
+  return [{ text, style }];
+}
+function pctColor(pct) {
+  if (pct > 80) return "red";
+  if (pct > 60) return "yellow";
+  return "green";
+}
 function formatTime(epochMs) {
   const d = new Date(epochMs);
   let hours = d.getHours();
@@ -51,57 +18,63 @@ function formatTime(epochMs) {
   hours = hours % 12 || 12;
   return `${hours}:${mins}${ampm}`;
 }
+function barTokens(filled, empty, color) {
+  const blocks = "\u2588".repeat(filled) + "\u2591".repeat(empty);
+  return [{ text: blocks, style: { color } }];
+}
 function formatCache(cache) {
   if (cache.tier === "none" && !cache.cacheReadActive) {
-    return dim("\u26D3\uFE0F\u200D\u{1F4A5}");
+    return t("\u26D3\uFE0F\u200D\u{1F4A5}", { dim: true });
   }
   if (cache.remainingSeconds <= 0 || !cache.expiresAt) {
-    return dim("\u26D3\uFE0F\u200D\u{1F4A5}");
+    return t("\u26D3\uFE0F\u200D\u{1F4A5}", { dim: true });
   }
   const timeStr = formatTime(cache.expiresAt);
   const label = `\u26D3\uFE0F @ ${timeStr}`;
   if (cache.tier === "1h") {
-    return cyan(label);
+    return t(label, { color: "cyan" });
   }
+  const color = pctColor(100 - Math.min(cache.remainingSeconds, 100));
   if (cache.remainingSeconds > 120) {
-    return green(label);
+    return t(label, { color: "green" });
   }
   if (cache.remainingSeconds > 60) {
-    return yellow(label);
+    return t(label, { color: "yellow" });
   }
-  return red(label);
+  return t(label, { color: "red" });
 }
 function formatModel(model) {
-  return model.display_name ?? model.id ?? "unknown";
+  const v = model.display_name ?? model.id ?? "unknown";
+  return t(v);
 }
 function formatCost(totalCostUsd) {
-  if (totalCostUsd === void 0 || totalCostUsd === null) return "$0.00";
-  return `$${totalCostUsd.toFixed(2)}`;
+  if (totalCostUsd === void 0 || totalCostUsd === null) return t("$0.00");
+  return t(`$${totalCostUsd.toFixed(2)}`);
 }
 function formatContext(usedPercentage) {
   const pct = Math.max(0, Math.min(100, usedPercentage ?? 0));
   const barWidth = 8;
   const filled = Math.round(pct / 100 * barWidth);
   const empty = barWidth - filled;
-  const bar = "\u2588".repeat(filled) + "\u2591".repeat(empty);
-  let colorFn = green;
-  if (pct > 80) colorFn = red;
-  else if (pct > 60) colorFn = yellow;
-  return `${colorFn(bar)} ${Math.round(pct)}%`;
+  const color = pctColor(pct);
+  return [...barTokens(filled, empty, color), ...t(` ${Math.round(pct)}%`)];
 }
 function formatPath(cwd) {
-  return cwd ?? null;
+  return cwd ? t(cwd) : null;
 }
 function formatBranch(branch) {
-  return branch || null;
+  return branch ? t(branch) : null;
 }
 function miniBar(label, pct, barWidth = 5) {
   const clamped = Math.max(0, Math.min(100, pct));
   const filled = Math.round(clamped / 100 * barWidth);
   const empty = barWidth - filled;
-  const bar = "\u2588".repeat(filled) + "\u2591".repeat(empty);
-  const colorFn = clamped > 80 ? red : clamped > 60 ? yellow : green;
-  return `${label} ${colorFn(bar)} ${Math.round(clamped)}%`;
+  const color = pctColor(clamped);
+  return [
+    ...t(`${label} `),
+    ...barTokens(filled, empty, color),
+    ...t(` ${Math.round(clamped)}%`)
+  ];
 }
 function formatUsage5h(data) {
   if (data?.five_hour?.utilization == null) return null;
@@ -125,35 +98,106 @@ function compactTokens(n) {
 }
 function formatHeadroomTokens(stats) {
   if (!stats || stats.tokensSaved <= 0) return null;
-  return dim(`\u2696\uFE0F ${compactTokens(stats.tokensSaved)} tokens saved`);
+  return t(`\u2696\uFE0F ${compactTokens(stats.tokensSaved)} tokens saved`, { dim: true });
 }
 function formatHeadroomCompression(stats) {
   if (!stats || stats.compressionPct <= 0) return null;
-  return green(`${Math.round(stats.compressionPct)}% compressed`);
+  return t(`${Math.round(stats.compressionPct)}% compressed`, { color: "green" });
 }
 function formatHeadroomCost(stats) {
   if (!stats || stats.costSavedUsd <= 0) return null;
-  return green(`$${stats.costSavedUsd.toFixed(2)} saved`);
+  return t(`$${stats.costSavedUsd.toFixed(2)} saved`, { color: "green" });
 }
 function formatHeadroomCacheHit(stats) {
   if (!stats || stats.cacheHitRate <= 0) return null;
-  return dim(`${Math.round(stats.cacheHitRate * 100)}% cache hit`);
+  return t(`${Math.round(stats.cacheHitRate * 100)}% cache hit`, { dim: true });
 }
 function formatTimeFromISO(iso) {
   return formatTime(new Date(iso).getTime());
 }
 function formatCacheStats(stats) {
   if (stats.breakCount === 0 && stats.totalReads === 0) return null;
-  const reads = stats.totalReads > 0 ? dim(`\u2193${compactTokens(stats.totalReads)}`) : null;
-  const writes = stats.totalWrites > 0 ? dim(`\u2191${compactTokens(stats.totalWrites)}`) : null;
-  let breakLabel = null;
+  const parts = [];
+  if (stats.totalReads > 0) {
+    parts.push(t(`\u2193${compactTokens(stats.totalReads)}`, { dim: true }));
+  }
+  if (stats.totalWrites > 0) {
+    parts.push(t(`\u2191${compactTokens(stats.totalWrites)}`, { dim: true }));
+  }
   if (stats.breakCount > 0) {
     const timeStr = stats.lastBreakTime ? ` ${formatTimeFromISO(stats.lastBreakTime)}` : "";
     const isLargeRewrite = stats.breakCount > 1 && stats.lastBreakTokens >= stats.avgBreakTokens * 2;
     const countStr = `${stats.breakCount}\u21BA`;
-    breakLabel = isLargeRewrite ? yellow(`${countStr}${timeStr}`) : dim(`${countStr}${timeStr}`);
+    parts.push(t(countStr + timeStr, isLargeRewrite ? { color: "yellow" } : { dim: true }));
   }
-  return [reads, writes, breakLabel].filter(Boolean).join(" ");
+  if (parts.length === 0) return null;
+  const joined = [];
+  parts.forEach((p, i) => {
+    if (i > 0) joined.push(...t(" "));
+    joined.push(...p);
+  });
+  return joined;
+}
+
+// src/colors.ts
+var ESC = "\x1B[";
+var RESET = `${ESC}0m`;
+var COLOR_CODE_MAP = {
+  red: "31",
+  green: "32",
+  yellow: "33",
+  blue: "34",
+  magenta: "35",
+  cyan: "36",
+  white: "37",
+  gray: "90",
+  redBright: "91",
+  greenBright: "92",
+  yellowBright: "93",
+  blueBright: "94",
+  magentaBright: "95",
+  cyanBright: "96"
+};
+function green(text) {
+  return `${ESC}32m${text}${RESET}`;
+}
+function yellow(text) {
+  return `${ESC}33m${text}${RESET}`;
+}
+function red(text) {
+  return `${ESC}31m${text}${RESET}`;
+}
+function dim(text) {
+  return `${ESC}2m${text}${RESET}`;
+}
+var OSC8_START = "\x1B]8;;";
+var OSC8_END = "\x1B]8;;\x07";
+function hyperlink(text, url) {
+  return `${OSC8_START}${url}${OSC8_END}${text}${OSC8_START}${OSC8_END}`;
+}
+function applyStyle(text, style) {
+  let out = text;
+  if (style.color && style.color !== "default") {
+    const code = COLOR_CODE_MAP[style.color];
+    if (code) out = `${ESC}${code}m${out}${RESET}`;
+  }
+  if (style.dim) out = `${ESC}2m${out}${RESET}`;
+  if (style.bold) out = `${ESC}1m${out}${RESET}`;
+  return out;
+}
+function tokensToAnsi(tokens) {
+  let out = "";
+  for (const tok of tokens) {
+    const style = tok.style;
+    if (style && "type" in style && style.type === "link") {
+      out += hyperlink(tok.text, style.url);
+    } else if (style) {
+      out += applyStyle(tok.text, style);
+    } else {
+      out += tok.text;
+    }
+  }
+  return out;
 }
 
 // src/widgets/PathWidget.ts
@@ -176,7 +220,8 @@ var PathWidget = class {
   render(_item, ctx) {
     if (ctx.isPreview) return "~/projects/my-app";
     const cwd = ctx.runtime.git.cwd ?? ctx.payload.cwd ?? ctx.payload.workspace?.current_dir ?? ctx.payload.workspace?.project_dir;
-    return formatPath(cwd);
+    const tokens = formatPath(cwd);
+    return tokens ? tokensToAnsi(tokens) : null;
   }
 };
 
@@ -199,7 +244,8 @@ var BranchWidget = class {
   }
   render(_item, ctx) {
     if (ctx.isPreview) return "main";
-    return formatBranch(ctx.runtime.git.branch ?? ctx.payload.git_branch) || null;
+    const tokens = formatBranch(ctx.runtime.git.branch ?? ctx.payload.git_branch);
+    return tokens ? tokensToAnsi(tokens) : null;
   }
 };
 
@@ -222,7 +268,8 @@ var ModelWidget = class {
   }
   render(_item, ctx) {
     if (ctx.isPreview) return "Opus";
-    return formatModel(ctx.payload.model ?? {});
+    const tokens = formatModel(ctx.payload.model ?? {});
+    return tokens ? tokensToAnsi(tokens) : null;
   }
 };
 
@@ -245,7 +292,8 @@ var CostWidget = class {
   }
   render(_item, ctx) {
     if (ctx.isPreview) return "$0.45";
-    return formatCost(ctx.payload.cost?.total_cost_usd);
+    const tokens = formatCost(ctx.payload.cost?.total_cost_usd);
+    return tokens ? tokensToAnsi(tokens) : null;
   }
 };
 
@@ -374,7 +422,8 @@ var ContextBarWidget = class {
     if (variant === "remaining") {
       return renderLabel("Ctx Left", formatPercent(100 - percent), item, ctx);
     }
-    return formatContext(percent);
+    const tokens = formatContext(percent);
+    return tokens ? tokensToAnsi(tokens) : null;
   }
 };
 
@@ -418,10 +467,8 @@ var CacheTTLWidget = class {
       if (cache.remainingSeconds <= 0) return renderBadge("cache expired");
       return renderBadge(`${cache.tier} ${formatDurationCompact(cache.remainingSeconds)}`);
     }
-    if (ctx.isPreview) {
-      return formatCache(cache);
-    }
-    return formatCache(ctx.cacheTTL);
+    const tokens = formatCache(ctx.isPreview ? cache : ctx.cacheTTL);
+    return tokens ? tokensToAnsi(tokens) : null;
   }
 };
 
@@ -452,7 +499,8 @@ var CacheTokensWidget = class {
       const breaks = yellow("3\u21BA 2:34p");
       return `${reads} ${writes} ${breaks}`;
     }
-    return formatCacheStats(ctx.cacheStats);
+    const tokens = formatCacheStats(ctx.cacheStats);
+    return tokens ? tokensToAnsi(tokens) : null;
   }
 };
 
@@ -490,7 +538,8 @@ var Usage5hWidget = class {
       return pct !== null ? renderLabel("5h", `${Math.round(pct)}%`, item, ctx) : null;
     }
     if (ctx.isPreview) return "5h \u2588\u2588\u2591\u2591\u2591 35%";
-    return formatUsage5h(ctx.usageData);
+    const tokens = formatUsage5h(ctx.usageData);
+    return tokens ? tokensToAnsi(tokens) : null;
   }
 };
 
@@ -528,7 +577,8 @@ var Usage7dWidget = class {
       return pct !== null ? renderLabel("7d", `${Math.round(pct)}%`, item, ctx) : null;
     }
     if (ctx.isPreview) return "7d \u2588\u2591\u2591\u2591\u2591 20%";
-    return formatUsage7d(ctx.usageData);
+    const tokens = formatUsage7d(ctx.usageData);
+    return tokens ? tokensToAnsi(tokens) : null;
   }
 };
 
@@ -562,7 +612,8 @@ var UsageOverageWidget = class {
       return pct !== null ? renderLabel("Overage", `${Math.round(pct)}%`, item, ctx) : null;
     }
     if (ctx.isPreview) return "+$5/$20 \u2588\u2591\u2591\u2591\u2591 25%";
-    return formatUsageOverage(ctx.usageData);
+    const tokens = formatUsageOverage(ctx.usageData);
+    return tokens ? tokensToAnsi(tokens) : null;
   }
 };
 
@@ -588,7 +639,8 @@ var HeadroomTokensWidget = class {
   }
   render(_item, ctx) {
     if (ctx.isPreview) return "\u2696\uFE0F 491k tokens saved";
-    return formatHeadroomTokens(ctx.headroomStats);
+    const tokens = formatHeadroomTokens(ctx.headroomStats);
+    return tokens ? tokensToAnsi(tokens) : null;
   }
 };
 
@@ -614,7 +666,8 @@ var HeadroomCompressionWidget = class {
   }
   render(_item, ctx) {
     if (ctx.isPreview) return "34% compressed";
-    return formatHeadroomCompression(ctx.headroomStats);
+    const tokens = formatHeadroomCompression(ctx.headroomStats);
+    return tokens ? tokensToAnsi(tokens) : null;
   }
 };
 
@@ -640,7 +693,8 @@ var HeadroomCostWidget = class {
   }
   render(_item, ctx) {
     if (ctx.isPreview) return "$0.12 saved";
-    return formatHeadroomCost(ctx.headroomStats);
+    const tokens = formatHeadroomCost(ctx.headroomStats);
+    return tokens ? tokensToAnsi(tokens) : null;
   }
 };
 
@@ -666,7 +720,8 @@ var HeadroomCacheHitWidget = class {
   }
   render(_item, ctx) {
     if (ctx.isPreview) return "78% cache hit";
-    return formatHeadroomCacheHit(ctx.headroomStats);
+    const tokens = formatHeadroomCacheHit(ctx.headroomStats);
+    return tokens ? tokensToAnsi(tokens) : null;
   }
 };
 
@@ -714,24 +769,24 @@ var CustomTextWidget = class {
   }
 };
 
-// src/runtime.ts
-import { execFileSync, execSync } from "child_process";
-function runCustomCommand(command, payload, cwd, timeoutMs) {
-  try {
-    return execSync(command, {
-      encoding: "utf8",
-      stdio: ["pipe", "pipe", "ignore"],
-      timeout: timeoutMs > 0 ? timeoutMs : void 0,
-      shell: process.env.ComSpec ?? "/bin/sh",
-      ...cwd ? { cwd } : {},
-      input: JSON.stringify(payload)
-    }).trim() || null;
-  } catch {
-    return null;
-  }
-}
-
 // src/widgets/SessionWidgets.ts
+function runCustomCommand(command, _payload, cwd, timeoutMs) {
+  const proc = globalThis.process;
+  if (proc && typeof proc.execSync === "function") {
+    try {
+      const out = proc.execSync(command, {
+        cwd: cwd ?? void 0,
+        encoding: "utf8",
+        timeout: timeoutMs,
+        stdio: ["ignore", "pipe", "ignore"]
+      });
+      return typeof out === "string" ? out.trim() || null : null;
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
 function formatClock() {
   const now = /* @__PURE__ */ new Date();
   let hours = now.getHours();
@@ -743,7 +798,7 @@ function formatClock() {
 function sanitizeTerminalText(value) {
   return value.replace(/[\u0007\u001b\u009c]/g, "");
 }
-function hyperlink(text, url) {
+function hyperlink2(text, url) {
   const safeText = sanitizeTerminalText(text);
   const safeUrl = sanitizeTerminalText(url);
   if (!/^https?:\/\//i.test(safeUrl)) {
@@ -967,9 +1022,9 @@ var LinkWidget = class extends BaseWidget {
   render(item, ctx) {
     const url = getOptionString(item, "url", "");
     const text = item.customText ?? getOptionString(item, "text", url || "link");
-    if (ctx.isPreview) return hyperlink("docs", "https://example.com");
+    if (ctx.isPreview) return hyperlink2("docs", "https://example.com");
     if (!url) return text || null;
-    return hyperlink(text || url, url);
+    return hyperlink2(text || url, url);
   }
 };
 var CustomCommandWidget = class extends BaseWidget {
@@ -1671,8 +1726,80 @@ var widgetRegistry = new Map(
 function getWidget(type) {
   return widgetRegistry.get(type) ?? null;
 }
+var SGR_RE = /\x1b\[[0-9;]*m/g;
+var OSC8_RE = /\x1b\]8;;[^\x07\x1b]*\x07([^\x1b]*)\x1b\]8;;\x07/g;
+function defaultRenderTokensFor(widget, item, ctx) {
+  const out = widget.render(item, ctx);
+  if (out === null) return null;
+  const stripped = out.replace(OSC8_RE, "$1");
+  const tokens = [];
+  let lastIndex = 0;
+  let activeStyle = {};
+  SGR_RE.lastIndex = 0;
+  let m;
+  while ((m = SGR_RE.exec(stripped)) !== null) {
+    if (m.index > lastIndex) {
+      tokens.push({ text: stripped.slice(lastIndex, m.index), style: { ...activeStyle } });
+    }
+    lastIndex = m.index + m[0].length;
+    const code = m[0].slice(2, -1);
+    if (code === "0") {
+      activeStyle = {};
+    } else if (code === "1") {
+      activeStyle = { ...activeStyle, bold: true };
+    } else if (code === "2") {
+      activeStyle = { ...activeStyle, dim: true };
+    } else {
+      const named = Object.entries({
+        "31": "red",
+        "32": "green",
+        "33": "yellow",
+        "34": "blue",
+        "35": "magenta",
+        "36": "cyan",
+        "37": "white",
+        "90": "gray",
+        "91": "redBright",
+        "92": "greenBright",
+        "93": "yellowBright",
+        "94": "blueBright",
+        "95": "magentaBright",
+        "96": "cyanBright"
+      }).find(([c]) => c === code)?.[1];
+      if (named) activeStyle = { ...activeStyle, color: named };
+    }
+  }
+  if (lastIndex < stripped.length) {
+    tokens.push({ text: stripped.slice(lastIndex), style: { ...activeStyle } });
+  }
+  const merged = [];
+  for (const tok of tokens) {
+    const prev = merged[merged.length - 1];
+    const same = prev && JSON.stringify(prev.style ?? {}) === JSON.stringify(tok.style ?? {});
+    if (same && prev) {
+      prev.text += tok.text;
+    } else {
+      merged.push({ ...tok, style: tok.style ? { ...tok.style } : void 0 });
+    }
+  }
+  return merged.length > 0 ? merged : [{ text: out, style: {} }];
+}
+function renderTokensFor(widget, item, ctx) {
+  if (widget.renderTokens) {
+    return widget.renderTokens(item, ctx);
+  }
+  return defaultRenderTokensFor(widget, item, ctx);
+}
 
 // src/renderer.ts
+function withOverride(tokens, color) {
+  if (tokens === null) return null;
+  return tokens.map((t2) => {
+    if (t2.style && "type" in t2.style && t2.style.type === "link") return t2;
+    const cur = t2.style ?? {};
+    return { text: t2.text, style: { ...cur, color } };
+  });
+}
 function renderStatusLine(settings, context) {
   const lines = [];
   for (const lineItems of settings.lines) {
@@ -1680,8 +1807,8 @@ function renderStatusLine(settings, context) {
     for (const item of lineItems) {
       const widget = getWidget(item.type);
       if (!widget) continue;
-      const rawValue = widget.render(item, context);
-      const value = rawValue !== null && item.color && item.color !== "default" ? applyColor(rawValue, item.color) : rawValue;
+      const tokens = renderTokensFor(widget, item, context);
+      const value = tokens !== null && item.color && item.color !== "default" ? withOverride(tokens, item.color) : tokens;
       rendered.push({ value, isSep: item.type === "separator" });
     }
     const segments = [];
@@ -1693,11 +1820,11 @@ function renderStatusLine(settings, context) {
         if (lastWasSep) continue;
         const hasAfter = rendered.slice(i + 1).some((r) => !r.isSep && r.value !== null);
         if (segments.length > 0 && hasAfter) {
-          segments.push(value);
+          segments.push(value.map((t2) => t2.text).join(""));
           lastWasSep = true;
         }
       } else {
-        segments.push(value);
+        segments.push(tokensToAnsi(value));
         lastWasSep = false;
       }
     }

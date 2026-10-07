@@ -1,4 +1,5 @@
 import { formatHeadroomCost } from "../segments.js";
+import { tokensToAnsi } from "../colors.js";
 import type { Widget, WidgetItem, RenderContext } from "./types.js";
 import { DATA_KEY } from "./data-keys.js";
 
@@ -11,6 +12,7 @@ export class HeadroomCostWidget implements Widget {
   getDataKey() { return DATA_KEY.HEADROOM_STATS; }
   render(_item: WidgetItem, ctx: RenderContext): string | null {
     if (ctx.isPreview) return "$0.12 saved";
-    return formatHeadroomCost(ctx.headroomStats);
+    const tokens = formatHeadroomCost(ctx.headroomStats);
+    return tokens ? tokensToAnsi(tokens) : null;
   }
 }
