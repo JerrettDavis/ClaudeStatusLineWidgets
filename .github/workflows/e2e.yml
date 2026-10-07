@@ -1,18 +1,23 @@
 name: E2E
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   e2e:
-    name: E2E (${{ matrix.os }})
+    name: E2E (${{ matrix.os }}, Node ${{ matrix.node-version }})
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
+        node-version: [22, 24]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -20,7 +25,7 @@ jobs:
 
       - uses: actions/setup-node@v7
         with:
-          node-version: 20
+          node-version: ${{ matrix.node-version }}
           cache: npm
 
       - name: Install dependencies
@@ -28,6 +33,9 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Run tests (including isolated package installation)
+        run: npm test
 
       # ── Plugin / dist file validation ─────────────────────────────────────
       - name: Validate plugin and dist files
@@ -64,12 +72,7 @@ jobs:
         run: |
           $tarball = (Get-ChildItem "claude-statusline-widgets-*.tgz" | Select-Object -First 1).Name
           npm install -g $tarball
-
-      # Give the Windows postinstall shim-helper process time to write the .cmd
-      - name: Wait for postinstall shim helper (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: Start-Sleep -Seconds 5
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Test ccfooter-config via global install (PS / shell)
         shell: pwsh
@@ -80,7 +83,7 @@ jobs:
           if ($output -notmatch "Opus") { throw "ccfooter-config output missing expected model name 'Opus'" }
           Write-Host "Global ccfooter-config test passed."
 
-      # Specifically exercise the .cmd shim that postinstall.js writes on Windows
+      # Specifically exercise npm's .cmd shim on Windows
       - name: Write piped-mode input file (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
@@ -89,6 +92,38 @@ jobs:
             Out-File -FilePath "$env:TEMP\csw_test.json" -Encoding utf8 -NoNewline
 
       - name: Test ccfooter-config CMD shim (Windows)
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: |
+          type %TEMP%\csw_test.json | ccfooter-config
+          if errorlevel 1 exit /b 1
+
+      - name: Uninstall tarball before GitHub install
+        run: npm uninstall -g claude-statusline-widgets
+
+      - name: Install current commit from GitHub archive (README command)
+        shell: pwsh
+        env:
+          INSTALL_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          npm_config_prefix: ${{ runner.temp }}/github CLI prefix with spaces
+          npm_config_cache: ${{ runner.temp }}/github CLI cache with spaces
+        run: |
+          npm install -g "https://github.com/JerrettDavis/ClaudeStatusLineWidgets/archive/$env:INSTALL_SHA.tar.gz"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $binDir = if ($IsWindows) { $env:npm_config_prefix } else { "$env:npm_config_prefix/bin" }
+          $binDir | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Test GitHub-installed CLI
+        shell: pwsh
+        run: |
+          ccfooter-config mode get
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $json = '{"model":{"display_name":"Opus"},"cost":{"total_cost_usd":0.12},"context_window":{"used_percentage":45}}'
+          $output = $json | ccfooter-config
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if ($output -notmatch "Opus") { throw "GitHub-installed CLI did not render Opus" }
+
+      - name: Test GitHub-installed CMD shim (Windows)
         if: runner.os == 'Windows'
         shell: cmd
         run: |
