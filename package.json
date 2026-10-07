@@ -4,6 +4,12 @@
   "type": "module",
   "description": "Claude Code statusline with cache TTL countdown and interactive TUI configurator",
   "main": "dist/index.js",
+  "bin": {
+    "ccfooter-config": "bin/ccfooter-config.js"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "types": "dist/extension-api.d.ts",
   "exports": {
     ".": "./dist/index.js",
@@ -18,15 +24,13 @@
     "scripts/",
     ".claude-plugin/",
     "hooks/",
-    "skills/",
-    "install-global.js"
+    "skills/"
   ],
   "scripts": {
     "prepare": "node scripts/prepare.js",
     "build": "node scripts/build.js",
     "test": "vitest run",
-    "dev": "tsc --watch",
-    "postinstall": "node install-global.js"
+    "dev": "tsc --watch"
   },
   "devDependencies": {
     "@semantic-release/changelog": "^7.0.0",

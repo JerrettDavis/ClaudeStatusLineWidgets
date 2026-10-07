@@ -7,10 +7,10 @@ import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, "..");
-const tsc = resolve(root, "node_modules", ".bin", process.platform === "win32" ? "tsc.cmd" : "tsc");
+const tsc = resolve(root, "node_modules", "typescript", "bin", "tsc");
 const distDir = resolve(root, "dist");
 
-const typecheck = spawnSync(tsc, [], { stdio: "inherit", cwd: root, shell: true });
+const typecheck = spawnSync(process.execPath, [tsc], { stdio: "inherit", cwd: root });
 
 if (typecheck.status !== 0) {
   process.exit(typecheck.status ?? 1);

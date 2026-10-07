@@ -3,7 +3,7 @@
 A configurable native **Claude Code Mod** that owns the status line below the prompt and displays real-time session metrics — model, cost, context window, cache TTL, API usage, git state, Headroom stats, and more. The existing 62-widget renderer and interactive TUI remain intact; the Mod replaces the old settings-file statusLine bootstrap.
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue)
-![Node.js](https://img.shields.io/badge/Node.js-18%2B-green)
+![Node.js](https://img.shields.io/badge/Node.js-22.12%2B-green)
 ![License](https://img.shields.io/badge/license-MIT-brightgreen)
 
 ---
@@ -87,6 +87,9 @@ The mode is stored in `~/.config/claude-statusline-widgets/mode.json`; `CCFOOTER
 
 ### Install the `ccfooter-config` CLI globally
 
+Requires Node.js 22.12 or newer and npm. npm creates the platform-specific
+`ccfooter-config` launchers, including CMD and PowerShell shims on Windows.
+
 ```bash
 # From a local clone
 npm install -g .
@@ -94,6 +97,15 @@ npm install -g .
 # Directly from GitHub
 npm install -g github:JerrettDavis/ClaudeStatusLineWidgets
 ```
+
+Ensure npm's global executable directory is on your `PATH` (`npm prefix -g`
+on Windows, or `$(npm prefix -g)/bin` on macOS/Linux). To verify installation
+without opening the TUI, run `ccfooter-config mode get`.
+
+If upgrading from an older Windows install, remove the unused
+`%LOCALAPPDATA%\claude-statusline-widgets\global-runtime` directory after
+verifying the new CLI works. Do not disable TLS certificate verification;
+configure npm's trusted CA certificates if your network requires them.
 
 ---
 
