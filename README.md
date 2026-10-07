@@ -94,15 +94,31 @@ Requires Node.js 22.12 or newer and npm. npm creates the platform-specific
 # From a local clone
 npm install -g .
 
-# Directly from GitHub
-npm install -g github:JerrettDavis/ClaudeStatusLineWidgets
+# Pre-built runtime directly from GitHub (all platforms)
+npm install -g https://github.com/JerrettDavis/ClaudeStatusLineWidgets/archive/refs/heads/main.tar.gz
 ```
+
+Use the archive URL rather than `npm install -g github:...`. npm's Git
+dependency preparation can inherit the global install settings, link the
+package to a temporary checkout, and then delete that checkout. The archive
+installs the bundled runtime without Git preparation or build dependencies.
+To build a GitHub revision instead, run `npm pack github:JerrettDavis/ClaudeStatusLineWidgets`
+without `-g`, then run `npm install -g ./<filename>` using the tarball filename
+printed by `npm pack`.
 
 Ensure npm's global executable directory is on your `PATH` (`npm prefix -g`
 on Windows, or `$(npm prefix -g)/bin` on macOS/Linux). To verify installation
 without opening the TUI, run `ccfooter-config mode get`.
 
-If upgrading from an older Windows install, remove the unused
+**Upgrading from an older install:** before installing, run
+`npm uninstall -g claude-statusline-widgets`, then remove only the legacy
+`ccfooter-config` launchers left behind by this package. On Windows these are
+`ccfooter-config.cmd` and `ccfooter-config.ps1` in the directory printed by
+`npm prefix -g`; on macOS/Linux it is `ccfooter-config` in that directory's
+`bin` subdirectory. The old installer created unmanaged files, so npm cannot
+overwrite them automatically (`EEXIST`). Do not remove an unrelated CLI.
+
+On Windows, also remove the unused
 `%LOCALAPPDATA%\claude-statusline-widgets\global-runtime` directory after
 verifying the new CLI works. Do not disable TLS certificate verification;
 configure npm's trusted CA certificates if your network requires them.

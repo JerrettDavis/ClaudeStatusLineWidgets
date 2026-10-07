@@ -1,5 +1,5 @@
 import { spawnSync } from "child_process";
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync } from "fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "fs";
 import { tmpdir } from "os";
 import { dirname, join, resolve } from "path";
 import { fileURLToPath } from "url";
@@ -87,6 +87,34 @@ afterAll(() => {
 });
 
 describe("npm-managed CLI installation", () => {
+  it("installs over legacy launchers after the documented cleanup", () => {
+    const prefix = join(workspace, "legacy upgrade prefix");
+    const binDir = windows ? prefix : join(prefix, "bin");
+    const launchers = windows
+      ? ["ccfooter-config.cmd", "ccfooter-config.ps1"]
+      : ["ccfooter-config"];
+    mkdirSync(binDir, { recursive: true });
+    for (const launcher of launchers) {
+      writeFileSync(join(binDir, launcher), "legacy unmanaged launcher\n");
+    }
+
+    const result = spawnSync(process.execPath, [
+      npmCli, "install", "--global", "--prefix", prefix, "--no-audit", "--no-fund", tarball,
+    ], { cwd: root, encoding: "utf8", timeout: 120_000 });
+    expect(result.error, result.stderr).toBeUndefined();
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toContain("EEXIST");
+
+    npm(["uninstall", "--global", "--prefix", prefix, "claude-statusline-widgets"]);
+    for (const launcher of launchers) {
+      rmSync(join(binDir, launcher), { force: true });
+    }
+    npm(["install", "--global", "--prefix", prefix, "--no-audit", "--no-fund", tarball]);
+    expect(runLauncher(prefix, ["mode", "get"]).trim()).toBe("hook");
+    expect(runLauncher(prefix, [], input)).toContain("Opus");
+    npm(["uninstall", "--global", "--prefix", prefix, "claude-statusline-widgets"]);
+  }, 120_000);
+
   it("builds in a path containing spaces without shell command parsing", () => {
     const buildRoot = join(workspace, "source directory with spaces");
     mkdirSync(join(buildRoot, "scripts"), { recursive: true });

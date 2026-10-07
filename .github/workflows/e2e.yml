@@ -1,6 +1,7 @@
 name: E2E
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
   pull_request:
@@ -97,14 +98,14 @@ jobs:
       - name: Uninstall tarball before GitHub install
         run: npm uninstall -g claude-statusline-widgets
 
-      - name: Install current commit directly from GitHub
+      - name: Install current commit from GitHub archive (README command)
         shell: pwsh
         env:
           INSTALL_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           npm_config_prefix: ${{ runner.temp }}/github CLI prefix with spaces
           npm_config_cache: ${{ runner.temp }}/github CLI cache with spaces
         run: |
-          npm install -g "github:JerrettDavis/ClaudeStatusLineWidgets#$env:INSTALL_SHA"
+          npm install -g "https://github.com/JerrettDavis/ClaudeStatusLineWidgets/archive/$env:INSTALL_SHA.tar.gz"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $binDir = if ($IsWindows) { $env:npm_config_prefix } else { "$env:npm_config_prefix/bin" }
           $binDir | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
