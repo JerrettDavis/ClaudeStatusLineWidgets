@@ -33,7 +33,7 @@ function runLauncher(prefix: string, args: string[], stdin = "") {
   const result = spawnSync(
     windows ? "pwsh" : launcher,
     windows
-      ? ["-NoProfile", "-NonInteractive", "-Command", "$input | & $env:TEST_LAUNCHER @($env:TEST_ARGS | ConvertFrom-Json); exit $LASTEXITCODE"]
+      ? ["-NoProfile", "-NonInteractive", "-Command", "$cliArgs = @($env:TEST_ARGS | ConvertFrom-Json); $input | & $env:TEST_LAUNCHER @cliArgs; exit $LASTEXITCODE"]
       : args,
     {
       cwd: workspace,

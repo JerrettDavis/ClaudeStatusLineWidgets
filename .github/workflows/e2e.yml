@@ -9,7 +9,7 @@ on:
 
 jobs:
   e2e:
-    name: E2E (${{ matrix.os }})
+    name: E2E (${{ matrix.os }}, Node ${{ matrix.node-version }})
     strategy:
       fail-fast: false
       matrix:
