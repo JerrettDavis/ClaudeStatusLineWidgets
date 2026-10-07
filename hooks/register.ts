@@ -31,6 +31,21 @@ async function buildPayload($: EngineInterface): Promise<Record<string, unknown>
     $.session.version(),
   ]);
 
+  // After a hot reload the module's variables start over; recover the
+  // transcript path the SessionStart hook persisted for this same session.
+  if (!meta.transcriptPath) {
+    try {
+      const saved = (await $.store.get("sessionMeta")) as
+        | { sessionId?: string; transcriptPath?: string; version?: string }
+        | undefined;
+      if (saved?.sessionId === sessionId) {
+        meta = { transcriptPath: saved.transcriptPath, version: saved.version };
+      }
+    } catch {
+      // Store unreadable: render without transcript-derived widgets.
+    }
+  }
+
   const context = usage.context;
   const payload: Record<string, unknown> = {
     cwd,
@@ -144,6 +159,11 @@ export const register: Register = (on) => {
       transcriptPath: typeof e.transcript_path === "string" ? e.transcript_path : undefined,
       version: typeof e.version === "string" ? e.version : undefined,
     };
+    if (typeof e.session_id === "string") {
+      await $.store
+        .set("sessionMeta", { sessionId: e.session_id, ...meta })
+        .catch(() => undefined);
+    }
     $.clock.after(0, () => scheduleRefresh($));
     return result;
   });
