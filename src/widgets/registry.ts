@@ -1,5 +1,6 @@
-import type { Widget, WidgetCatalogEntry } from "./types.js";
+import type { Widget, WidgetCatalogEntry, StyledToken } from "./types.js";
 import type { WidgetExtension } from "../extensions/types.js";
+import { tokensToAnsi } from "../colors.js";
 import { PathWidget } from "./PathWidget.js";
 import { BranchWidget } from "./BranchWidget.js";
 import { ModelWidget } from "./ModelWidget.js";
@@ -198,16 +199,95 @@ export function registerExtension(extension: WidgetExtension): void {
 }
 
 /**
- * Discovers all globally-installed extension packages and registers their
- * widgets into the registry. Should be called once at startup, before any
- * rendering or TUI interaction.
+ * (loadExtensions lives in src/extensions/register-cli.ts, not here — the
+ * dynamic import would otherwise reach the mod's import chain via this
+ * file's re-export. CLI code imports it directly.)
  */
-export async function loadExtensions(): Promise<void> {
-  const { discoverExtensions } = await import("../extensions/loader.js");
-  const extensions = await discoverExtensions();
-  for (const ext of extensions) {
-    registerExtension(ext);
+
+// ─────────────────────────────────────────────────────────────────────
+// Token rendering: the data layer emits StyledToken[]. The legacy ANSI
+// renderer (renderer.ts) joins tokens via tokensToAnsi; the mod renderer
+// (renderer-mod.ts) walks tokens into native <Text>/<Link> elements.
+// Widgets that can emit tokens natively should override `renderTokens`.
+// ─────────────────────────────────────────────────────────────────────
+
+/** Match SGR escape sequences (color/bold/dim/reset). */
+const SGR_RE = /\x1b\[[0-9;]*m/g;
+/** Match OSC-8 hyperlink sequences (link…END). */
+const OSC8_RE = /\x1b\]8;;[^\x07\x1b]*\x07([^\x1b]*)\x1b\]8;;\x07/g;
+
+/**
+ * Default splitter for widgets that don't override `renderTokens`. Walks the
+ * SGR-codes in the widget's ANSI output and emits one token per span. OSC-8
+ * hyperlinks are passed through as plain text (LinkWidget overrides directly).
+ */
+function defaultRenderTokensFor(
+  widget: Widget,
+  item: WidgetItem,
+  ctx: RenderContext,
+): StyledToken[] | null {
+  const out = widget.render(item, ctx);
+  if (out === null) return null;
+  const stripped = out.replace(OSC8_RE, "$1");
+  const tokens: StyledToken[] = [];
+  let lastIndex = 0;
+  let activeStyle: { color?: string; dim?: boolean; bold?: boolean } = {};
+  SGR_RE.lastIndex = 0;
+  let m: RegExpExecArray | null;
+  while ((m = SGR_RE.exec(stripped)) !== null) {
+    if (m.index > lastIndex) {
+      tokens.push({ text: stripped.slice(lastIndex, m.index), style: { ...activeStyle } });
+    }
+    lastIndex = m.index + m[0].length;
+    const code = m[0].slice(2, -1);
+    if (code === "0") {
+      activeStyle = {};
+    } else if (code === "1") {
+      activeStyle = { ...activeStyle, bold: true };
+    } else if (code === "2") {
+      activeStyle = { ...activeStyle, dim: true };
+    } else {
+      const named = Object.entries({
+        "31": "red", "32": "green", "33": "yellow", "34": "blue", "35": "magenta",
+        "36": "cyan", "37": "white", "90": "gray",
+        "91": "redBright", "92": "greenBright", "93": "yellowBright",
+        "94": "blueBright", "95": "magentaBright", "96": "cyanBright",
+      }).find(([c]) => c === code)?.[1];
+      if (named) activeStyle = { ...activeStyle, color: named };
+    }
   }
+  if (lastIndex < stripped.length) {
+    tokens.push({ text: stripped.slice(lastIndex), style: { ...activeStyle } });
+  }
+  // Merge consecutive same-style tokens.
+  const merged: StyledToken[] = [];
+  for (const tok of tokens) {
+    const prev = merged[merged.length - 1];
+    const same = prev && JSON.stringify(prev.style ?? {}) === JSON.stringify(tok.style ?? {});
+    if (same && prev) {
+      prev.text += tok.text;
+    } else {
+      merged.push({ ...tok, style: tok.style ? { ...tok.style } : undefined });
+    }
+  }
+  return merged.length > 0 ? merged : [{ text: out, style: {} }];
+}
+
+import type { WidgetItem, RenderContext } from "./types.js";
+
+/**
+ * Get tokens for a widget, applying any user-set color override. Returns
+ * null when the widget has nothing to render for this item.
+ */
+export function renderTokensFor(
+  widget: Widget,
+  item: WidgetItem,
+  ctx: RenderContext,
+): StyledToken[] | null {
+  if (widget.renderTokens) {
+    return widget.renderTokens(item, ctx);
+  }
+  return defaultRenderTokensFor(widget, item, ctx);
 }
 
 export function getWidgetsByDataKey(dataKey: string, catalog?: WidgetCatalogEntry[]): WidgetCatalogEntry[] {

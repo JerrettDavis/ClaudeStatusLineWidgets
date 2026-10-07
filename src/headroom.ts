@@ -3,17 +3,11 @@ import { homedir } from "os";
 import { join, dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 import { spawn } from "child_process";
+import type { HeadroomStats } from "./headroom-core.js";
+
+export type { HeadroomStats } from "./headroom-core.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-
-export interface HeadroomStats {
-  compressionPct: number;
-  tokensSaved: number;
-  cliTokensSaved: number;
-  costSavedUsd: number;
-  requests: number;
-  cacheHitRate: number;
-}
 
 interface HeadroomCache {
   fetchedAt: number;

@@ -1,4 +1,5 @@
 import { formatContext } from "../segments.js";
+import { tokensToAnsi } from "../colors.js";
 import type { Widget, WidgetItem, RenderContext } from "./types.js";
 import { DATA_KEY } from "./data-keys.js";
 import { formatPercent, getVariant, renderLabel } from "./helpers.js";
@@ -23,6 +24,7 @@ export class ContextBarWidget implements Widget {
     if (variant === "remaining") {
       return renderLabel("Ctx Left", formatPercent(100 - percent), item, ctx);
     }
-    return formatContext(percent);
+    const tokens = formatContext(percent);
+    return tokens ? tokensToAnsi(tokens) : null;
   }
 }

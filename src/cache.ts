@@ -1,6 +1,9 @@
 import { fstatSync, openSync, readSync, closeSync } from "fs";
+import type { CacheTTLResult, CacheSessionStats } from "./cache-core.js";
 
-export interface CacheTTLResult {
+export type { CacheTTLResult, CacheSessionStats } from "./cache-core.js";
+
+interface UsageData {
   /** Seconds remaining on cache TTL. 0 = expired. -1 = no cache data found. */
   remainingSeconds: number;
   /** Which TTL tier: "5m", "1h", or "none" */
@@ -27,21 +30,6 @@ interface JournalEntry {
   message?: {
     usage?: UsageData;
   };
-}
-
-export interface CacheSessionStats {
-  /** Cumulative cache_read_input_tokens across the session */
-  totalReads: number;
-  /** Cumulative cache_creation_input_tokens across the session */
-  totalWrites: number;
-  /** Number of distinct cache breaks (write after expiry, or first write) */
-  breakCount: number;
-  /** ISO timestamp of the most recent break */
-  lastBreakTime: string | null;
-  /** Token count of the most recent break (for large-rewrite detection) */
-  lastBreakTokens: number;
-  /** Average token count per break (for comparison) */
-  avgBreakTokens: number;
 }
 
 const TTL_5M = 5 * 60;

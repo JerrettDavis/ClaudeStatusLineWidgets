@@ -70,7 +70,7 @@ To inspect the Mod before loading it:
 claude plugin validate .
 ```
 
-The Mod is declared by `hooks/hooks.json` and `hooks/register.tsx`. It reads Claude's native session APIs, calls the existing renderer as a subprocess, and draws the result as a coloured band via `ui.render` (`ui.status` is plain-text only).
+The Mod is declared by `hooks/hooks.json` and `hooks/statusline.tsx`. It renders in-process from the native session APIs (no subprocess) and draws the result as a coloured band via `ui.render`; `ui.status` is plain-text only.
 
 ### Choose how the status line is drawn
 
@@ -215,12 +215,12 @@ Set `ANTHROPIC_BASE_URL` to your Headroom proxy base URL (for example `http://12
 
 ## How it works
 
-The plugin now loads a Claude Code Mod from `hooks/register.tsx`:
+The plugin loads a Claude Code Mod from `hooks/statusline.tsx` (in `mod` mode; in `hook` mode the classic `statusLine` command runs `dist/index.js` instead):
 
 1. **Observes native session lifecycle and measurement events** such as `session.start`, `session.measure`, and `turn.complete`.
 2. **Reads session state through the Mod API** including model, cwd, session id, context usage, version, and transcript metadata.
-3. **Builds a compatibility payload** and runs the existing `dist/index.js` renderer through `$.process.run(..., { stdin })`.
-4. **Publishes the rendered result with `$.ui.status(...)`**, so Claude Code owns the actual status-line surface. No settings mutation is required.
+3. **Renders in-process**: reads the transcript, caches and git state through the Mod's `$.fs`/`$.process`/`$.http`, then builds the configured widget tree with native `Box`/`Text` elements.
+4. **Draws the tree in the `AbovePrompt` band**; it stays inert unless the install mode is `mod`. In `hook` mode no Mod rendering happens and `settings.json` holds the classic `statusLine` command.
 5. **Keeps the existing widget registry, settings file, transcript-based cache TTL logic, API usage cache, Headroom integration, and TUI configurator** unchanged.
 6. **Refreshes on session measurements, completed turns, session changes, and a low-frequency timer** so countdown-style widgets continue to move while idle.
 
@@ -237,7 +237,7 @@ Running `dist/index.js` interactively still launches the React/Ink TUI configura
 
 hooks/
   hooks.json        — Mod module declaration
-  register.tsx       — Native Claude Code Mod lifecycle/status integration
+  statusline.tsx    — Native Claude Code Mod (in-process renderer, mode gate, /statusline-mode)
 
 src/
   index.ts          — Entry point: TTY detection (TUI vs render mode)

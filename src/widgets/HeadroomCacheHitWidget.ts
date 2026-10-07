@@ -1,4 +1,5 @@
 import { formatHeadroomCacheHit } from "../segments.js";
+import { tokensToAnsi } from "../colors.js";
 import type { Widget, WidgetItem, RenderContext } from "./types.js";
 import { DATA_KEY } from "./data-keys.js";
 
@@ -11,6 +12,7 @@ export class HeadroomCacheHitWidget implements Widget {
   getDataKey() { return DATA_KEY.HEADROOM_STATS; }
   render(_item: WidgetItem, ctx: RenderContext): string | null {
     if (ctx.isPreview) return "78% cache hit";
-    return formatHeadroomCacheHit(ctx.headroomStats);
+    const tokens = formatHeadroomCacheHit(ctx.headroomStats);
+    return tokens ? tokensToAnsi(tokens) : null;
   }
 }

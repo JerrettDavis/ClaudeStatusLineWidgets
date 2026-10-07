@@ -1,4 +1,5 @@
 import { formatPath } from "../segments.js";
+import { tokensToAnsi } from "../colors.js";
 import type { Widget, WidgetItem, RenderContext } from "./types.js";
 
 export class PathWidget implements Widget {
@@ -14,6 +15,7 @@ export class PathWidget implements Widget {
       ctx.payload.cwd ??
       ctx.payload.workspace?.current_dir ??
       ctx.payload.workspace?.project_dir;
-    return formatPath(cwd);
+    const tokens = formatPath(cwd);
+    return tokens ? tokensToAnsi(tokens) : null;
   }
 }
