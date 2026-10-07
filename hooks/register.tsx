@@ -182,6 +182,22 @@ function scheduleRefresh($: EngineInterface): void {
   });
 }
 
+// Applies an install mode to this running Mod. In "hook" mode the classic
+// statusLine command draws the line and the Mod stays inert.
+function applyMode($: EngineInterface, mode: string): void {
+  active = mode === "mod";
+  if (active) {
+    $.clock.after(0, () => scheduleRefresh($));
+  } else {
+    lines = [];
+    $.ui.invalidate("ui.render");
+  }
+}
+
+function runMode($: EngineInterface, args: string[]) {
+  return $.process.run(["node", `${$.plugin.root}/scripts/mode.js`, ...args], { timeoutMs: 5_000 });
+}
+
 export const register: Register = (on) => {
   on("ui.render", { component: "AbovePrompt" }, ($, e, next) => {
     if (!active || e.props.hasSurvey || lines.length === 0) return next(e);
@@ -210,23 +226,44 @@ export const register: Register = (on) => {
 
   on("session.start", async ($, e, next) => {
     const result = await next(e);
-    // Install mode (scripts/mode.js): in "hook" mode the classic statusLine
-    // command draws the line and this Mod stays inert.
-    const mode = await $.process
-      .run(["node", `${$.plugin.root}/scripts/mode.js`, "get"], { timeoutMs: 5_000 })
+    await $.command.register({
+      name: "statusline-mode",
+      description: "Show or switch the status line install mode (hook | mod)",
+      argumentHint: "[hook|mod]",
+    });
+    const mode = await runMode($, ["get"])
       .then((r) => (r.exitCode === 0 ? r.stdout.trim() : "hook"))
       .catch(() => "hook");
-    active = mode === "mod";
-    if (!active) {
-      lines = [];
-      return result;
-    }
-    $.clock.after(0, () => scheduleRefresh($));
+    applyMode($, mode);
 
     // Cache TTL and reset countdown widgets need to advance even while Claude
-    // is idle. Keep this deliberately coarse so the renderer stays cheap.
+    // is idle. Keep this deliberately coarse so the renderer stays cheap; the
+    // refresh is a no-op while the Mod is inactive, so a live switch to "mod"
+    // needs no new timer.
     $.clock.every(15_000, () => scheduleRefresh($));
     return result;
+  });
+
+  on("command.run", { command: "statusline-mode" }, async ($, e) => {
+    const arg = e.args.trim().toLowerCase();
+    if (arg === "") {
+      const r = await runMode($, ["get"]);
+      return { text: `Status line mode: ${r.stdout.trim() || "hook"}. Use /statusline-mode hook|mod to switch.` };
+    }
+    if (arg !== "hook" && arg !== "mod") {
+      return { text: `Unknown mode "${arg}". Use /statusline-mode hook or /statusline-mode mod.` };
+    }
+    const r = await runMode($, ["set", arg]);
+    if (r.exitCode !== 0) {
+      return { text: `Could not switch mode: ${r.stderr.trim() || `exit ${r.exitCode}`}` };
+    }
+    applyMode($, arg);
+    return {
+      text:
+        arg === "mod"
+          ? "Status line mode: mod. The coloured band is active now; the classic statusLine entry is removed."
+          : "Status line mode: hook. The Mod band is off; restart Claude Code to load the classic statusLine below the prompt.",
+    };
   });
 
   // The classic event carries transcript_path, which the native session API

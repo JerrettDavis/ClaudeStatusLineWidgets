@@ -81,6 +81,8 @@ One plugin, one renderer, two install modes. Switch with `ccfooter-config mode <
 | `hook` (default) | Classic `statusLine` command written to `settings.json` at SessionStart | Full ANSI colour and every row, **below** the prompt |
 | `mod` | Native Claude Code Mod, no `settings.json` entry | Coloured rows drawn **above** the prompt (`ui.status` is plain text only); needs Claude Code 2.1.287+ |
 
+Inside Claude Code, `/statusline-mode` shows the current mode and `/statusline-mode hook|mod` switches it. Switching to `mod` takes effect immediately; switching to `hook` needs a restart to load the classic line.
+
 The mode is stored in `~/.config/claude-statusline-widgets/mode.json`; `CCFOOTER_MODE` overrides it. Switching only ever adds or removes this plugin's own `statusLine` entry, never a custom one.
 
 ### Install the `ccfooter-config` CLI globally
