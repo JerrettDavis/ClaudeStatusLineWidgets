@@ -13,6 +13,8 @@ interface HeadroomCache {
   fetchedAt: number;
   isActive: boolean;
   data: HeadroomStats | null;
+  /** Epoch ms before which no refetch is attempted (set after a 401). */
+  retryAfter?: number;
 }
 
 /**
@@ -44,11 +46,44 @@ export function getCacheFilePath(): string {
 }
 
 const STALE_THRESHOLD_MS = 30_000; // 30 seconds — local call, cheap
+// A 401 means the proxy wants a token we don't have; retrying every 30 s only
+// adds rejected requests to its log until the configuration changes.
+const AUTH_BACKOFF_MS = 10 * 60_000;
 const HEADROOM_FALLBACK_BASE = "http://127.0.0.1:8787";
+const PROXY_TOKEN_HEADER = "x-headroom-proxy-token";
 
 function getHeadroomBaseUrl(): string {
   const envBase = process.env.ANTHROPIC_BASE_URL;
   return envBase ? envBase.replace(/\/$/, "") : HEADROOM_FALLBACK_BASE;
+}
+
+/**
+ * Token for a Headroom proxy that requires one (server-side HEADROOM_PROXY_TOKEN).
+ * Taken from HEADROOM_PROXY_TOKEN, else from the x-headroom-proxy-token line of
+ * ANTHROPIC_CUSTOM_HEADERS (newline-separated "Name: Value"), which is how
+ * Claude Code itself sends it. Never logged.
+ */
+export function getProxyToken(env: NodeJS.ProcessEnv = process.env): string | null {
+  const direct = env.HEADROOM_PROXY_TOKEN?.trim();
+  if (direct) return direct;
+  for (const line of (env.ANTHROPIC_CUSTOM_HEADERS ?? "").split(/\r?\n/)) {
+    const sep = line.indexOf(":");
+    if (sep > 0 && line.slice(0, sep).trim().toLowerCase() === PROXY_TOKEN_HEADER) {
+      const value = line.slice(sep + 1).trim();
+      if (value) return value;
+    }
+  }
+  return null;
+}
+
+/**
+ * Headers for the /stats request. The token only ever goes to the proxy the
+ * user configured in ANTHROPIC_BASE_URL — never to the localhost fallback,
+ * which may be some other process listening on that port.
+ */
+function statsHeaders(): Record<string, string> {
+  const token = process.env.ANTHROPIC_BASE_URL ? getProxyToken() : null;
+  return token ? { [PROXY_TOKEN_HEADER]: token } : {};
 }
 
 export function isHeadroomActive(): boolean {
@@ -70,7 +105,9 @@ export function readHeadroomCache(): HeadroomCache | null {
   }
 }
 
-function isCacheStale(): boolean {
+export function isCacheStale(): boolean {
+  const retryAfter = readHeadroomCache()?.retryAfter;
+  if (typeof retryAfter === "number" && Date.now() < retryAfter) return false;
   try {
     return Date.now() - statSync(getCacheFilePath()).mtimeMs > STALE_THRESHOLD_MS;
   } catch {
@@ -124,8 +161,15 @@ export async function fetchAndCacheHeadroom(): Promise<void> {
 
     const sCtrl = new AbortController();
     const sTimer = setTimeout(() => sCtrl.abort(), 2000);
-    const statsRes = await fetch(`${baseUrl}/stats`, { signal: sCtrl.signal });
+    const statsRes = await fetch(`${baseUrl}/stats`, {
+      signal: sCtrl.signal,
+      headers: statsHeaders(),
+    });
     clearTimeout(sTimer);
+    if (statsRes.status === 401) {
+      writeCacheFile({ ...inactive, retryAfter: Date.now() + AUTH_BACKOFF_MS });
+      return;
+    }
     if (!statsRes.ok) {
       writeCacheFile(inactive);
       return;
