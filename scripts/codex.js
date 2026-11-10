@@ -82,13 +82,16 @@ export function readCommand(toml) {
   return /^\s*command\s*=\s*(\[[\s\S]*?\])/m.exec(body)?.[1] ?? null;
 }
 
+const eolOf = (toml) => (toml.includes("\r\n") ? "\r\n" : "\n");
+
 export function removeStatusLineCommand(toml) {
   const { lines, sections } = splitSections(toml);
   const sec = sections.find((s) => s.name === SECTION);
   if (!sec) return toml;
   const kept = [...lines.slice(0, sec.start), ...lines.slice(sec.end)];
   while (kept.length && kept[kept.length - 1].trim() === "" && sec.end >= lines.length) kept.pop();
-  return kept.join("\n") + (kept.length ? "\n" : "");
+  const eol = eolOf(toml);
+  return kept.join(eol) + (kept.length ? eol : "");
 }
 
 export function upsertStatusLineCommand(toml, root) {
@@ -108,8 +111,9 @@ export function upsertStatusLineCommand(toml, root) {
     "timeout_ms = 2000",
     "max_lines = 4",
   );
-  text = lines.join("\n").replace(/\s*$/, "");
-  return (text ? text + "\n\n" : "") + block.join("\n") + "\n";
+  const eol = eolOf(toml);
+  text = lines.join(eol).replace(/\s*$/, "");
+  return (text ? text + eol + eol : "") + block.join(eol) + eol;
 }
 
 /** Copy the current global layout into a Codex-only override (no-op if one exists). */
