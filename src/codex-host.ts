@@ -3,9 +3,25 @@ import { createRequire as makeRequire } from "module";
 import { homedir } from "os";
 import { join } from "path";
 import { fileURLToPath } from "url";
-import type * as NodePty from "node-pty";
 import { buildCodexPayload } from "./codex-session.js";
 import { loadSettingsFor } from "./config/loader.js";
+
+interface CodexPty {
+  spawn(command: string, args: string[], options: {
+    name: string;
+    cols: number;
+    rows: number;
+    cwd: string;
+    env: Record<string, string>;
+  }): CodexTerminal;
+}
+
+interface CodexTerminal {
+  onData(listener: (data: string) => void): void;
+  onExit(listener: (event: { exitCode: number }) => void): void;
+  write(data: string): void;
+  resize(columns: number, rows: number): void;
+}
 
 const REFRESH_MS = 2000;
 const MAX_ROWS = 6;
@@ -54,10 +70,10 @@ function renderFooter(payload: Record<string, unknown>): Promise<string[]> {
 }
 
 /** node-pty is a native addon, so it lives outside the package (see `ccfooter-config codex install`). */
-function loadPty(): typeof NodePty | null {
+function loadPty(): CodexPty | null {
   try {
     const dir = join(process.env.CCFOOTER_CONFIG_DIR ?? join(homedir(), ".config", "claude-statusline-widgets"), "pty");
-    return makeRequire(join(dir, "package.json"))("node-pty");
+    return makeRequire(join(dir, "package.json"))("node-pty") as CodexPty;
   } catch {
     return null;
   }
