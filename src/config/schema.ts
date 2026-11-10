@@ -11,11 +11,53 @@ export interface WidgetItemConfig {
   options?: Record<string, string | number | boolean | null>;
 }
 
+export type Provider = "claude" | "codex";
+export const PROVIDERS: readonly Provider[] = ["claude", "codex"];
+
+/** Layout fields a provider may override; anything unset falls back to the global value. */
+export interface ProviderLayout {
+  lines?: WidgetItemConfig[][];
+  defaultSeparator?: string;
+  minimalistMode?: boolean;
+}
+
 export interface Settings {
   version: number;
   lines: WidgetItemConfig[][];
   defaultSeparator?: string;
   minimalistMode?: boolean;
+  /** Optional per-provider layouts. Absent means the global layout applies to every provider. */
+  providers?: Partial<Record<Provider, ProviderLayout>>;
+}
+
+export function isProvider(value: unknown): value is Provider {
+  return typeof value === "string" && (PROVIDERS as readonly string[]).includes(value);
+}
+
+/** The effective settings for a provider: global layout with that provider's overrides applied. */
+export function resolveSettings(settings: Settings, provider: Provider): Settings {
+  const override = settings.providers?.[provider];
+  if (!override) return settings;
+  return {
+    ...settings,
+    lines: override.lines ?? settings.lines,
+    defaultSeparator: override.defaultSeparator ?? settings.defaultSeparator,
+    minimalistMode: override.minimalistMode ?? settings.minimalistMode,
+  };
+}
+
+/** Replace (or, with null, clear) a provider's override. Null/empty removes the `providers` key. */
+export function withProviderLayout(
+  settings: Settings,
+  provider: Provider,
+  layout: ProviderLayout | null,
+): Settings {
+  const providers = { ...settings.providers };
+  if (layout) providers[provider] = layout;
+  else delete providers[provider];
+  const next: Settings = { ...settings, providers };
+  if (Object.keys(providers).length === 0) delete next.providers;
+  return next;
 }
 
 let _nextId = 1;
@@ -48,40 +90,61 @@ export function generateId(): string {
   return Math.random().toString(36).slice(2, 10);
 }
 
-export function validateSettings(raw: unknown): Settings {
-  if (!raw || typeof raw !== "object") return createDefaultSettings();
-  const obj = raw as Record<string, unknown>;
-
-  if (!Array.isArray(obj.lines)) return createDefaultSettings();
-
+function parseLines(rawLines: unknown[]): WidgetItemConfig[][] {
   const lines: WidgetItemConfig[][] = [];
-  for (const line of obj.lines) {
+  for (const line of rawLines) {
     if (!Array.isArray(line)) continue;
     const items: WidgetItemConfig[] = [];
     for (const item of line) {
       if (!item || typeof item !== "object") continue;
       const it = item as Record<string, unknown>;
       if (typeof it.id !== "string" || typeof it.type !== "string") continue;
-        items.push({
-          id: it.id,
-          type: it.type,
-          color: typeof it.color === "string" ? it.color : undefined,
-          bold: typeof it.bold === "boolean" ? it.bold : undefined,
-          variant: typeof it.variant === "string" ? it.variant : undefined,
-          rawValue: typeof it.rawValue === "boolean" ? it.rawValue : undefined,
-          customText: typeof it.customText === "string" ? it.customText : undefined,
-          options: isRecord(it.options) ? sanitizeOptions(it.options) : undefined,
-        });
-      }
-      lines.push(items);
+      items.push({
+        id: it.id,
+        type: it.type,
+        color: typeof it.color === "string" ? it.color : undefined,
+        bold: typeof it.bold === "boolean" ? it.bold : undefined,
+        variant: typeof it.variant === "string" ? it.variant : undefined,
+        rawValue: typeof it.rawValue === "boolean" ? it.rawValue : undefined,
+        customText: typeof it.customText === "string" ? it.customText : undefined,
+        options: isRecord(it.options) ? sanitizeOptions(it.options) : undefined,
+      });
+    }
+    lines.push(items);
   }
+  return lines;
+}
 
-  return {
+function parseProviders(raw: unknown): Settings["providers"] {
+  if (!isRecord(raw)) return undefined;
+  const providers: Partial<Record<Provider, ProviderLayout>> = {};
+  for (const provider of PROVIDERS) {
+    const entry = raw[provider];
+    if (!isRecord(entry)) continue;
+    providers[provider] = {
+      lines: Array.isArray(entry.lines) ? parseLines(entry.lines) : undefined,
+      defaultSeparator: typeof entry.defaultSeparator === "string" ? entry.defaultSeparator : undefined,
+      minimalistMode: typeof entry.minimalistMode === "boolean" ? entry.minimalistMode : undefined,
+    };
+  }
+  return Object.keys(providers).length > 0 ? providers : undefined;
+}
+
+export function validateSettings(raw: unknown): Settings {
+  if (!raw || typeof raw !== "object") return createDefaultSettings();
+  const obj = raw as Record<string, unknown>;
+
+  if (!Array.isArray(obj.lines)) return createDefaultSettings();
+
+  const settings: Settings = {
     version: typeof obj.version === "number" ? obj.version : CURRENT_VERSION,
-    lines,
+    lines: parseLines(obj.lines),
     defaultSeparator: typeof obj.defaultSeparator === "string" ? obj.defaultSeparator : undefined,
     minimalistMode: typeof obj.minimalistMode === "boolean" ? obj.minimalistMode : undefined,
   };
+  const providers = parseProviders(obj.providers);
+  if (providers) settings.providers = providers;
+  return settings;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

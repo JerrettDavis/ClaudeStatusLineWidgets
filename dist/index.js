@@ -49,6 +49,27 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 ));
 
 // src/config/schema.ts
+function isProvider(value) {
+  return typeof value === "string" && PROVIDERS.includes(value);
+}
+function resolveSettings(settings, provider) {
+  const override = settings.providers?.[provider];
+  if (!override) return settings;
+  return {
+    ...settings,
+    lines: override.lines ?? settings.lines,
+    defaultSeparator: override.defaultSeparator ?? settings.defaultSeparator,
+    minimalistMode: override.minimalistMode ?? settings.minimalistMode
+  };
+}
+function withProviderLayout(settings, provider, layout) {
+  const providers = { ...settings.providers };
+  if (layout) providers[provider] = layout;
+  else delete providers[provider];
+  const next = { ...settings, providers };
+  if (Object.keys(providers).length === 0) delete next.providers;
+  return next;
+}
 function wid(type, extra) {
   return { id: String(_nextId++), type, ...extra };
 }
@@ -72,12 +93,9 @@ function createDefaultSettings() {
 function generateId() {
   return Math.random().toString(36).slice(2, 10);
 }
-function validateSettings(raw) {
-  if (!raw || typeof raw !== "object") return createDefaultSettings();
-  const obj = raw;
-  if (!Array.isArray(obj.lines)) return createDefaultSettings();
+function parseLines(rawLines) {
   const lines = [];
-  for (const line of obj.lines) {
+  for (const line of rawLines) {
     if (!Array.isArray(line)) continue;
     const items = [];
     for (const item of line) {
@@ -97,12 +115,35 @@ function validateSettings(raw) {
     }
     lines.push(items);
   }
-  return {
+  return lines;
+}
+function parseProviders(raw) {
+  if (!isRecord(raw)) return void 0;
+  const providers = {};
+  for (const provider of PROVIDERS) {
+    const entry = raw[provider];
+    if (!isRecord(entry)) continue;
+    providers[provider] = {
+      lines: Array.isArray(entry.lines) ? parseLines(entry.lines) : void 0,
+      defaultSeparator: typeof entry.defaultSeparator === "string" ? entry.defaultSeparator : void 0,
+      minimalistMode: typeof entry.minimalistMode === "boolean" ? entry.minimalistMode : void 0
+    };
+  }
+  return Object.keys(providers).length > 0 ? providers : void 0;
+}
+function validateSettings(raw) {
+  if (!raw || typeof raw !== "object") return createDefaultSettings();
+  const obj = raw;
+  if (!Array.isArray(obj.lines)) return createDefaultSettings();
+  const settings = {
     version: typeof obj.version === "number" ? obj.version : CURRENT_VERSION,
-    lines,
+    lines: parseLines(obj.lines),
     defaultSeparator: typeof obj.defaultSeparator === "string" ? obj.defaultSeparator : void 0,
     minimalistMode: typeof obj.minimalistMode === "boolean" ? obj.minimalistMode : void 0
   };
+  const providers = parseProviders(obj.providers);
+  if (providers) settings.providers = providers;
+  return settings;
 }
 function isRecord(value) {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -116,11 +157,12 @@ function sanitizeOptions(value) {
   }
   return options;
 }
-var CURRENT_VERSION, _nextId, DEFAULT_SETTINGS;
+var CURRENT_VERSION, PROVIDERS, _nextId, DEFAULT_SETTINGS;
 var init_schema = __esm({
   "src/config/schema.ts"() {
     "use strict";
     CURRENT_VERSION = 2;
+    PROVIDERS = ["claude", "codex"];
     _nextId = 1;
     DEFAULT_SETTINGS = createDefaultSettings();
   }
@@ -154,6 +196,22 @@ function saveSettings(settings) {
   const dir = dirname4(configPath);
   mkdirSync4(dir, { recursive: true });
   writeFileSync4(configPath, JSON.stringify(settings, null, 2), "utf-8");
+}
+function loadSettingsFor(provider) {
+  const settings = loadSettings();
+  return provider ? resolveSettings(settings, provider) : settings;
+}
+function saveSettingsFor(edited, provider) {
+  if (!provider) {
+    const onDisk = loadSettings();
+    saveSettings({ ...edited, providers: onDisk.providers });
+    return;
+  }
+  saveSettings(withProviderLayout(loadSettings(), provider, {
+    lines: edited.lines,
+    defaultSeparator: edited.defaultSeparator,
+    minimalistMode: edited.minimalistMode
+  }));
 }
 function migrateSettings(raw) {
   return validateSettings({ ...raw, version: CURRENT_VERSION });
@@ -31710,26 +31768,26 @@ var require_permessage_deflate = __commonJS({
             value = value[0];
             if (key === "client_max_window_bits") {
               if (value !== true) {
-                const num = +value;
-                if (!Number.isInteger(num) || num < 8 || num > 15) {
+                const num2 = +value;
+                if (!Number.isInteger(num2) || num2 < 8 || num2 > 15) {
                   throw new TypeError(
                     `Invalid value for parameter "${key}": ${value}`
                   );
                 }
-                value = num;
+                value = num2;
               } else if (!this._isServer) {
                 throw new TypeError(
                   `Invalid value for parameter "${key}": ${value}`
                 );
               }
             } else if (key === "server_max_window_bits") {
-              const num = +value;
-              if (!Number.isInteger(num) || num < 8 || num > 15) {
+              const num2 = +value;
+              if (!Number.isInteger(num2) || num2 < 8 || num2 > 15) {
                 throw new TypeError(
                   `Invalid value for parameter "${key}": ${value}`
                 );
               }
-              value = num;
+              value = num2;
             } else if (key === "client_no_context_takeover" || key === "server_no_context_takeover") {
               if (value !== true) {
                 throw new TypeError(
@@ -32442,8 +32500,8 @@ var require_receiver = __commonJS({
           return;
         }
         const buf = this.consume(8);
-        const num = buf.readUInt32BE(0);
-        if (num > Math.pow(2, 53 - 32) - 1) {
+        const num2 = buf.readUInt32BE(0);
+        if (num2 > Math.pow(2, 53 - 32) - 1) {
           const error = this.createError(
             RangeError,
             "Unsupported WebSocket frame: payload length > 2^53 - 1",
@@ -32454,7 +32512,7 @@ var require_receiver = __commonJS({
           cb(error);
           return;
         }
-        this._payloadLength = num * Math.pow(2, 32) + buf.readUInt32BE(4);
+        this._payloadLength = num2 * Math.pow(2, 32) + buf.readUInt32BE(4);
         this.haveLength(cb);
       }
       /**
@@ -57617,7 +57675,7 @@ var init_ColorMenu = __esm({
 });
 
 // src/tui/app.tsx
-function App2() {
+function App2({ provider = null }) {
   const { exit } = use_app_default();
   const [settings, setSettings] = (0, import_react40.useState)(createDefaultSettings);
   const [screen, setScreen] = (0, import_react40.useState)("main");
@@ -57626,12 +57684,12 @@ function App2() {
   const [hasChanges, setHasChanges] = (0, import_react40.useState)(false);
   const [flash, setFlash] = (0, import_react40.useState)(null);
   (0, import_react40.useEffect)(() => {
-    setSettings(loadSettings());
+    setSettings(loadSettingsFor(provider));
   }, []);
   use_input_default((input, key) => {
     if (key.ctrl && input === "s") {
       try {
-        saveSettings(settings);
+        saveSettingsFor(settings, provider);
         setHasChanges(false);
         setFlash("Saved!");
       } catch {
@@ -57670,7 +57728,7 @@ function App2() {
   };
   const handleSaveAndExit = () => {
     try {
-      saveSettings(settings);
+      saveSettingsFor(settings, provider);
       exit();
     } catch {
       setFlash("Save failed");
@@ -57742,12 +57800,16 @@ function App2() {
       }
     },
     displayMode: settings.minimalistMode ? "minimal" : "normal",
-    isPreview: true
+    isPreview: true,
+    provider: provider ?? void 0
   };
   const previewOutput = renderStatusLine(settings, previewCtx);
   return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(Box_default, { flexDirection: "column", padding: 1, children: [
     /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(Box_default, { marginBottom: 1, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Text, { bold: true, color: "cyan", children: "Claude StatusLine Widgets" }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(Text, { bold: true, color: "cyan", children: [
+        "Claude StatusLine Widgets",
+        provider ? ` (${provider} layout)` : ""
+      ] }),
       /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Text, { children: " " }),
       hasChanges && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Text, { color: "yellow", children: "[unsaved]" }),
       flash && /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(Text, { color: "green", children: [
@@ -57877,8 +57939,8 @@ var tui_exports = {};
 __export(tui_exports, {
   runTUI: () => runTUI
 });
-async function runTUI() {
-  const { waitUntilExit } = render_default(/* @__PURE__ */ (0, import_jsx_runtime8.jsx)(App2, {}));
+async function runTUI(provider = null) {
+  const { waitUntilExit } = render_default(/* @__PURE__ */ (0, import_jsx_runtime8.jsx)(App2, { provider }));
   await waitUntilExit();
 }
 var import_jsx_runtime8;
@@ -59039,6 +59101,70 @@ function buildRuntimeData(payload, usageData) {
   };
 }
 
+// src/provider.ts
+init_schema();
+function isRecord2(value) {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+function num(value) {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+function detectProvider(payload, argv = process.argv, env3 = process.env) {
+  for (let i = 0; i < argv.length; i++) {
+    const arg = argv[i];
+    const value = arg === "--provider" ? argv[i + 1] : arg.startsWith("--provider=") ? arg.slice(11) : void 0;
+    if (isProvider(value)) return value;
+  }
+  if (isProvider(env3.CCFOOTER_PROVIDER)) return env3.CCFOOTER_PROVIDER;
+  if (isRecord2(payload) && "schema_version" in payload && ("rate_limits" in payload || "runtime" in payload)) {
+    return "codex";
+  }
+  return "claude";
+}
+function toResetIso(value) {
+  const n = num(value);
+  if (n !== null) return new Date(n < 1e12 ? n * 1e3 : n).toISOString();
+  return typeof value === "string" && !Number.isNaN(Date.parse(value)) ? value : null;
+}
+function toRateLimit(window2) {
+  const resets = window2.resets_at ?? window2.reset_at ?? window2.resets_at_unix;
+  return {
+    utilization: num(window2.used_percentage) ?? num(window2.used_percent),
+    resets_at: toResetIso(resets)
+  };
+}
+function codexUsage(payload) {
+  const usage = {};
+  const groups = isRecord2(payload.rate_limits) ? Object.values(payload.rate_limits) : Array.isArray(payload.rate_limits) ? payload.rate_limits : [];
+  for (const group of groups) {
+    if (!isRecord2(group)) continue;
+    for (const window2 of [group.primary, group.secondary]) {
+      if (!isRecord2(window2)) continue;
+      const minutes = num(window2.window_minutes);
+      if (minutes === null) continue;
+      if (minutes >= 285 && minutes <= 315 && !usage.five_hour) usage.five_hour = toRateLimit(window2);
+      else if (minutes >= 9576 && minutes <= 10584 && !usage.seven_day) usage.seven_day = toRateLimit(window2);
+    }
+  }
+  return usage;
+}
+function normalizeCodexPayload(raw) {
+  const payload = { ...raw };
+  const effort = raw.effort;
+  if (isRecord2(effort)) {
+    payload.effort = typeof effort.level === "string" ? effort.level : void 0;
+  }
+  const micros = isRecord2(raw.cost) ? num(raw.cost.estimated_thread_cost_usd_micros) : null;
+  const existing = isRecord2(raw.cost) ? num(raw.cost.total_cost_usd) : null;
+  const cost = existing ?? (micros !== null && micros > 0 ? micros / 1e6 : null);
+  payload.cost = cost !== null ? { total_cost_usd: cost } : void 0;
+  if (!payload.session_id && typeof raw.thread_id === "string") payload.session_id = raw.thread_id;
+  return { payload, usage: codexUsage(raw) };
+}
+
+// src/index.ts
+init_schema();
+
 // src/self-clean.ts
 import { readFileSync as readFileSync7 } from "fs";
 import { join as join7 } from "path";
@@ -59091,6 +59217,40 @@ function readStdin() {
     setTimeout(() => resolve3(Buffer.concat(chunks).toString("utf-8")), 1e3);
   });
 }
+function buildClaudeContext(payload, settings) {
+  triggerBackgroundFetch();
+  triggerHeadroomFetch();
+  triggerSessionTracking();
+  const cacheRead = payload.context_window?.current_usage?.cache_read_input_tokens ?? 0;
+  const usageCache = readUsageCache();
+  const headroomCache = isHeadroomActive() ? readHeadroomCache() : null;
+  return {
+    provider: "claude",
+    payload,
+    cacheTTL: getCacheTTL(payload.transcript_path, cacheRead),
+    cacheStats: getCacheSessionStats(payload.transcript_path),
+    usageData: usageCache?.data ?? null,
+    headroomStats: headroomCache?.data ?? null,
+    runtime: buildRuntimeData(payload, usageCache?.data ?? null),
+    displayMode: settings.minimalistMode ? "minimal" : "normal"
+  };
+}
+function buildCodexContext(raw, settings) {
+  const { payload, usage } = normalizeCodexPayload(raw);
+  const usageData = usage.five_hour || usage.seven_day ? usage : null;
+  const headroomCache = isHeadroomActive() ? readHeadroomCache() : null;
+  triggerHeadroomFetch();
+  return {
+    provider: "codex",
+    payload,
+    cacheTTL: getCacheTTL(void 0, 0),
+    cacheStats: getCacheSessionStats(void 0),
+    usageData,
+    headroomStats: headroomCache?.data ?? null,
+    runtime: buildRuntimeData(payload, usageData),
+    displayMode: settings.minimalistMode ? "minimal" : "normal"
+  };
+}
 async function main() {
   if (process.argv.includes("--fetch-usage")) {
     await fetchAndCacheUsage();
@@ -59107,7 +59267,10 @@ async function main() {
   await loadExtensions();
   if (process.stdin.isTTY) {
     const { runTUI: runTUI2 } = await init_tui().then(() => tui_exports);
-    await runTUI2();
+    const flag = process.argv.findIndex((a) => a === "--provider" || a.startsWith("--provider="));
+    const flagValue = flag < 0 ? void 0 : process.argv[flag].includes("=") ? process.argv[flag].slice(11) : process.argv[flag + 1];
+    const scope = isProvider(flagValue) ? flagValue : null;
+    await runTUI2(scope);
     return;
   }
   const input = await readStdin();
@@ -59122,28 +59285,13 @@ async function main() {
     process.stdout.write("\n");
     return;
   }
-  if (removeStatusLineIfMigrated()) {
+  const provider = detectProvider(payload);
+  if (provider === "claude" && removeStatusLineIfMigrated()) {
     process.stdout.write("\n");
     return;
   }
-  triggerBackgroundFetch();
-  triggerHeadroomFetch();
-  triggerSessionTracking();
-  const cacheRead = payload.context_window?.current_usage?.cache_read_input_tokens ?? 0;
-  const cacheTTL = getCacheTTL(payload.transcript_path, cacheRead);
-  const cacheStats = getCacheSessionStats(payload.transcript_path);
-  const usageCache = readUsageCache();
-  const headroomCache = isHeadroomActive() ? readHeadroomCache() : null;
-  const settings = loadSettings();
-  const context = {
-    payload,
-    cacheTTL,
-    cacheStats,
-    usageData: usageCache?.data ?? null,
-    headroomStats: headroomCache?.data ?? null,
-    runtime: buildRuntimeData(payload, usageCache?.data ?? null),
-    displayMode: settings.minimalistMode ? "minimal" : "normal"
-  };
+  const settings = resolveSettings(loadSettings(), provider);
+  const context = provider === "codex" ? buildCodexContext(payload, settings) : buildClaudeContext(payload, settings);
   const output = renderStatusLine(settings, context);
   process.stdout.write(output + "\n\n");
 }

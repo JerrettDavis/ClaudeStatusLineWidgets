@@ -123,6 +123,30 @@ On Windows, also remove the unused
 verifying the new CLI works. Do not disable TLS certificate verification;
 configure npm's trusted CA certificates if your network requires them.
 
+### Use it with Codex
+
+Codex can run the statusline through its `[tui.status_line_command]` setting
+(requires a Codex build that supports it, e.g. [codex-statusline](https://github.com/GordonBeeming/codex-statusline)).
+
+```bash
+ccfooter-config codex install     # writes ~/.codex/config.toml (or $CODEX_HOME)
+ccfooter-config codex status      # shows what is configured for Codex and Claude
+ccfooter-config codex uninstall
+```
+
+The installer detects an existing Claude Code configuration and layout. By
+default the layout is **global**: Codex and Claude render the same widgets. To
+give Codex its own layout, run `ccfooter-config codex install --layout separate`
+(copies the current layout into a Codex-only override) and edit it with
+`ccfooter-config --provider codex`; `--provider claude` does the same for Claude.
+A foreign `status_line_command` is never replaced without `--force`.
+
+Usage is provider-specific: Codex shows only the 5h/weekly rate limits Codex
+reports itself, and Claude shows only its own OAuth usage. The provider is
+detected from the payload (or forced with `--provider codex|claude` /
+`CCFOOTER_PROVIDER`). Per-provider layouts live under `providers.codex` /
+`providers.claude` in `settings.json` and fall back to the global `lines`.
+
 ---
 
 ## Configuration

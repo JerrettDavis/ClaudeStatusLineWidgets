@@ -3,6 +3,28 @@ const require = createRequire(import.meta.url);
 
 // src/config/schema.ts
 var CURRENT_VERSION = 2;
+var PROVIDERS = ["claude", "codex"];
+function isProvider(value) {
+  return typeof value === "string" && PROVIDERS.includes(value);
+}
+function resolveSettings(settings, provider) {
+  const override = settings.providers?.[provider];
+  if (!override) return settings;
+  return {
+    ...settings,
+    lines: override.lines ?? settings.lines,
+    defaultSeparator: override.defaultSeparator ?? settings.defaultSeparator,
+    minimalistMode: override.minimalistMode ?? settings.minimalistMode
+  };
+}
+function withProviderLayout(settings, provider, layout) {
+  const providers = { ...settings.providers };
+  if (layout) providers[provider] = layout;
+  else delete providers[provider];
+  const next = { ...settings, providers };
+  if (Object.keys(providers).length === 0) delete next.providers;
+  return next;
+}
 var _nextId = 1;
 function wid(type, extra) {
   return { id: String(_nextId++), type, ...extra };
@@ -28,12 +50,9 @@ var DEFAULT_SETTINGS = createDefaultSettings();
 function generateId() {
   return Math.random().toString(36).slice(2, 10);
 }
-function validateSettings(raw) {
-  if (!raw || typeof raw !== "object") return createDefaultSettings();
-  const obj = raw;
-  if (!Array.isArray(obj.lines)) return createDefaultSettings();
+function parseLines(rawLines) {
   const lines = [];
-  for (const line of obj.lines) {
+  for (const line of rawLines) {
     if (!Array.isArray(line)) continue;
     const items = [];
     for (const item of line) {
@@ -53,12 +72,35 @@ function validateSettings(raw) {
     }
     lines.push(items);
   }
-  return {
+  return lines;
+}
+function parseProviders(raw) {
+  if (!isRecord(raw)) return void 0;
+  const providers = {};
+  for (const provider of PROVIDERS) {
+    const entry = raw[provider];
+    if (!isRecord(entry)) continue;
+    providers[provider] = {
+      lines: Array.isArray(entry.lines) ? parseLines(entry.lines) : void 0,
+      defaultSeparator: typeof entry.defaultSeparator === "string" ? entry.defaultSeparator : void 0,
+      minimalistMode: typeof entry.minimalistMode === "boolean" ? entry.minimalistMode : void 0
+    };
+  }
+  return Object.keys(providers).length > 0 ? providers : void 0;
+}
+function validateSettings(raw) {
+  if (!raw || typeof raw !== "object") return createDefaultSettings();
+  const obj = raw;
+  if (!Array.isArray(obj.lines)) return createDefaultSettings();
+  const settings = {
     version: typeof obj.version === "number" ? obj.version : CURRENT_VERSION,
-    lines,
+    lines: parseLines(obj.lines),
     defaultSeparator: typeof obj.defaultSeparator === "string" ? obj.defaultSeparator : void 0,
     minimalistMode: typeof obj.minimalistMode === "boolean" ? obj.minimalistMode : void 0
   };
+  const providers = parseProviders(obj.providers);
+  if (providers) settings.providers = providers;
+  return settings;
 }
 function isRecord(value) {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -75,7 +117,11 @@ function sanitizeOptions(value) {
 export {
   CURRENT_VERSION,
   DEFAULT_SETTINGS,
+  PROVIDERS,
   createDefaultSettings,
   generateId,
-  validateSettings
+  isProvider,
+  resolveSettings,
+  validateSettings,
+  withProviderLayout
 };
