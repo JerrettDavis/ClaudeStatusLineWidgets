@@ -55,9 +55,11 @@ function toRateLimit(window: Json): RateLimit {
 /** Pick the primary/secondary windows of every limit group into 5h and weekly slots by duration. */
 export function codexUsage(payload: Json): UsageData {
   const usage: UsageData = {};
-  const groups = isRecord(payload.rate_limits)
-    ? Object.values(payload.rate_limits)
-    : Array.isArray(payload.rate_limits) ? payload.rate_limits : [];
+  const limits = payload.rate_limits;
+  // Either one flat {primary, secondary} group (rollout files) or a map/array of groups.
+  const groups = isRecord(limits)
+    ? ("primary" in limits || "secondary" in limits ? [limits] : Object.values(limits))
+    : Array.isArray(limits) ? limits : [];
   for (const group of groups) {
     if (!isRecord(group)) continue;
     for (const window of [group.primary, group.secondary]) {

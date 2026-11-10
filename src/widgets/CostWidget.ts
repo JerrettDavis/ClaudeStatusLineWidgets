@@ -10,6 +10,8 @@ export class CostWidget implements Widget {
   supportsColors() { return true; }
   render(_item: WidgetItem, ctx: RenderContext): string | null {
     if (ctx.isPreview) return "$0.45";
+    // Codex is subscription-billed and usually reports no cost; don't show a fake $0.00.
+    if (ctx.provider === "codex" && !ctx.payload.cost?.total_cost_usd) return null;
     const tokens = formatCost(ctx.payload.cost?.total_cost_usd);
     return tokens ? tokensToAnsi(tokens) : null;
   }

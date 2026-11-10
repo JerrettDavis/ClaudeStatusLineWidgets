@@ -116,6 +116,14 @@ async function main(): Promise<void> {
     await performSessionTracking();
     return;
   }
+  // Stock Codex cannot run a status command: host it in a PTY and draw the footer ourselves.
+  const runIdx = process.argv.indexOf("--codex-run");
+  if (runIdx >= 0) {
+    const sep = process.argv.indexOf("--", runIdx);
+    const { runCodexHost } = await import("./codex-host.js");
+    process.exitCode = await runCodexHost(sep >= 0 ? process.argv.slice(sep + 1) : []);
+    return;
+  }
 
   // Load any globally-installed extension widgets before rendering or TUI.
   await loadExtensions();

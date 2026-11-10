@@ -125,14 +125,22 @@ configure npm's trusted CA certificates if your network requires them.
 
 ### Use it with Codex
 
-Codex can run the statusline through its `[tui.status_line_command]` setting
-(requires a Codex build that supports it, e.g. [codex-statusline](https://github.com/GordonBeeming/codex-statusline)).
+Stock Codex has no status line hook, so `ccfooter-config codex run` hosts Codex
+in a pseudo-terminal and draws the footer itself, reading rate limits, tokens and
+model from Codex's session log (`$CODEX_HOME/sessions`). The footer height is
+fixed at launch from your layout.
 
 ```bash
-ccfooter-config codex install     # writes ~/.codex/config.toml (or $CODEX_HOME)
+ccfooter-config codex install     # detects the Claude layout, installs node-pty
+ccfooter-config codex run         # launch Codex with the status line
 ccfooter-config codex status      # shows what is configured for Codex and Claude
 ccfooter-config codex uninstall
 ```
+
+For a custom launcher, run `node dist/index.js --codex-run -- <codex command>`.
+For Codex builds with `[tui.status_line_command]` (e.g.
+[codex-statusline](https://github.com/GordonBeeming/codex-statusline)), use
+`ccfooter-config codex install --native` instead.
 
 The installer detects an existing Claude Code configuration and layout. By
 default the layout is **global**: Codex and Claude render the same widgets. To

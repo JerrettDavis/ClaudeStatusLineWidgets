@@ -1,18 +1,23 @@
 #!/usr/bin/env node
-// Codex integration: registers this statusline as Codex's `[tui.status_line_command]`.
+// Codex integration. Stock Codex cannot run a status command, so `run` hosts the Codex CLI
+// in a pseudo-terminal and draws the statusline under it (data comes from Codex's session log).
+// Codex builds that support `[tui.status_line_command]` can use `install --native` instead.
 //
-// Usage: node scripts/codex.js [install | status | uninstall] [options]
-//   install    write ~/.codex/config.toml (or $CODEX_HOME/config.toml)
+// Usage: node scripts/codex.js [run | install | status | uninstall] [options]
+//   run        start Codex (all further arguments are passed to it) with the status line
+//   install    set up the shared/separate layout; with --native also edit $CODEX_HOME/config.toml
 //   status     report what is configured for Codex and Claude Code
 //   uninstall  remove our status_line_command from the Codex config
 //
 // Options:
 //   --layout shared|separate   shared (default): Codex uses the same global layout as Claude.
 //                              separate: copy the current layout into a Codex-only override.
+//   --native                   also register [tui.status_line_command] in the Codex config
 //   --force                    replace a status_line_command that is not ours
 //   --dry-run                  print the resulting config without writing
 
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "fs";
+import { spawnSync } from "child_process";
 import { join, dirname, resolve } from "path";
 import { homedir } from "os";
 import { fileURLToPath } from "url";
@@ -124,15 +129,40 @@ export function applySeparateLayout(settings) {
   return { settings: { ...settings, providers: { ...settings.providers, codex } }, changed: true };
 }
 
-export function install({ root, layout = "shared", force = false, dryRun = false, log = () => {} }) {
+/** node-pty is native, so it is installed beside the settings instead of shipping in the package. */
+export function ptyDir() {
+  return join(process.env.CCFOOTER_CONFIG_DIR ?? widgetsDir(), "pty");
+}
+
+export function installPty({ log = () => {} } = {}) {
+  const dir = ptyDir();
+  if (existsSync(join(dir, "node_modules", "node-pty"))) return true;
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, "package.json"), JSON.stringify({ name: "ccfooter-pty", private: true }), "utf8");
+  log("Installing node-pty (used to draw the status line under Codex)...");
+  const result = spawnSync("npm", ["install", "--no-audit", "--no-fund", "node-pty"], {
+    cwd: dir,
+    stdio: "inherit",
+    shell: process.platform === "win32",
+  });
+  if (result.status !== 0) log("Could not install node-pty; Codex will run without a status line.");
+  return result.status === 0;
+}
+
+/**
+ * Stock Codex cannot run a status command, so by default install only sets up the
+ * layout and tells you to launch Codex through `ccfooter-config codex run`.
+ * `native` also registers `[tui.status_line_command]` for Codex builds that support it.
+ */
+export function install({ root, layout = "shared", force = false, dryRun = false, native = false, log = () => {} }) {
   const path = codexConfigPath();
   const existing = existsSync(path) ? readFileSync(path, "utf8") : "";
   const current = readCommand(existing);
-  if (current && !isOurs(current) && !force) {
+  if (native && current && !isOurs(current) && !force) {
     log(`Codex already has a different ${SECTION} in ${path}; re-run with --force to replace it.`);
     return false;
   }
-  const next = upsertStatusLineCommand(existing, root);
+  const next = native ? upsertStatusLineCommand(existing, root) : existing;
 
   const claude = detectClaude();
   if (claude.layoutExists) {
@@ -156,15 +186,39 @@ export function install({ root, layout = "shared", force = false, dryRun = false
     }
   }
 
+  if (!dryRun && !installPty({ log })) return false;
   if (dryRun) {
-    log(`--- ${path} ---\n${next}`);
+    log(native ? `--- ${path} ---\n${next}` : "(dry run) no files written");
     return true;
   }
-  mkdirSync(dirname(path), { recursive: true });
-  writeFileSync(path, next, "utf8");
-  if (widgets) writeFileSync(widgetsSettings(), JSON.stringify(widgets, null, 2), "utf8");
-  log(`Codex status line installed in ${path}. Restart Codex to apply.`);
+  if (native) {
+    mkdirSync(dirname(path), { recursive: true });
+    writeFileSync(path, next, "utf8");
+    log(`Registered status_line_command in ${path} (only Codex builds that support it will draw it).`);
+  }
+  if (widgets) {
+    mkdirSync(widgetsDir(), { recursive: true });
+    writeFileSync(widgetsSettings(), JSON.stringify(widgets, null, 2), "utf8");
+  }
+  log("Launch Codex with the status line via: ccfooter-config codex run [codex args]");
   return true;
+}
+
+/** The argv that starts the real Codex CLI, bypassing npm's shell shims where possible. */
+export function resolveCodexCommand(env = process.env) {
+  if (env.CCFOOTER_CODEX_BIN) return [env.CCFOOTER_CODEX_BIN];
+  const win = process.platform === "win32";
+  const names = win ? ["codex.cmd", "codex.exe"] : ["codex"];
+  for (const dir of (env.PATH ?? env.Path ?? "").split(win ? ";" : ":")) {
+    for (const name of names) {
+      const full = join(dir, name);
+      if (!dir || !existsSync(full)) continue;
+      const entry = join(dir, "node_modules", "@openai", "codex", "bin", "codex.js");
+      if (existsSync(entry)) return [process.execPath, entry];
+      return name.endsWith(".cmd") ? ["cmd.exe", "/d", "/c", full] : [full];
+    }
+  }
+  return null;
 }
 
 export function uninstall({ log = () => {} } = {}) {
@@ -204,15 +258,24 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     process.stderr.write("--layout must be shared or separate\n");
     process.exit(1);
   }
-  if (cmd === "install") {
+  if (cmd === "run") {
+    const command = resolveCodexCommand();
+    if (!command) {
+      process.stderr.write("codex was not found on PATH (set CCFOOTER_CODEX_BIN to override).\n");
+      process.exit(1);
+    }
+    const rest = args.slice(1);
+    const entry = join(root, "dist", "index.js");
+    process.exit(spawnSync(process.execPath, [entry, "--codex-run", "--", ...command, ...rest], { stdio: "inherit" }).status ?? 1);
+  } else if (cmd === "install") {
     if (!existsSync(join(root, "dist", "index.js"))) log("Warning: dist/index.js not found; run `npm run build`.");
-    process.exit(install({ root, layout, force: flag("force"), dryRun: flag("dry-run"), log }) ? 0 : 1);
+    process.exit(install({ root, layout, force: flag("force"), dryRun: flag("dry-run"), native: flag("native"), log }) ? 0 : 1);
   } else if (cmd === "uninstall") {
     uninstall({ log });
   } else if (cmd === "status") {
     status({ log });
   } else {
-    process.stderr.write("usage: codex [install | status | uninstall] [--layout shared|separate] [--force] [--dry-run]\n");
+    process.stderr.write("usage: codex [run | install | status | uninstall] [--layout shared|separate] [--native] [--force] [--dry-run]\n");
     process.exit(1);
   }
 }
