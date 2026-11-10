@@ -49,6 +49,8 @@ export interface StatusLinePayload {
 }
 
 export interface RenderContext {
+  /** Host that invoked the statusline; absent means Claude Code. */
+  provider?: "claude" | "codex";
   payload: StatusLinePayload;
   cacheTTL: CacheTTLResult;
   cacheStats: CacheSessionStats;

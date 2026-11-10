@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Box, Text, useApp, useInput } from "ink";
-import { loadSettings, saveSettings } from "../config/loader.js";
+import { loadSettingsFor, saveSettingsFor } from "../config/loader.js";
 import { createDefaultSettings, generateId } from "../config/schema.js";
-import type { Settings, WidgetItemConfig } from "../config/schema.js";
+import type { Settings, WidgetItemConfig, Provider } from "../config/schema.js";
 import { renderStatusLine } from "../renderer.js";
 import type { RenderContext } from "../widgets/types.js";
 import { MainMenu } from "./components/MainMenu.js";
@@ -14,7 +14,7 @@ import { ColorMenu } from "./components/ColorMenu.js";
 
 type Screen = "main" | "lines" | "items" | "picker" | "picker-group" | "colors";
 
-export function App() {
+export function App({ provider = null }: { provider?: Provider | null }) {
   const { exit } = useApp();
   const [settings, setSettings] = useState<Settings>(createDefaultSettings);
   const [screen, setScreen] = useState<Screen>("main");
@@ -24,14 +24,14 @@ export function App() {
   const [flash, setFlash] = useState<string | null>(null);
 
   useEffect(() => {
-    setSettings(loadSettings());
+    setSettings(loadSettingsFor(provider));
   }, []);
 
   // Global keys
   useInput((input, key) => {
     if (key.ctrl && input === "s") {
       try {
-        saveSettings(settings);
+        saveSettingsFor(settings, provider);
         setHasChanges(false);
         setFlash("Saved!");
       } catch {
@@ -73,7 +73,7 @@ export function App() {
 
   const handleSaveAndExit = () => {
     try {
-      saveSettings(settings);
+      saveSettingsFor(settings, provider);
       exit();
     } catch {
       setFlash("Save failed");
@@ -149,6 +149,7 @@ export function App() {
     },
     displayMode: settings.minimalistMode ? "minimal" : "normal",
     isPreview: true,
+    provider: provider ?? undefined,
   };
 
   const previewOutput = renderStatusLine(settings, previewCtx);
@@ -157,7 +158,7 @@ export function App() {
     <Box flexDirection="column" padding={1}>
       {/* Header */}
       <Box marginBottom={1}>
-        <Text bold color="cyan">Claude StatusLine Widgets</Text>
+        <Text bold color="cyan">Claude StatusLine Widgets{provider ? ` (${provider} layout)` : ""}</Text>
         <Text> </Text>
         {hasChanges && <Text color="yellow">[unsaved]</Text>}
         {flash && <Text color="green"> {flash}</Text>}

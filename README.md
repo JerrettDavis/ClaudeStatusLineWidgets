@@ -123,6 +123,38 @@ On Windows, also remove the unused
 verifying the new CLI works. Do not disable TLS certificate verification;
 configure npm's trusted CA certificates if your network requires them.
 
+### Use it with Codex
+
+Stock Codex has no status line hook, so `ccfooter-config codex run` hosts Codex
+in a pseudo-terminal and draws the footer itself, reading rate limits, tokens and
+model from Codex's session log (`$CODEX_HOME/sessions`). The footer height is
+fixed at launch from your layout.
+
+```bash
+ccfooter-config codex install     # detects the Claude layout, installs node-pty
+ccfooter-config codex run         # launch Codex with the status line
+ccfooter-config codex status      # shows what is configured for Codex and Claude
+ccfooter-config codex uninstall
+```
+
+For a custom launcher, run `node dist/index.js --codex-run -- <codex command>`.
+For Codex builds with `[tui.status_line_command]` (e.g.
+[codex-statusline](https://github.com/GordonBeeming/codex-statusline)), use
+`ccfooter-config codex install --native` instead.
+
+The installer detects an existing Claude Code configuration and layout. By
+default the layout is **global**: Codex and Claude render the same widgets. To
+give Codex its own layout, run `ccfooter-config codex install --layout separate`
+(copies the current layout into a Codex-only override) and edit it with
+`ccfooter-config --provider codex`; `--provider claude` does the same for Claude.
+A foreign `status_line_command` is never replaced without `--force`.
+
+Usage is provider-specific: Codex shows only the 5h/weekly rate limits Codex
+reports itself, and Claude shows only its own OAuth usage. The provider is
+detected from the payload (or forced with `--provider codex|claude` /
+`CCFOOTER_PROVIDER`). Per-provider layouts live under `providers.codex` /
+`providers.claude` in `settings.json` and fall back to the global `lines`.
+
 ---
 
 ## Configuration

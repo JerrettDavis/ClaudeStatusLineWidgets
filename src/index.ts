@@ -12,6 +12,9 @@ import { renderStatusLine } from "./renderer.js";
 import { loadExtensions } from "./extensions/register-cli.js";
 import type { StatusLinePayload, RenderContext } from "./widgets/types.js";
 import { buildRuntimeData } from "./runtime.js";
+import { detectProvider, normalizeCodexPayload } from "./provider.js";
+import { resolveSettings, isProvider } from "./config/schema.js";
+import type { Settings } from "./config/schema.js";
 import { readInstallMode, shouldStripStatusLine } from "./self-clean.js";
 
 const PLUGIN_KEY = "cache-ttl-statusline@claude-statusline-widgets";
@@ -59,6 +62,46 @@ function readStdin(): Promise<string> {
   });
 }
 
+function buildClaudeContext(payload: StatusLinePayload, settings: Settings): RenderContext {
+  // Kick off background fetches if caches are stale (non-blocking)
+  triggerBackgroundFetch();
+  triggerHeadroomFetch();
+  triggerSessionTracking();
+
+  const cacheRead = payload.context_window?.current_usage?.cache_read_input_tokens ?? 0;
+  const usageCache = readUsageCache();
+  const headroomCache = isHeadroomActive() ? readHeadroomCache() : null;
+  return {
+    provider: "claude",
+    payload,
+    cacheTTL: getCacheTTL(payload.transcript_path, cacheRead),
+    cacheStats: getCacheSessionStats(payload.transcript_path),
+    usageData: usageCache?.data ?? null,
+    headroomStats: headroomCache?.data ?? null,
+    runtime: buildRuntimeData(payload, usageCache?.data ?? null),
+    displayMode: settings.minimalistMode ? "minimal" : "normal",
+  };
+}
+
+// Codex has no Claude transcript, OAuth usage, or session tracking: usage comes
+// only from the rate limits Codex puts in its own payload.
+function buildCodexContext(raw: StatusLinePayload, settings: Settings): RenderContext {
+  const { payload, usage } = normalizeCodexPayload(raw as Record<string, unknown>);
+  const usageData = usage.five_hour || usage.seven_day ? usage : null;
+  const headroomCache = isHeadroomActive() ? readHeadroomCache() : null;
+  triggerHeadroomFetch();
+  return {
+    provider: "codex",
+    payload,
+    cacheTTL: getCacheTTL(undefined, 0),
+    cacheStats: getCacheSessionStats(undefined),
+    usageData,
+    headroomStats: headroomCache?.data ?? null,
+    runtime: buildRuntimeData(payload, usageData),
+    displayMode: settings.minimalistMode ? "minimal" : "normal",
+  };
+}
+
 async function main(): Promise<void> {
   // Background fetch modes: called by detached children
   if (process.argv.includes("--fetch-usage")) {
@@ -73,6 +116,14 @@ async function main(): Promise<void> {
     await performSessionTracking();
     return;
   }
+  // Stock Codex cannot run a status command: host it in a PTY and draw the footer ourselves.
+  const runIdx = process.argv.indexOf("--codex-run");
+  if (runIdx >= 0) {
+    const sep = process.argv.indexOf("--", runIdx);
+    const { runCodexHost } = await import("./codex-host.js");
+    process.exitCode = await runCodexHost(sep >= 0 ? process.argv.slice(sep + 1) : []);
+    return;
+  }
 
   // Load any globally-installed extension widgets before rendering or TUI.
   await loadExtensions();
@@ -80,7 +131,12 @@ async function main(): Promise<void> {
   // TTY mode: launch interactive TUI for configuration
   if (process.stdin.isTTY) {
     const { runTUI } = await import("./tui/index.js");
-    await runTUI();
+    // `--provider <name>` edits that provider's layout override; default edits the global layout.
+    const flag = process.argv.findIndex((a) => a === "--provider" || a.startsWith("--provider="));
+    const flagValue = flag < 0 ? undefined
+      : process.argv[flag].includes("=") ? process.argv[flag].slice(11) : process.argv[flag + 1];
+    const scope = isProvider(flagValue) ? flagValue : null;
+    await runTUI(scope);
     return;
   }
 
@@ -100,35 +156,18 @@ async function main(): Promise<void> {
     return;
   }
 
-  // Self-clean: in mod mode the Mod draws the line, and a disabled plugin can't
-  // re-add its entry, so strip the statusLine entry. Hook mode keeps it.
-  if (removeStatusLineIfMigrated()) {
+  const provider = detectProvider(payload);
+
+  // Self-clean edits Claude's settings.json, so it only applies to Claude Code.
+  if (provider === "claude" && removeStatusLineIfMigrated()) {
     process.stdout.write("\n");
     return;
   }
 
-  // Kick off background fetches if caches are stale (non-blocking)
-  triggerBackgroundFetch();
-  triggerHeadroomFetch();
-  triggerSessionTracking();
-
-  const cacheRead = payload.context_window?.current_usage?.cache_read_input_tokens ?? 0;
-  const cacheTTL = getCacheTTL(payload.transcript_path, cacheRead);
-  const cacheStats = getCacheSessionStats(payload.transcript_path);
-  const usageCache = readUsageCache();
-  const headroomCache = isHeadroomActive() ? readHeadroomCache() : null;
-
-  const settings = loadSettings();
-  const context: RenderContext = {
-    payload,
-    cacheTTL,
-    cacheStats,
-    usageData: usageCache?.data ?? null,
-    headroomStats: headroomCache?.data ?? null,
-    runtime: buildRuntimeData(payload, usageCache?.data ?? null),
-    displayMode: settings.minimalistMode ? "minimal" : "normal",
-  };
-
+  const settings = resolveSettings(loadSettings(), provider);
+  const context = provider === "codex"
+    ? buildCodexContext(payload, settings)
+    : buildClaudeContext(payload, settings);
   const output = renderStatusLine(settings, context);
   process.stdout.write(output + "\n\n");
 }
